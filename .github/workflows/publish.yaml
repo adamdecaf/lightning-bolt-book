@@ -23,10 +23,10 @@ jobs:
         brew install --cask basictex
         eval "$(/usr/libexec/path_helper)"
 
-    - name: Download NIPs
+    - name: Download BOLTs
       run: |
         make setup
-        cd nips/
+        cd bolts/
         git log -n1
         cd ../
 
