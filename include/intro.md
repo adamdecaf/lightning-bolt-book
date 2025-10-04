@@ -1,6 +1,6 @@
 ## Introduction
 
-Welcome to the lightning-bolt-book, which is a streamlined guide to the [Lightning Network Specifications (BOLTs)](https://github.com/lightning/bolts).
+Welcome to the Lightning Book of BOLTs, which is a streamlined guide to the [Lightning Network Specifications (BOLTs)](https://github.com/lightning/bolts).
 
 I want to be clear: I didn’t write the BOLTs. All the credit goes to the original authors and contributors of these notes. My contribution has been to organize these BOLTs into a single larger document.
 
