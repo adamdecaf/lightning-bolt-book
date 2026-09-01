@@ -79,11 +79,13 @@ function create_pdf() {
            --toc --toc-depth 2 \
            --pdf-engine=xelatex \
            --columns=72 --wrap=auto \
-           --listings -H listings-settings.tex \
+           --syntax-highlighting=idiomatic \
            --resource-path=.:bolts \
            -V fontsize="10pt" \
            -V mainfont="Palatino" \
            -V monofont="Monaco" \
+           -V mainfontfallback="Hiragino Mincho ProN,Apple Color Emoji" \
+           -V monofontfallback="Menlo,Hiragino Sans,Apple Color Emoji" \
            -V geometry:margin="0.75in" \
            -s -o lightning-bolt-book.pdf \
            "${chapters[@]}"
