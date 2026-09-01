@@ -1,4 +1,4 @@
-## Conclusion
+# Conclusion
 
 Thank you for reading the Lightning Book of BOLTs. The specs will keep moving — new feature bits, new scripts, new ways to pay — and the canonical text lives in [lightning/bolts](https://github.com/lightning/bolts), not in this compilation.
 

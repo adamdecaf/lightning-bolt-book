@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="The Lightning BOLT authors" />
+  <meta name="author" content="Compiled by Adam Shannon" />
+  <meta name="keywords" content="bitcoin, lightning, bolts, specification" />
+  <title>BOLT #5: Recommendations for On-chain Transaction
+Handling · Lightning Book of BOLTs</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="../web.css" />
+</head>
+<body class="book">
+  <header class="site">
+    <a class="brand" href="../">Lightning Book of BOLTs</a>
+    <button type="button" id="toc-toggle" aria-controls="TOC" aria-expanded="false">Contents</button>
+    <nav class="site-links">
+      <a href="index.html">Contents</a>
+      <a href="https://github.com/adamdecaf/lightning-bolt-book/raw/master/lightning-bolt-book.epub">ePUB</a>
+      <a href="https://github.com/adamdecaf/lightning-bolt-book/raw/master/lightning-bolt-book.pdf">PDF</a>
+    </nav>
+  </header>
+  <div class="layout">
+    <nav id="TOC" role="doc-toc">
+      <h2 id="toc-title">Contents</h2>
+      <ul>
+      <li><a href="introduction.html#introduction"
+      id="toc-introduction">Introduction</a></li>
+      <li><a href="how-to-read-this-book.html#how-to-read-this-book"
+      id="toc-how-to-read-this-book">How to Read This Book</a></li>
+      <li><a href="source-snapshot.html#source-snapshot"
+      id="toc-source-snapshot">Source snapshot</a></li>
+      <li><a href="overview.html#overview" id="toc-overview">Overview</a>
+      <ul>
+      <li><a href="bolt-00.html#bolt-00" id="toc-bolt-00">BOLT #0:
+      Introduction and Index</a></li>
+      </ul></li>
+      <li><a href="connecting-nodes.html#connecting-nodes"
+      id="toc-connecting-nodes">Connecting Nodes</a>
+      <ul>
+      <li><a href="bolt-08.html#bolt-08" id="toc-bolt-08">BOLT #8: Encrypted
+      and Authenticated Transport</a></li>
+      <li><a href="bolt-01.html#bolt-01" id="toc-bolt-01">BOLT #1: Base
+      Protocol</a></li>
+      <li><a href="bolt-09.html#bolt-09" id="toc-bolt-09">BOLT #9: Assigned
+      Feature Flags</a></li>
+      </ul></li>
+      <li><a
+      href="opening-and-running-channels.html#opening-and-running-channels"
+      id="toc-opening-and-running-channels">Opening and Running Channels</a>
+      <ul>
+      <li><a href="bolt-02.html#bolt-02" id="toc-bolt-02">BOLT #2: Peer
+      Protocol for Channel Management</a></li>
+      <li><a href="bolt-03.html#bolt-03" id="toc-bolt-03">BOLT #3: Bitcoin
+      Transaction and Script Formats</a></li>
+      </ul></li>
+      <li><a href="routing-payments.html#routing-payments"
+      id="toc-routing-payments">Routing Payments</a>
+      <ul>
+      <li><a href="bolt-04.html#bolt-04" id="toc-bolt-04">BOLT #4: Onion
+      Routing Protocol</a></li>
+      <li><a href="bolt-07.html#bolt-07" id="toc-bolt-07">BOLT #7: P2P Node
+      and Channel Discovery</a></li>
+      </ul></li>
+      <li><a href="paying-people.html#paying-people"
+      id="toc-paying-people">Paying People</a>
+      <ul>
+      <li><a href="bolt-11.html#bolt-11" id="toc-bolt-11">BOLT #11: Invoice
+      Protocol for Lightning Payments</a></li>
+      <li><a href="bolt-12.html#bolt-12" id="toc-bolt-12">BOLT #12:
+      Negotiation Protocol for Lightning Payments</a></li>
+      </ul></li>
+      <li><a href="when-channels-close.html#when-channels-close"
+      id="toc-when-channels-close">When Channels Close</a>
+      <ul>
+      <li><a href="bolt-05.html#bolt-05" id="toc-bolt-05">BOLT #5:
+      Recommendations for On-chain Transaction Handling</a></li>
+      </ul></li>
+      <li><a href="finding-the-network.html#finding-the-network"
+      id="toc-finding-the-network">Finding the Network</a>
+      <ul>
+      <li><a href="bolt-10.html#bolt-10" id="toc-bolt-10">BOLT #10: DNS
+      Bootstrap and Assisted Node Location</a></li>
+      </ul></li>
+      <li><a href="newer-work.html#newer-work" id="toc-newer-work">Newer
+      Work</a>
+      <ul>
+      <li><a href="bolt-simple-taproot.html#bolt-simple-taproot"
+      id="toc-bolt-simple-taproot">Extension BOLT XX: Simple Taproot
+      Channels</a></li>
+      </ul></li>
+      <li><a href="conclusion.html#conclusion"
+      id="toc-conclusion">Conclusion</a></li>
+      </ul>
+    </nav>
+    <div class="main">
+      <nav class="pager" aria-label="Nearby sections">
+        <a class="pager-prev" href="when-channels-close.html" accesskey="p" rel="prev">When Channels Close</a>
+        <a class="pager-next" href="finding-the-network.html" accesskey="n" rel="next">Finding the Network</a>
+      </nav>
+      <h2 data-number="9.1" id="bolt-05">BOLT #5: Recommendations for
+      On-chain Transaction Handling</h2>
+      <h3 data-number="9.1.1" id="bolt-05-abstract">Abstract</h3>
+      <p>Lightning allows for two parties (a local node and a remote
+      node) to conduct transactions off-chain by giving each of the
+      parties a <em>cross-signed commitment transaction</em>, which
+      describes the current state of the channel (basically, the current
+      balance). This <em>commitment transaction</em> is updated every
+      time a new payment is made and is spendable at all times.</p>
+      <p>There are three ways a channel can end:</p>
+      <ol type="1">
+      <li>The good way (<em>mutual close</em>): at some point the local
+      and remote nodes agree to close the channel. They generate a
+      <em>closing transaction</em> (which is similar to a commitment
+      transaction, but without any pending payments) and publish it on
+      the blockchain (see <a
+      href="bolt-02.html#bolt-02-channel-close">BOLT #2: Channel
+      Close</a>).</li>
+      <li>The bad way (<em>unilateral close</em>): something goes wrong,
+      possibly without evil intent on either side. Perhaps one party
+      crashed, for instance. One side publishes its <em>latest
+      commitment transaction</em>.</li>
+      <li>The ugly way (<em>revoked transaction close</em>): one of the
+      parties deliberately tries to cheat, by publishing an <em>outdated
+      commitment transaction</em> (presumably, a prior version, which is
+      more in its favor).</li>
+      </ol>
+      <p>Because Lightning is designed to be trustless, there is no risk
+      of loss of funds in any of these three cases; provided that the
+      situation is properly handled. The goal of this document is to
+      explain exactly how a node should react when it encounters any of
+      the above situations, on-chain.</p>
+      <h3 data-number="9.1.2" id="bolt-05-table-of-contents">Table of
+      Contents</h3>
+      <ul>
+      <li><a href="bolt-05.html#bolt-05-general-nomenclature">General
+      Nomenclature</a></li>
+      <li><a
+      href="bolt-05.html#bolt-05-commitment-transaction">Commitment
+      Transaction</a></li>
+      <li><a href="bolt-05.html#bolt-05-failing-a-channel">Failing a
+      Channel</a></li>
+      <li><a href="bolt-05.html#bolt-05-mutual-close-handling">Mutual
+      Close Handling</a></li>
+      <li><a
+      href="bolt-05.html#bolt-05-unilateral-close-handling-local-commitment-transaction">Unilateral
+      Close Handling: Local Commitment Transaction</a>
+      <ul>
+      <li><a
+      href="bolt-05.html#bolt-05-htlc-output-handling-local-commitment-local-offers">HTLC
+      Output Handling: Local Commitment, Local Offers</a></li>
+      <li><a
+      href="bolt-05.html#bolt-05-htlc-output-handling-local-commitment-remote-offers">HTLC
+      Output Handling: Local Commitment, Remote Offers</a></li>
+      </ul></li>
+      <li><a
+      href="bolt-05.html#bolt-05-unilateral-close-handling-remote-commitment-transaction">Unilateral
+      Close Handling: Remote Commitment Transaction</a>
+      <ul>
+      <li><a
+      href="bolt-05.html#bolt-05-htlc-output-handling-remote-commitment-local-offers">HTLC
+      Output Handling: Remote Commitment, Local Offers</a></li>
+      <li><a
+      href="bolt-05.html#bolt-05-htlc-output-handling-remote-commitment-remote-offers">HTLC
+      Output Handling: Remote Commitment, Remote Offers</a></li>
+      </ul></li>
+      <li><a
+      href="bolt-05.html#bolt-05-revoked-transaction-close-handling">Revoked
+      Transaction Close Handling</a>
+      <ul>
+      <li><a
+      href="bolt-05.html#bolt-05-penalty-transactions-weight-calculation">Penalty
+      Transactions Weight Calculation</a></li>
+      </ul></li>
+      <li><a
+      href="bolt-05.html#bolt-05-generation-of-htlc-transactions">Generation
+      of HTLC Transactions</a></li>
+      <li><a href="bolt-05.html#bolt-05-general-requirements">General
+      Requirements</a>
+      <ul>
+      <li><a
+      href="bolt-05.html#bolt-05-limitations-of-v3-transactions">Limitations
+      of v3 transactions</a></li>
+      </ul></li>
+      <li><a
+      href="bolt-05.html#bolt-05-appendix-a-expected-weights">Appendix
+      A: Expected Weights</a>
+      <ul>
+      <li><a
+      href="#bolt-05-expected-weight-of-the-to-local-penalty-transaction-witness">Expected
+      Weight of the <code>to_local</code> Penalty Transaction
+      Witness</a></li>
+      <li><a
+      href="#bolt-05-expected-weight-of-the-offered-htlc-penalty-transaction-witness">Expected
+      Weight of the <code>offered_htlc</code> Penalty Transaction
+      Witness</a></li>
+      <li><a
+      href="#bolt-05-expected-weight-of-the-accepted-htlc-penalty-transaction-witness">Expected
+      Weight of the <code>accepted_htlc</code> Penalty Transaction
+      Witness</a></li>
+      </ul></li>
+      <li><a href="bolt-05.html#bolt-05-authors">Authors</a></li>
+      </ul>
+      <h3 data-number="9.1.3" id="bolt-05-general-nomenclature">General
+      Nomenclature</h3>
+      <p>Any unspent output is considered to be <em>unresolved</em> and
+      can be <em>resolved</em> as detailed in this document. Usually
+      this is accomplished by spending it with another
+      <em>resolving</em> transaction. Although, sometimes simply noting
+      the output for later wallet spending is sufficient, in which case
+      the transaction containing the output is considered to be its own
+      <em>resolving</em> transaction.</p>
+      <p>Outputs that are <em>resolved</em> are considered
+      <em>irrevocably resolved</em> once the remote’s <em>resolving</em>
+      transaction is included in a block at least 100 deep, on the
+      most-work blockchain. 100 blocks is far greater than the longest
+      known Bitcoin fork and is the same wait time used for
+      confirmations of miners’ rewards (see <a
+      href="https://github.com/bitcoin/bitcoin/blob/4db82b7aab4ad64717f742a7318e3dc6811b41be/src/consensus/tx_verify.cpp#L223">Reference
+      Implementation</a>).</p>
+      <h3 data-number="9.1.4"
+      id="bolt-05-requirements">Requirements</h3>
+      <p>A node: - once it has broadcast a funding transaction OR sent a
+      commitment signature for a commitment transaction that contains an
+      HTLC output: - until all outputs are <em>irrevocably
+      resolved</em>: - MUST monitor the blockchain for transactions that
+      spend any output that is NOT <em>irrevocably resolved</em>. - MUST
+      <em>resolve</em> all outputs, as specified below. - MUST be
+      prepared to resolve outputs multiple times, in case of blockchain
+      reorganizations. - upon the funding transaction being spent, if
+      the channel is NOT already closed: - MAY send a descriptive
+      <code>error</code>. - SHOULD fail the channel. - SHOULD ignore
+      invalid transactions.</p>
+      <h3 data-number="9.1.5" id="bolt-05-rationale">Rationale</h3>
+      <p>Once a local node has some funds at stake, monitoring the
+      blockchain is required to ensure the remote node does not close
+      unilaterally.</p>
+      <p>Invalid transactions (e.g. bad signatures) can be generated by
+      anyone, (and will be ignored by the blockchain anyway), so they
+      should not trigger any action.</p>
+      <h3 data-number="9.1.6"
+      id="bolt-05-commitment-transaction">Commitment Transaction</h3>
+      <p>The local and remote nodes each hold a <em>commitment
+      transaction</em>. Each of these commitment transactions has up to
+      seven types of outputs:</p>
+      <ol type="1">
+      <li><em>local node’s main output</em>: Zero or one output, to pay
+      to the <em>local node’s</em> delayed_pubkey.</li>
+      <li><em>remote node’s main output</em>: Zero or one output, to pay
+      to the <em>remote node’s</em> delayed_pubkey.</li>
+      <li><em>local node’s anchor output</em>: one output paying to the
+      <em>local node’s</em> funding_pubkey.</li>
+      <li><em>remote node’s anchor output</em>: one output paying to the
+      <em>remote node’s</em> funding_pubkey.</li>
+      <li><em>shared anchor</em>: one output spendable by anyone
+      (pay-to-anchor).</li>
+      <li><em>local node’s offered HTLCs</em>: Zero or more pending
+      payments (<em>HTLCs</em>), to pay the <em>remote node</em> in
+      return for a payment preimage.</li>
+      <li><em>remote node’s offered HTLCs</em>: Zero or more pending
+      payments (<em>HTLCs</em>), to pay the <em>local node</em> in
+      return for a payment preimage.</li>
+      </ol>
+      <p>To incentivize the local and remote nodes to cooperate, an
+      <code>OP_CHECKSEQUENCEVERIFY</code> relative timeout encumbers the
+      <em>local node’s outputs</em> (in the <em>local node’s commitment
+      transaction</em>) and the <em>remote node’s outputs</em> (in the
+      <em>remote node’s commitment transaction</em>). So for example, if
+      the local node publishes its commitment transaction, it will have
+      to wait to claim its own funds, whereas the remote node will have
+      immediate access to its own funds. As a consequence, the two
+      commitment transactions are not identical, but they are (usually)
+      symmetrical.</p>
+      <p>See <a href="bolt-03.html#bolt-03-commitment-transaction">BOLT
+      #3: Commitment Transaction</a> for more details.</p>
+      <h3 data-number="9.1.7" id="bolt-05-failing-a-channel">Failing a
+      Channel</h3>
+      <p>Although closing a channel can be accomplished in several ways,
+      the most efficient is preferred.</p>
+      <p>Various error cases involve closing a channel. The requirements
+      for sending error messages to peers are specified in <a
+      href="bolt-01.html#bolt-01-the-error-message">BOLT #1: The
+      <code>error</code> Message</a>.</p>
+      <h3 data-number="9.1.8"
+      id="bolt-05-requirements-1">Requirements</h3>
+      <p>A node: - if a <em>local commitment transaction</em> has NOT
+      ever contained a <code>to_local</code> or HTLC output: - MAY
+      simply forget the channel. - otherwise: - if the <em>current
+      commitment transaction</em> does NOT contain <code>to_local</code>
+      or other HTLC outputs: - MAY simply wait for the remote node to
+      close the channel. - until the remote node closes: - MUST NOT
+      forget the channel. - otherwise: - if it has received a valid
+      <code>closing_signed</code> message that includes a sufficient
+      fee: - SHOULD use this fee to perform a <em>mutual close</em>. -
+      otherwise: - if the node knows or assumes its channel state is
+      outdated: - MUST NOT broadcast its <em>last commitment
+      transaction</em>. - otherwise: - MUST broadcast the <em>last
+      commitment transaction</em>, for which it has a signature, to
+      perform a <em>unilateral close</em>. - MUST spend any
+      <code>to_local_anchor</code> or <code>shared_anchor</code> output,
+      providing sufficient fees as incentive to include the commitment
+      transaction in a block. For <code>to_local_anchor</code>, special
+      care must be taken when spending to a third-party, because this
+      re-introduces the pinning vulnerability that was addressed by
+      adding the CSV delay to the non-anchor outputs. - SHOULD use <a
+      href="https://github.com/bitcoin/bips/blob/master/bip-0125.mediawiki">replace-by-fee</a>
+      or other mechanism on the spending transaction if it proves
+      insufficient for timely inclusion in a block.</p>
+      <h3 data-number="9.1.9" id="bolt-05-rationale-1">Rationale</h3>
+      <p>Since <code>dust_limit_satoshis</code> is supposed to prevent
+      creation of uneconomic outputs (which would otherwise remain
+      forever, unspent on the blockchain), all commitment transaction
+      outputs MUST be spent.</p>
+      <p>In the early stages of a channel, it’s common for one side to
+      have little or no funds in the channel; in this case, having
+      nothing at stake, a node need not consume resources monitoring the
+      channel state.</p>
+      <p>There exists a bias towards preferring mutual closes over
+      unilateral closes, because outputs of the former are unencumbered
+      by a delay and are directly spendable by wallets. In addition,
+      mutual close fees tend to be less exaggerated than those of
+      commitment transactions (or in the case of commitments using
+      anchor outputs, the commitment transaction may require a child
+      transaction to cause it to be mined). So, the only reason not to
+      use the mutual close transaction would be if the fee offered was
+      too small for it to be processed.</p>
+      <h3 data-number="9.1.10" id="bolt-05-mutual-close-handling">Mutual
+      Close Handling</h3>
+      <p>A closing transaction <em>resolves</em> the funding transaction
+      output.</p>
+      <p>In the case of a mutual close, a node need not do anything
+      else, as it has already agreed to the output, which is sent to its
+      specified <code>scriptpubkey</code> (see <a
+      href="bolt-02.html#bolt-02-closing-initiation-shutdown">BOLT #2:
+      Closing initiation: <code>shutdown</code></a>).</p>
+      <h3 data-number="9.1.11"
+      id="bolt-05-unilateral-close-handling-local-commitment-transaction">Unilateral
+      Close Handling: Local Commitment Transaction</h3>
+      <p>This is the first of two cases involving unilateral closes. In
+      this case, a node discovers its <em>local commitment
+      transaction</em>, which <em>resolves</em> the funding transaction
+      output.</p>
+      <p>However, a node cannot claim funds from the outputs of a
+      unilateral close that it initiated, until the
+      <code>OP_CHECKSEQUENCEVERIFY</code> delay has passed (as specified
+      by the remote node’s <code>to_self_delay</code> field). Where
+      relevant, this situation is noted below.</p>
+      <h3 data-number="9.1.12"
+      id="bolt-05-requirements-2">Requirements</h3>
+      <p>A node: - upon discovering its <em>local commitment
+      transaction</em>: - SHOULD spend the <code>to_local</code> output
+      to a convenient address. - MUST wait until the
+      <code>OP_CHECKSEQUENCEVERIFY</code> delay has passed (as specified
+      by the remote node’s <code>to_self_delay</code> field) before
+      spending the output. - Note: if the output is spent (as
+      recommended), the output is <em>resolved</em> by the spending
+      transaction, otherwise it is considered <em>resolved</em> by the
+      commitment transaction itself. - MAY ignore the
+      <code>to_remote</code> output. - Note: No action is required by
+      the local node, as <code>to_remote</code> is considered
+      <em>resolved</em> by the commitment transaction itself. - MUST
+      handle HTLCs offered by itself as specified in <a
+      href="bolt-05.html#bolt-05-htlc-output-handling-local-commitment-local-offers">HTLC
+      Output Handling: Local Commitment, Local Offers</a>. - MUST handle
+      HTLCs offered by the remote node as specified in <a
+      href="bolt-05.html#bolt-05-htlc-output-handling-local-commitment-remote-offers">HTLC
+      Output Handling: Local Commitment, Remote Offers</a>.</p>
+      <h3 data-number="9.1.13" id="bolt-05-rationale-2">Rationale</h3>
+      <p>Spending the <code>to_local</code> output avoids having to
+      remember the complicated witness script, associated with that
+      particular channel, for later spending.</p>
+      <p>The <code>to_remote</code> output is entirely the business of
+      the remote node, and can be ignored.</p>
+      <h3 data-number="9.1.14"
+      id="bolt-05-htlc-output-handling-local-commitment-local-offers">HTLC
+      Output Handling: Local Commitment, Local Offers</h3>
+      <p>Each HTLC output can only be spent by either the <em>local
+      offerer</em>, by using the HTLC-timeout transaction after it’s
+      timed out, or the <em>remote recipient</em>, if it has the payment
+      preimage.</p>
+      <p>There can be HTLCs which are not represented by any outputs:
+      either because they were trimmed as dust, or because the
+      transaction has only been partially committed.</p>
+      <p>The HTLC output has <em>timed out</em> once the height of the
+      latest block is equal to or greater than the HTLC
+      <code>cltv_expiry</code>.</p>
+      <h4 data-number="9.1.14.1"
+      id="bolt-05-requirements-3">Requirements</h4>
+      <p>A node: - if the commitment transaction HTLC output is spent
+      using the payment preimage, the output is considered
+      <em>irrevocably resolved</em>: - MUST extract the payment preimage
+      from the transaction input witness. - if the commitment
+      transaction HTLC output has <em>timed out</em> and hasn’t been
+      <em>resolved</em>: - MUST <em>resolve</em> the output by spending
+      it using the HTLC-timeout transaction. - once the resolving
+      transaction has reached reasonable depth: - MUST fail the
+      corresponding incoming HTLC (if any). - MUST resolve the output of
+      that HTLC-timeout transaction. - SHOULD resolve the HTLC-timeout
+      transaction by spending it to a convenient address. - Note: if the
+      output is spent (as recommended), the output is <em>resolved</em>
+      by the spending transaction, otherwise it is considered
+      <em>resolved</em> by the HTLC-timeout transaction itself. - MUST
+      wait until the <code>OP_CHECKSEQUENCEVERIFY</code> delay has
+      passed (as specified by the remote node’s
+      <code>open_channel</code> <code>to_self_delay</code> field) before
+      spending that HTLC-timeout output. - for any committed HTLC that
+      does NOT have an output in this commitment transaction: - if the
+      payment preimage is known: - MUST fulfill the corresponding
+      incoming HTLC (if any). - otherwise: - once the commitment
+      transaction has reached reasonable depth: - MUST fail the
+      corresponding incoming HTLC (if any). - if no <em>valid</em>
+      commitment transaction contains an output corresponding to the
+      HTLC: - MAY fail the corresponding incoming HTLC sooner.</p>
+      <h4 data-number="9.1.14.2" id="bolt-05-rationale-3">Rationale</h4>
+      <p>The payment preimage either serves to prove payment (when the
+      offering node originated the payment) or to redeem the
+      corresponding incoming HTLC from another peer (when the offering
+      node is forwarding the payment). Once a node has extracted the
+      payment, it no longer cares about the fate of the HTLC-spending
+      transaction itself.</p>
+      <p>In cases where both resolutions are possible (e.g. when a node
+      receives payment success after timeout), either interpretation is
+      acceptable; it is the responsibility of the recipient to spend it
+      before this occurs.</p>
+      <p>The local HTLC-timeout transaction needs to be used to time out
+      the HTLC (to prevent the remote node fulfilling it and claiming
+      the funds) before the local node can back-fail any corresponding
+      incoming HTLC, using <code>update_fail_htlc</code> (presumably
+      with reason <code>permanent_channel_failure</code>), as detailed
+      in <a href="bolt-02.html#bolt-02-forwarding-htlcs">BOLT #2</a>. If
+      the incoming HTLC is also on-chain, a node must simply wait for it
+      to timeout: there is no way to signal early failure.</p>
+      <p>There are several reasons a committed HTLC may not have an
+      output in the confirmed commitment transaction: the HTLC may be
+      smaller than <code>dust_limit_satoshis</code>, the HTLC may not
+      have been added to the commitment transaction yet, or the HTLC may
+      have already been failed or fulfilled. In any case, if the payment
+      preimage is known for the HTLC, the upstream HTLC needs to be
+      fulfilled to avoid loss of funds.</p>
+      <p>If the payment preimage is not known for the missing HTLC, the
+      correct action depends on the possibility of a blockchain
+      reorganization that swaps out the confirmed commitment transaction
+      for one with the HTLC present. If the HTLC is too small to appear
+      in <em>any commitment transaction</em>, such a reorganization is
+      not possible, and the HTLC can be safely failed immediately.
+      Otherwise, a reorganization delay is required before failing the
+      incoming HTLC. The requirement that the incoming HTLC be failed
+      before its own timeout still applies as an upper bound.</p>
+      <h3 data-number="9.1.15"
+      id="bolt-05-htlc-output-handling-local-commitment-remote-offers">HTLC
+      Output Handling: Local Commitment, Remote Offers</h3>
+      <p>Each HTLC output can only be spent by the recipient, using the
+      HTLC-success transaction, which it can only populate if it has the
+      payment preimage. If it doesn’t have the preimage (and doesn’t
+      discover it), it’s the offerer’s responsibility to spend the HTLC
+      output once it’s timed out.</p>
+      <p>There are several possible cases for an offered HTLC:</p>
+      <ol type="1">
+      <li>The offerer is NOT irrevocably committed to it. The recipient
+      will usually not know the preimage, since it will not forward
+      HTLCs until they’re fully committed. So using the preimage would
+      reveal that this recipient is the final hop; thus, in this case,
+      it’s best to allow the HTLC to time out.</li>
+      <li>The offerer is irrevocably committed to the offered HTLC, but
+      the recipient has not yet committed to an outgoing HTLC. In this
+      case, the recipient can either forward or timeout the offered
+      HTLC.</li>
+      <li>The recipient has committed to an outgoing HTLC, in exchange
+      for the offered HTLC. In this case, the recipient must use the
+      preimage, once it receives it from the outgoing HTLC; otherwise,
+      it will lose funds by sending an outgoing payment without
+      redeeming the incoming payment.</li>
+      </ol>
+      <h4 data-number="9.1.15.1"
+      id="bolt-05-requirements-4">Requirements</h4>
+      <p>A local node: - if it receives (or already possesses) a payment
+      preimage for an unresolved HTLC output that it has been offered
+      AND for which it has committed to an outgoing HTLC: - MUST
+      <em>resolve</em> the output by spending it, using the HTLC-success
+      transaction. - MUST NOT reveal its own preimage when it’s not the
+      final recipient.<sup><a
+      href="https://lists.linuxfoundation.org/pipermail/lightning-dev/2020-October/002857.html">Preimage-Extraction</a></sup>
+      - MUST resolve the output of that HTLC-success transaction. -
+      otherwise: - if the <em>remote node</em> is NOT irrevocably
+      committed to the HTLC: - MUST NOT <em>resolve</em> the output by
+      spending it. - SHOULD resolve that HTLC-success transaction output
+      by spending it to a convenient address. - MUST wait until the
+      <code>OP_CHECKSEQUENCEVERIFY</code> delay has passed (as specified
+      by the <em>remote node’s</em> <code>open_channel</code>’s
+      <code>to_self_delay</code> field), before spending that
+      HTLC-success transaction output.</p>
+      <p>If the output is spent (as is recommended), the output is
+      <em>resolved</em> by the spending transaction, otherwise it’s
+      considered <em>resolved</em> by the HTLC-success transaction
+      itself.</p>
+      <p>If it’s NOT otherwise resolved, once the HTLC output has
+      expired, it is considered <em>irrevocably resolved</em>.</p>
+      <h3 data-number="9.1.16"
+      id="bolt-05-unilateral-close-handling-remote-commitment-transaction">Unilateral
+      Close Handling: Remote Commitment Transaction</h3>
+      <p>The <em>remote node’s</em> commitment transaction
+      <em>resolves</em> the funding transaction output.</p>
+      <p>There are no delays constraining node behavior in this case, so
+      it’s simpler for a node to handle than the case in which it
+      discovers its local commitment transaction (see <a
+      href="bolt-05.html#bolt-05-unilateral-close-handling-local-commitment-transaction">Unilateral
+      Close Handling: Local Commitment Transaction</a>).</p>
+      <h3 data-number="9.1.17"
+      id="bolt-05-requirements-5">Requirements</h3>
+      <p>A local node: - upon discovering a <em>valid</em> commitment
+      transaction broadcast by a <em>remote node</em>: - if possible: -
+      MUST handle each output as specified below. - MAY take no action
+      in regard to the associated <code>to_remote</code>, which is
+      simply a P2WPKH output to the <em>local node</em>. - Note:
+      <code>to_remote</code> is considered <em>resolved</em> by the
+      commitment transaction itself. - MAY take no action in regard to
+      the associated <code>to_local</code>, which is a payment output to
+      the <em>remote node</em>. - Note: <code>to_local</code> is
+      considered <em>resolved</em> by the commitment transaction itself.
+      - MUST handle HTLCs offered by itself as specified in <a
+      href="bolt-05.html#bolt-05-htlc-output-handling-remote-commitment-local-offers">HTLC
+      Output Handling: Remote Commitment, Local Offers</a> - MUST handle
+      HTLCs offered by the remote node as specified in <a
+      href="bolt-05.html#bolt-05-htlc-output-handling-remote-commitment-remote-offers">HTLC
+      Output Handling: Remote Commitment, Remote Offers</a> - otherwise
+      (it is NOT able to handle the broadcast for some reason): - MUST
+      inform the user of potentially lost funds.</p>
+      <h3 data-number="9.1.18" id="bolt-05-rationale-4">Rationale</h3>
+      <p>There may be more than one valid, <em>unrevoked</em> commitment
+      transaction after a signature has been received via
+      <code>commitment_signed</code> and before the corresponding
+      <code>revoke_and_ack</code>. As such, either commitment may serve
+      as the <em>remote node’s</em> commitment transaction; hence, the
+      local node is required to handle both.</p>
+      <p>In the case of data loss, a local node may reach a state where
+      it doesn’t recognize all of the <em>remote node’s</em> commitment
+      transaction HTLC outputs. It can detect the data loss state,
+      because it has signed the transaction, and the commitment number
+      is greater than expected. It can derive its own
+      <code>remotepubkey</code> for the transaction, in order to salvage
+      its own funds. Note: in this scenario, the node will be unable to
+      salvage the HTLCs.</p>
+      <h3 data-number="9.1.19"
+      id="bolt-05-htlc-output-handling-remote-commitment-local-offers">HTLC
+      Output Handling: Remote Commitment, Local Offers</h3>
+      <p>Each HTLC output can only be spent by either the <em>local
+      offerer</em>, after it’s timed out, or by the <em>remote
+      recipient</em>, by using the HTLC-success transaction if it has
+      the payment preimage.</p>
+      <p>There can be HTLCs which are not represented by any outputs:
+      either because the outputs were trimmed as dust, or because the
+      remote node has two <em>valid</em> commitment transactions with
+      differing HTLCs.</p>
+      <p>The HTLC output has <em>timed out</em> once the depth of the
+      latest block is equal to or greater than the HTLC
+      <code>cltv_expiry</code>.</p>
+      <h4 data-number="9.1.19.1"
+      id="bolt-05-requirements-6">Requirements</h4>
+      <p>A local node: - if the commitment transaction HTLC output is
+      spent using the payment preimage: - MUST extract the payment
+      preimage from the HTLC-success transaction input witness. - Note:
+      the output is considered <em>irrevocably resolved</em>. - if the
+      commitment transaction HTLC output has <em>timed out</em> AND NOT
+      been <em>resolved</em>: - MUST <em>resolve</em> the output, by
+      spending it to a convenient address. - for any committed HTLC that
+      does NOT have an output in this commitment transaction: - if the
+      payment preimage is known: - MUST fulfill the corresponding
+      incoming HTLC (if any). - otherwise: - once the commitment
+      transaction has reached reasonable depth: - MUST fail the
+      corresponding incoming HTLC (if any). - if no <em>valid</em>
+      commitment transaction contains an output corresponding to the
+      HTLC: - MAY fail the corresponding incoming HTLC sooner.</p>
+      <h4 data-number="9.1.19.2" id="bolt-05-rationale-5">Rationale</h4>
+      <p>If the commitment transaction belongs to the <em>remote</em>
+      node, the only way for it to spend the HTLC output (using a
+      payment preimage) is for it to use the HTLC-success
+      transaction.</p>
+      <p>The payment preimage either serves to prove payment (when the
+      offering node is the originator of the payment) or to redeem the
+      corresponding incoming HTLC from another peer (when the offering
+      node is forwarding the payment). After a node has extracted the
+      payment, it no longer need be concerned with the fate of the
+      HTLC-spending transaction itself.</p>
+      <p>In cases where both resolutions are possible (e.g. when a node
+      receives payment success after timeout), either interpretation is
+      acceptable: it’s the responsibility of the recipient to spend it
+      before this occurs.</p>
+      <p>Once it has timed out, the local node needs to spend the HTLC
+      output (to prevent the remote node from using the HTLC-success
+      transaction) before it can back-fail any corresponding incoming
+      HTLC, using <code>update_fail_htlc</code> (presumably with reason
+      <code>permanent_channel_failure</code>), as detailed in <a
+      href="bolt-02.html#bolt-02-forwarding-htlcs">BOLT #2</a>. If the
+      incoming HTLC is also on-chain, a node simply waits for it to
+      timeout, as there’s no way to signal early failure.</p>
+      <p>There are several reasons a committed HTLC may not have an
+      output in the confirmed commitment transaction: the HTLC may be
+      smaller than <code>dust_limit_satoshis</code>, the HTLC may not
+      have been added to the commitment transaction yet, or the HTLC may
+      have already been failed or fulfilled. In any case, if the payment
+      preimage is known for the HTLC, the upstream HTLC needs to be
+      fulfilled to avoid loss of funds.</p>
+      <p>If the payment preimage is not known for the missing HTLC, the
+      correct action depends on the possibility of a blockchain
+      reorganization that swaps out the confirmed commitment transaction
+      for one with the HTLC present. If the HTLC is too small to appear
+      in <em>any commitment transaction</em>, such a reorganization is
+      not possible, and the HTLC can be safely failed immediately.
+      Otherwise, a reorganization delay is required before failing the
+      incoming HTLC. The requirement that the incoming HTLC be failed
+      before its own timeout still applies as an upper bound.</p>
+      <h3 data-number="9.1.20"
+      id="bolt-05-htlc-output-handling-remote-commitment-remote-offers">HTLC
+      Output Handling: Remote Commitment, Remote Offers</h3>
+      <p>The remote HTLC outputs can only be spent by the local node if
+      it has the payment preimage. If the local node does not have the
+      preimage (and doesn’t discover it), it’s the remote node’s
+      responsibility to spend the HTLC output once it’s timed out.</p>
+      <p>There are actually several possible cases for an offered
+      HTLC:</p>
+      <ol type="1">
+      <li>The offerer is not irrevocably committed to it. In this case,
+      the recipient usually won’t know the preimage, since it won’t
+      forward HTLCs until they’re fully committed. As using the preimage
+      would reveal that this recipient is the final hop, it’s best to
+      allow the HTLC to time out.</li>
+      <li>The offerer is irrevocably committed to the offered HTLC, but
+      the recipient hasn’t yet committed to an outgoing HTLC. In this
+      case, the recipient can either forward it or wait for it to
+      timeout.</li>
+      <li>The recipient has committed to an outgoing HTLC in exchange
+      for an offered HTLC. In this case, the recipient must use the
+      preimage, if it receives it from the outgoing HTLC; otherwise, it
+      will lose funds by sending an outgoing payment without redeeming
+      the incoming one.</li>
+      </ol>
+      <h4 data-number="9.1.20.1"
+      id="bolt-05-requirements-7">Requirements</h4>
+      <p>A local node: - if it receives (or already possesses) a payment
+      preimage for an unresolved HTLC output that it was offered AND for
+      which it has committed to an outgoing HTLC: - MUST
+      <em>resolve</em> the output by spending it to a convenient
+      address. - otherwise: - if the remote node is NOT irrevocably
+      committed to the HTLC: - MUST NOT <em>resolve</em> the output by
+      spending it.</p>
+      <p>If not otherwise resolved, once the HTLC output has expired, it
+      is considered <em>irrevocably resolved</em>.</p>
+      <h3 data-number="9.1.21"
+      id="bolt-05-revoked-transaction-close-handling">Revoked
+      Transaction Close Handling</h3>
+      <p>If any node tries to cheat by broadcasting an outdated
+      commitment transaction (any previous commitment transaction
+      besides the most current one), the other node in the channel can
+      use its revocation private key to claim all the funds from the
+      channel’s original funding transaction.</p>
+      <h3 data-number="9.1.22"
+      id="bolt-05-requirements-8">Requirements</h3>
+      <p>Once a node discovers a commitment transaction for which
+      <em>it</em> has a revocation private key, the funding transaction
+      output is <em>resolved</em>.</p>
+      <p>A local node: - MUST NOT broadcast a commitment transaction for
+      which <em>it</em> has exposed the
+      <code>per_commitment_secret</code>. - MAY take no action regarding
+      the <em>local node’s main output</em>, as this is a simple P2WPKH
+      output to itself. - Note: this output is considered
+      <em>resolved</em> by the commitment transaction itself. - MUST
+      <em>resolve</em> the <em>remote node’s main output</em> by
+      spending it using the revocation private key. - MUST
+      <em>resolve</em> the <em>remote node’s offered HTLCs</em> in one
+      of three ways: * spend the <em>commitment tx</em> using the
+      payment revocation private key. * spend the <em>commitment tx</em>
+      using the payment preimage (if known). * spend the
+      <em>HTLC-timeout tx</em>, if the remote node has published it. -
+      MUST <em>resolve</em> the <em>local node’s offered HTLCs</em> in
+      one of three ways: * spend the <em>commitment tx</em> using the
+      payment revocation private key. * spend the <em>commitment tx</em>
+      once the HTLC timeout has passed. * spend the <em>HTLC-success
+      tx</em>, if the remote node has published it. - MUST
+      <em>resolve</em> the <em>remote node’s HTLC-timeout
+      transaction</em> by spending it using the revocation private key.
+      - MUST <em>resolve</em> the <em>remote node’s HTLC-success
+      transaction</em> by spending it using the revocation private key.
+      - SHOULD extract the payment preimage from the transaction input
+      witness, if it’s not already known. - if
+      <code>SIGHASH_SINGLE|SIGHASH_ANYONECANPAY</code> is used for HTLC
+      transactions (i.e. <code>option_anchors</code> or
+      <code>zero_fee_commitments</code> applies): - MAY use a single
+      transaction to <em>resolve</em> all the outputs. - If
+      <code>zero_fee_commitments</code> applies: - MUST NOT exceed the
+      10kvB limit of v3 transactions, otherwise the transaction may not
+      reach miners (as explained in the section about <a
+      href="bolt-05.html#bolt-05-limitations-of-v3-transactions">v3
+      limitations</a> below). - if confirmation doesn’t happen before
+      reaching <code>security_delay</code> blocks from expiry: - SHOULD
+      <em>resolve</em> revoked outputs in their own, separate penalty
+      transactions. A previous penalty transaction claiming multiple
+      revoked outputs at once may be blocked from confirming because of
+      a transaction pinning attack. - otherwise: - MAY use a single
+      transaction to <em>resolve</em> all the outputs. - MUST handle its
+      transactions being invalidated by HTLC transactions.</p>
+      <h3 data-number="9.1.23" id="bolt-05-rationale-6">Rationale</h3>
+      <p>A single transaction that resolves all the outputs will be
+      under the standard size limit because of the 483 HTLC-per-party
+      limit (see <a
+      href="bolt-02.html#bolt-02-the-open_channel-message">BOLT
+      #2</a>).</p>
+      <p>Note: when <code>SIGHASH_SINGLE|SIGHASH_ANYONECANPAY</code> is
+      used for HTLC transactions (i.e. <code>option_anchors</code> or
+      <code>zero_fee_commitments</code>), the cheating node can pin
+      spends of its HTLC-timeout/HTLC-success outputs. Using a single
+      penalty transaction for all revoked outputs is thus unsafe as it
+      could be blocked to propagate long enough for the <em>local node’s
+      <code>to_local</code> output</em> ’s relative locktime to expire
+      and the cheating party escaping the penalty on this output. Though
+      this situation doesn’t prevent faithful punishment of the
+      second-level revoked output if the pinning transaction
+      confirms.</p>
+      <p>The <code>security_delay</code> is a fixed-point relative to
+      the absolute expiration of the revoked output at which the
+      punishing node must broadcast a single-spend transaction for the
+      revoked output and actively fee-bump it until its confirmation.
+      The exact value of <code>security_delay</code> is left as a matter
+      of node policy, though we recommend 18 blocks (similar to incoming
+      HTLC deadline).</p>
+      <h3 data-number="9.1.24"
+      id="bolt-05-penalty-transactions-weight-calculation">Penalty
+      Transactions Weight Calculation</h3>
+      <p>There are three different scripts for penalty transactions,
+      with the following witness weights (details of weight computation
+      are in <a
+      href="bolt-05.html#bolt-05-appendix-a-expected-weights">Appendix
+      A</a>):</p>
+      <pre><code>to_local_penalty_witness: 160 bytes
+offered_htlc_penalty_witness: 243 bytes
+accepted_htlc_penalty_witness: 249 bytes</code></pre>
+      <p>The penalty <em>txinput</em> itself takes up 41 bytes and has a
+      weight of 164 bytes, which results in the following weights for
+      each input:</p>
+      <pre><code>to_local_penalty_input_weight: 324 bytes
+offered_htlc_penalty_input_weight: 407 bytes
+accepted_htlc_penalty_input_weight: 413 bytes</code></pre>
+      <p>The rest of the penalty transaction takes up 4+1+1+8+1+34+4=53
+      bytes of non-witness data: assuming it has a
+      pay-to-witness-script-hash (the largest standard output script),
+      in addition to a 2-byte witness header.</p>
+      <p>In addition to spending these outputs, a penalty transaction
+      may optionally spend the commitment transaction’s
+      <code>to_remote</code> output (e.g. to reduce the total amount
+      paid in fees). Doing so requires the inclusion of a P2WPKH witness
+      and an additional <em>txinput</em>, resulting in an additional 108
+      + 164 = 272 bytes.</p>
+      <p>In the worst case scenario, the node holds only incoming HTLCs,
+      and the HTLC-timeout transactions are not published, which forces
+      the node to spend from the commitment transaction.</p>
+      <p>With a maximum standard weight of 400000 bytes, the maximum
+      number of HTLCs that can be swept in a single transaction is as
+      follows:</p>
+      <pre><code>max_num_htlcs = (400000 - 324 - 272 - (4 * 53) - 2) / 413 = 966</code></pre>
+      <p>Thus, 483 bidirectional HTLCs (containing both
+      <code>to_local</code> and <code>to_remote</code> outputs) can be
+      resolved in a single penalty transaction. Note: even if the
+      <code>to_remote</code> output is not swept, the resulting
+      <code>max_num_htlcs</code> is 967; which yields the same
+      unidirectional limit of 483 HTLCs.</p>
+      <h3 data-number="9.1.25"
+      id="bolt-05-generation-of-htlc-transactions">Generation of HTLC
+      Transactions</h3>
+      <p>If <code>option_anchors</code> and
+      <code>zero_fee_commitments</code> do not apply, then HTLC-timeout
+      and HTLC-success transactions are signed with
+      <code>SIGHASH_ALL</code> and are complete transactions with
+      (hopefully!) reasonable fees and must be used directly.</p>
+      <p>Otherwise, <code>SIGHASH_SINGLE|SIGHASH_ANYONECANPAY</code>
+      MUST be used on the HTLC signatures received from the peer, as
+      this allows HTLC transactions to be combined with other
+      transactions. The local signature MUST use
+      <code>SIGHASH_ALL</code>, otherwise anyone can attach additional
+      inputs and outputs to the tx.</p>
+      <p>If <code>SIGHASH_SINGLE|SIGHASH_ANYONECANPAY</code> is used,
+      then the HTLC-timeout and HTLC-success transactions are signed
+      with the input and output having the same value. This means they
+      have a zero fee and MUST be combined with other inputs to arrive
+      at a reasonable fee.</p>
+      <h3 data-number="9.1.26"
+      id="bolt-05-requirements-9">Requirements</h3>
+      <p>A node which broadcasts an HTLC-success or HTLC-timeout
+      transaction for a commitment transaction: - if
+      <code>SIGHASH_SINGLE|SIGHASH_ANYONECANPAY</code> is used: - MUST
+      combine it with inputs contributing sufficient fee to ensure
+      timely inclusion in a block. - MAY combine it with other
+      transactions.</p>
+      <h3 data-number="9.1.27" id="bolt-05-general-requirements">General
+      Requirements</h3>
+      <p>A node: - upon discovering a transaction that spends a funding
+      transaction output which does not fall into one of the above
+      categories (mutual close, unilateral close, or revoked transaction
+      close): - MUST warn the user of potentially lost funds. - Note:
+      the existence of such a rogue transaction implies that its private
+      key has leaked and that its funds may be lost as a result. - MAY
+      simply monitor the contents of the most-work chain for
+      transactions. - Note: on-chain HTLCs should be sufficiently rare
+      that speed need not be considered critical. - MAY monitor (valid)
+      broadcast transactions (a.k.a the mempool). - Note: watching for
+      mempool transactions should result in lower latency HTLC
+      redemptions.</p>
+      <h3 data-number="9.1.28"
+      id="bolt-05-limitations-of-v3-transactions">Limitations of v3
+      transactions</h3>
+      <p>When <code>zero_fee_commitments</code> applies, we use v3
+      transactions, also known as TRUC transactions, which have
+      different policy rules than v2 transactions.</p>
+      <p>Implementers should read <a
+      href="https://github.com/bitcoin/bips/blob/master/bip-0431.mediawiki">BIP-431</a>
+      to make sure they don’t create transactions that aren’t relayed by
+      bitcoin nodes.</p>
+      <p>The main limitation compared to v2 transactions (but not the
+      only one) is that transactions are restricted to 10kvB (instead of
+      400kvB): when batching transactions (e.g. HTLC transactions),
+      nodes MUST NOT exceed that limit, otherwise the transaction will
+      not reach miners and funds may be at risk.</p>
+      <h3 data-number="9.1.29"
+      id="bolt-05-appendix-a-expected-weights">Appendix A: Expected
+      Weights</h3>
+      <h3 data-number="9.1.30"
+      id="bolt-05-expected-weight-of-the-to_local-penalty-transaction-witness">Expected
+      Weight of the <code>to_local</code> Penalty Transaction
+      Witness</h3>
+      <p>As described in <a href="bolt-03.html">BOLT #3</a>, the witness
+      for this transaction is:</p>
+      <pre><code>&lt;sig&gt; 1 { OP_IF &lt;revocationpubkey&gt; OP_ELSE to_self_delay OP_CSV OP_DROP &lt;local_delayedpubkey&gt; OP_ENDIF OP_CHECKSIG }</code></pre>
+      <p>The <em>expected weight</em> of the <code>to_local</code>
+      penalty transaction witness is calculated as follows:</p>
+      <pre><code>to_local_script: 83 bytes
+    - OP_IF: 1 byte
+        - OP_DATA: 1 byte (revocationpubkey length)
+        - revocationpubkey: 33 bytes
+    - OP_ELSE: 1 byte
+        - OP_DATA: 1 byte (delay length)
+        - delay: 8 bytes
+        - OP_CHECKSEQUENCEVERIFY: 1 byte
+        - OP_DROP: 1 byte
+        - OP_DATA: 1 byte (local_delayedpubkey length)
+        - local_delayedpubkey: 33 bytes
+    - OP_ENDIF: 1 byte
+    - OP_CHECKSIG: 1 byte
+
+to_local_penalty_witness: 160 bytes
+    - number_of_witness_elements: 1 byte
+    - revocation_sig_length: 1 byte
+    - revocation_sig: 73 bytes
+    - one_length: 1 byte
+    - witness_script_length: 1 byte
+    - witness_script (to_local_script)</code></pre>
+      <h3 data-number="9.1.31"
+      id="bolt-05-expected-weight-of-the-offered_htlc-penalty-transaction-witness">Expected
+      Weight of the <code>offered_htlc</code> Penalty Transaction
+      Witness</h3>
+      <p>The <em>expected weight</em> of the <code>offered_htlc</code>
+      penalty transaction witness is calculated as follows (some
+      calculations have already been made in <a href="bolt-03.html">BOLT
+      #3</a>):</p>
+      <pre><code>offered_htlc_script: 133 bytes
+
+offered_htlc_penalty_witness: 243 bytes
+    - number_of_witness_elements: 1 byte
+    - revocation_sig_length: 1 byte
+    - revocation_sig: 73 bytes
+    - revocation_key_length: 1 byte
+    - revocation_key: 33 bytes
+    - witness_script_length: 1 byte
+    - witness_script (offered_htlc_script)</code></pre>
+      <h3 data-number="9.1.32"
+      id="bolt-05-expected-weight-of-the-accepted_htlc-penalty-transaction-witness">Expected
+      Weight of the <code>accepted_htlc</code> Penalty Transaction
+      Witness</h3>
+      <p>The <em>expected weight</em> of the <code>accepted_htlc</code>
+      penalty transaction witness is calculated as follows (some
+      calculations have already been made in <a href="bolt-03.html">BOLT
+      #3</a>):</p>
+      <pre><code>accepted_htlc_script: 139 bytes
+
+accepted_htlc_penalty_witness: 249 bytes
+    - number_of_witness_elements: 1 byte
+    - revocation_sig_length: 1 byte
+    - revocation_sig: 73 bytes
+    - revocationpubkey_length: 1 byte
+    - revocationpubkey: 33 bytes
+    - witness_script_length: 1 byte
+    - witness_script (accepted_htlc_script)</code></pre>
+      <h3 data-number="9.1.33" id="bolt-05-authors">Authors</h3>
+      <p>[FIXME:]</p>
+      <p><img src="media/34101c8bb1c1253f61bed847b98016c2c0f519af.png"
+      title="License CC-BY" alt="Creative Commons License" /> <br> This
+      work is licensed under a <a
+      href="http://creativecommons.org/licenses/by/4.0/">Creative
+      Commons Attribution 4.0 International License</a>.</p>
+      <nav class="pager pager-bottom" aria-label="Nearby sections">
+        <a class="pager-prev" href="when-channels-close.html" rel="prev">When Channels Close</a>
+        <a class="pager-next" href="finding-the-network.html" rel="next">Finding the Network</a>
+      </nav>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var btn = document.getElementById("toc-toggle");
+      var toc = document.getElementById("TOC");
+      var page = (location.pathname.split("/").pop() || "index.html");
+      if (toc) {
+        toc.querySelectorAll("a").forEach(function (a) {
+          var href = a.getAttribute("href") || "";
+          if (href.split("#")[0] === page) a.classList.add("current");
+        });
+        var current = toc.querySelector("a.current");
+        if (current) current.scrollIntoView({ block: "center" });
+      }
+      document.querySelectorAll(".main h1[id], .main h2[id], .main h3[id], .main h4[id], .main h5[id], .main h6[id]").forEach(function (h) {
+        if (h.querySelector(".header-anchor")) return;
+        var a = document.createElement("a");
+        a.className = "header-anchor";
+        a.href = "#" + h.id;
+        a.setAttribute("aria-label", "Link to this heading");
+        a.textContent = "\u00B6";
+        h.appendChild(a);
+      });
+      if (!btn) return;
+      btn.addEventListener("click", function () {
+        var open = document.body.classList.toggle("toc-open");
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      toc && toc.addEventListener("click", function (e) {
+        if (e.target.closest("a") && window.matchMedia("(max-width: 879px)").matches) {
+          document.body.classList.remove("toc-open");
+          btn.setAttribute("aria-expanded", "false");
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

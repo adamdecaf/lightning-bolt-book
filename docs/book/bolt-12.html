@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="The Lightning BOLT authors" />
+  <meta name="author" content="Compiled by Adam Shannon" />
+  <meta name="keywords" content="bitcoin, lightning, bolts, specification" />
+  <title>BOLT #12: Negotiation Protocol for Lightning
+Payments · Lightning Book of BOLTs</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="../web.css" />
+</head>
+<body class="book">
+  <header class="site">
+    <a class="brand" href="../">Lightning Book of BOLTs</a>
+    <button type="button" id="toc-toggle" aria-controls="TOC" aria-expanded="false">Contents</button>
+    <nav class="site-links">
+      <a href="index.html">Contents</a>
+      <a href="https://github.com/adamdecaf/lightning-bolt-book/raw/master/lightning-bolt-book.epub">ePUB</a>
+      <a href="https://github.com/adamdecaf/lightning-bolt-book/raw/master/lightning-bolt-book.pdf">PDF</a>
+    </nav>
+  </header>
+  <div class="layout">
+    <nav id="TOC" role="doc-toc">
+      <h2 id="toc-title">Contents</h2>
+      <ul>
+      <li><a href="introduction.html#introduction"
+      id="toc-introduction">Introduction</a></li>
+      <li><a href="how-to-read-this-book.html#how-to-read-this-book"
+      id="toc-how-to-read-this-book">How to Read This Book</a></li>
+      <li><a href="source-snapshot.html#source-snapshot"
+      id="toc-source-snapshot">Source snapshot</a></li>
+      <li><a href="overview.html#overview" id="toc-overview">Overview</a>
+      <ul>
+      <li><a href="bolt-00.html#bolt-00" id="toc-bolt-00">BOLT #0:
+      Introduction and Index</a></li>
+      </ul></li>
+      <li><a href="connecting-nodes.html#connecting-nodes"
+      id="toc-connecting-nodes">Connecting Nodes</a>
+      <ul>
+      <li><a href="bolt-08.html#bolt-08" id="toc-bolt-08">BOLT #8: Encrypted
+      and Authenticated Transport</a></li>
+      <li><a href="bolt-01.html#bolt-01" id="toc-bolt-01">BOLT #1: Base
+      Protocol</a></li>
+      <li><a href="bolt-09.html#bolt-09" id="toc-bolt-09">BOLT #9: Assigned
+      Feature Flags</a></li>
+      </ul></li>
+      <li><a
+      href="opening-and-running-channels.html#opening-and-running-channels"
+      id="toc-opening-and-running-channels">Opening and Running Channels</a>
+      <ul>
+      <li><a href="bolt-02.html#bolt-02" id="toc-bolt-02">BOLT #2: Peer
+      Protocol for Channel Management</a></li>
+      <li><a href="bolt-03.html#bolt-03" id="toc-bolt-03">BOLT #3: Bitcoin
+      Transaction and Script Formats</a></li>
+      </ul></li>
+      <li><a href="routing-payments.html#routing-payments"
+      id="toc-routing-payments">Routing Payments</a>
+      <ul>
+      <li><a href="bolt-04.html#bolt-04" id="toc-bolt-04">BOLT #4: Onion
+      Routing Protocol</a></li>
+      <li><a href="bolt-07.html#bolt-07" id="toc-bolt-07">BOLT #7: P2P Node
+      and Channel Discovery</a></li>
+      </ul></li>
+      <li><a href="paying-people.html#paying-people"
+      id="toc-paying-people">Paying People</a>
+      <ul>
+      <li><a href="bolt-11.html#bolt-11" id="toc-bolt-11">BOLT #11: Invoice
+      Protocol for Lightning Payments</a></li>
+      <li><a href="bolt-12.html#bolt-12" id="toc-bolt-12">BOLT #12:
+      Negotiation Protocol for Lightning Payments</a></li>
+      </ul></li>
+      <li><a href="when-channels-close.html#when-channels-close"
+      id="toc-when-channels-close">When Channels Close</a>
+      <ul>
+      <li><a href="bolt-05.html#bolt-05" id="toc-bolt-05">BOLT #5:
+      Recommendations for On-chain Transaction Handling</a></li>
+      </ul></li>
+      <li><a href="finding-the-network.html#finding-the-network"
+      id="toc-finding-the-network">Finding the Network</a>
+      <ul>
+      <li><a href="bolt-10.html#bolt-10" id="toc-bolt-10">BOLT #10: DNS
+      Bootstrap and Assisted Node Location</a></li>
+      </ul></li>
+      <li><a href="newer-work.html#newer-work" id="toc-newer-work">Newer
+      Work</a>
+      <ul>
+      <li><a href="bolt-simple-taproot.html#bolt-simple-taproot"
+      id="toc-bolt-simple-taproot">Extension BOLT XX: Simple Taproot
+      Channels</a></li>
+      </ul></li>
+      <li><a href="conclusion.html#conclusion"
+      id="toc-conclusion">Conclusion</a></li>
+      </ul>
+    </nav>
+    <div class="main">
+      <nav class="pager" aria-label="Nearby sections">
+        <a class="pager-prev" href="bolt-11.html" accesskey="p" rel="prev">BOLT #11: Invoice Protocol for Lightning Payments</a>
+        <a class="pager-next" href="when-channels-close.html" accesskey="n" rel="next">When Channels Close</a>
+      </nav>
+      <h2 data-number="8.2" id="bolt-12">BOLT #12: Negotiation Protocol
+      for Lightning Payments</h2>
+      <h3 data-number="8.2.1" id="bolt-12-table-of-contents">Table of
+      Contents</h3>
+      <ul>
+      <li><a
+      href="bolt-12.html#bolt-12-limitations-of-bolt-11">Limitations of
+      BOLT 11</a></li>
+      <li><a href="bolt-12.html#bolt-12-payment-flow-scenarios">Payment
+      Flow Scenarios</a></li>
+      <li><a href="bolt-12.html#bolt-12-encoding">Encoding</a></li>
+      <li><a href="bolt-12.html#bolt-12-signature-calculation">Signature
+      calculation</a></li>
+      <li><a href="bolt-12.html#bolt-12-offers">Offers</a></li>
+      <li><a href="bolt-12.html#bolt-12-invoice-requests">Invoice
+      Requests</a></li>
+      <li><a href="bolt-12.html#bolt-12-invoices">Invoices</a></li>
+      <li><a href="bolt-12.html#bolt-12-invoice-errors">Invoice
+      Errors</a></li>
+      <li><a href="bolt-12.html#bolt-12-payer-proofs">Payer
+      Proofs</a></li>
+      </ul>
+      <h3 data-number="8.2.2"
+      id="bolt-12-limitations-of-bolt-11">Limitations of BOLT 11</h3>
+      <p>The BOLT 11 invoice format has proven popular but has several
+      limitations:</p>
+      <ol type="1">
+      <li>The entangling of bech32 encoding makes it awkward to send in
+      other forms (e.g. inside the lightning network itself).</li>
+      <li>The signature applying to the entire invoice makes it
+      impossible to prove an invoice without revealing its
+      entirety.</li>
+      <li>Fields cannot generally be extracted for external use: the
+      <code>h</code> field was a boutique extraction of the
+      <code>d</code> field only.</li>
+      <li>The lack of the ‘it’s OK to be odd’ rule makes backward
+      compatibility harder.</li>
+      <li>The ‘human-readable’ idea of separating amounts proved
+      fraught: <code>p</code> was often mishandled, and amounts in
+      pico-bitcoin are harder than the modern satoshi-based
+      counting.</li>
+      <li>Developers found the bech32 encoding to have an issue with
+      extensions, which means we want to replace or discard it
+      anyway.</li>
+      <li>The <code>payment_secret</code> designed to prevent probing by
+      other nodes in the path was only useful if the invoice remained
+      private between the payer and payee.</li>
+      <li>Invoices must be given per user and are actively dangerous if
+      two payment attempts are made for the same user.</li>
+      </ol>
+      <h3 data-number="8.2.3"
+      id="bolt-12-payment-flow-scenarios">Payment Flow Scenarios</h3>
+      <p>Here we use “user” as shorthand for the individual user’s
+      lightning node and “merchant” as the shorthand for the node of
+      someone who is selling or has sold something.</p>
+      <p>There are two basic payment flows supported by BOLT 12:</p>
+      <p>The general user-pays-merchant flow is: 1. A merchant publishes
+      an <em>offer</em>, such as on a web page or a QR code. 2. Every
+      user requests a unique <em>invoice</em> over the lightning network
+      using an <em>invoice_request</em> message, which contains the
+      offer fields. 3. The merchant replies with the <em>invoice</em>.
+      4. The user makes a payment to the merchant as indicated by the
+      invoice.</p>
+      <p>The merchant-pays-user flow (e.g. ATM or refund): 1. The
+      merchant publishes an <em>invoice_request</em> which includes an
+      amount it wishes to send to the user. 2. The user sends an
+      <em>invoice</em> over the lightning network for the amount in the
+      <em>invoice_request</em>, using a (possibly temporary)
+      <em>invoice_node_id</em>. 3. The merchant confirms the
+      <em>invoice_node_id</em> to ensure it’s about to pay the correct
+      person, and makes a payment to the invoice.</p>
+      <h3 data-number="8.2.4"
+      id="bolt-12-payment-proofs-and-payer-proofs">Payment Proofs and
+      Payer Proofs</h3>
+      <p>Note that the normal lightning “proof of payment” can only
+      demonstrate that an invoice was paid (by showing the preimage of
+      the <code>payment_hash</code>), not who paid it. The merchant can
+      claim an invoice was paid, and once revealed, anyone can claim
+      they paid the invoice, too.[1]</p>
+      <p>Providing a key in <em>invoice_request</em> allows the payer to
+      prove that they were the one to request the invoice. In addition,
+      the Merkle construction of the BOLT 12 invoice signature allows
+      the user to reveal invoice fields in case of a dispute
+      selectively.</p>
+      <h3 data-number="8.2.5" id="bolt-12-encoding">Encoding</h3>
+      <p>Each of the forms documented here are in <a
+      href="bolt-01.html#bolt-01-type-length-value-format">TLV</a>
+      format.</p>
+      <p>The supported ASCII encoding is the human-readable prefix,
+      followed by a <code>1</code>, followed by a bech32-style data
+      string of the TLVs in order, optionally interspersed with
+      <code>+</code> (for indicating additional data is to come). There
+      is no checksum, unlike bech32m.</p>
+      <h3 data-number="8.2.6"
+      id="bolt-12-requirements">Requirements</h3>
+      <p>Writers of a bolt12 string: - MUST either use all lowercase or
+      all UPPERCASE. - SHOULD use uppercase for QR codes. - SHOULD use
+      lower case otherwise. - MAY use <code>+</code>, optionally
+      followed by whitespace, to separate large bolt12 strings.</p>
+      <p>Readers of a bolt12 string: - MUST handle strings which are all
+      lowercase, or all uppercase. - if it encounters a <code>+</code>
+      followed by zero or more whitespace characters between two bech32
+      characters: - MUST remove the <code>+</code> and whitespace.</p>
+      <h3 data-number="8.2.7" id="bolt-12-rationale">Rationale</h3>
+      <p>The use of bech32 is arbitrary but already exists in the
+      bitcoin world. We currently omit the six-character trailing
+      checksum: QR codes have their own checksums anyway, and errors
+      don’t result in loss of funds, simply an invalid offer (or
+      inability to parse).</p>
+      <p>The use of <code>+</code> (which is ignored) allows use over
+      limited text fields like Twitter:</p>
+      <pre><code>lno1xxxxxxxx+
+
+yyyyyyyyyyyy+
+
+zzzzz</code></pre>
+      <p>See <a
+      href="bolt12/format-string-test.json">format-string-test.json</a>.</p>
+      <h3 data-number="8.2.8"
+      id="bolt-12-signature-calculation">Signature Calculation</h3>
+      <p>All signatures are created as per <a
+      href="https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki">BIP-340</a>
+      and tagged as recommended there. Thus we define
+      H(<code>tag</code>,<code>msg</code>) as
+      SHA256(SHA256(<code>tag</code>) || SHA256(<code>tag</code>) ||
+      <code>msg</code>), and
+      SIG(<code>tag</code>,<code>msg</code>,<code>key</code>) as the
+      signature of H(<code>tag</code>,<code>msg</code>) using
+      <code>key</code>.</p>
+      <p>Each form is signed using one or more <em>signature TLV
+      elements</em>: TLV types 240 through 1000 (inclusive). For these,
+      the tag is “lightning” || <code>messagename</code> ||
+      <code>fieldname</code>, and <code>msg</code> is the Merkle-root;
+      “lightning” is the literal 9-byte ASCII string,
+      <code>messagename</code> is the name of the TLV stream being
+      signed (i.e. “invoice_request”, “invoice” or “payer_proof”) and
+      the <code>fieldname</code> is the TLV field containing the
+      signature (e.g. “signature”).</p>
+      <p>The formulation of the Merkle tree is similar to that proposed
+      in <a
+      href="https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki">BIP-341</a>,
+      with each TLV leaf paired with a nonce leaf to avoid revealing
+      adjacent nodes in proofs.</p>
+      <p>The Merkle tree’s leaves are, in TLV-ascending order for each
+      tlv: 1. The H(“LnLeaf”,tlv). 2. The
+      H(“LnNonce”||first-tlv,tlv-type) where first-tlv is the
+      numerically-first TLV entry in the stream, and tlv-type is the
+      “type” field (1-9 bytes) of the current tlv.</p>
+      <p>The Merkle tree inner nodes are H(“LnBranch”,
+      lesser-SHA256||greater-SHA256); this ordering means proofs are
+      more compact since left/right is inherently determined.</p>
+      <p>If there is not exactly a power of 2 leaves, then the tree
+      depth will be uneven, with the deepest tree on the lowest-order
+      leaves.</p>
+      <p>e.g. consider the encoding of an <code>invoice</code>
+      <code>signature</code> with TLVs TLV0, TLV1, and TLV2 (of types 0,
+      1, and 2 respectively):</p>
+      <pre><code>L1=H(&quot;LnLeaf&quot;,TLV0)
+L1nonce=H(&quot;LnNonce&quot;||TLV0,0)
+L2=H(&quot;LnLeaf&quot;,TLV1)
+L2nonce=H(&quot;LnNonce&quot;||TLV0,1)
+L3=H(&quot;LnLeaf&quot;,TLV2)
+L3nonce=H(&quot;LnNonce&quot;||TLV0,2)
+
+Assume L1 &lt; L1nonce, L2 &gt; L2nonce and L3 &gt; L3nonce.
+
+   L1    L1nonce                      L2   L2nonce                L3   L3nonce
+     \   /                             \   /                       \   /
+      v v                               v v                         v v
+L1A=H(&quot;LnBranch&quot;,L1||L1nonce) L2A=H(&quot;LnBranch&quot;,L2nonce||L2)  L3A=H(&quot;LnBranch&quot;,L3nonce||L3)
+                 
+Assume L1A &lt; L2A:
+
+       L1A   L2A                                 L3A=H(&quot;LnBranch&quot;,L3nonce||L3)
+         \   /                                    |
+          v v                                     v
+  L1A2A=H(&quot;LnBranch&quot;,L1A||L2A)                   L3A=H(&quot;LnBranch&quot;,L3nonce||L3)
+  
+Assume L1A2A &gt; L3A:
+
+  L1A2A=H(&quot;LnBranch&quot;,L1A||L2A)          L3A
+                          \            /
+                           v          v
+                Root=H(&quot;LnBranch&quot;,L3A||L1A2A)
+
+Signature = SIG(&quot;lightninginvoicesignature&quot;, Root, nodekey)</code></pre>
+      <h3 data-number="8.2.9" id="bolt-12-offers">Offers</h3>
+      <p>Offers are a precursor to an invoice_request: readers will
+      request an invoice (or multiple) based on the offer. An offer can
+      be much longer-lived than a particular invoice, so it has some
+      different characteristics; in particular the amount can be in a
+      non-lightning currency. It’s also designed for compactness to fit
+      inside a QR code easily.</p>
+      <p>Note that the non-signature TLV elements get mirrored into
+      invoice_request and invoice messages, so they each have specific
+      and distinct TLV ranges.</p>
+      <p>The human-readable prefix for offers is <code>lno</code>.</p>
+      <h3 data-number="8.2.10" id="bolt-12-tlv-fields-for-offers">TLV
+      Fields for Offers</h3>
+      <ol type="1">
+      <li><code>tlv_stream</code>: <code>offer</code></li>
+      <li>types:
+      <ol type="1">
+      <li>type: 2 (<code>offer_chains</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*chain_hash</code>:<code>chains</code>]</li>
+      </ul></li>
+      <li>type: 4 (<code>offer_metadata</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*byte</code>:<code>data</code>]</li>
+      </ul></li>
+      <li>type: 6 (<code>offer_currency</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*utf8</code>:<code>iso4217</code>]</li>
+      </ul></li>
+      <li>type: 8 (<code>offer_amount</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>amount</code>]</li>
+      </ul></li>
+      <li>type: 10 (<code>offer_description</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*utf8</code>:<code>description</code>]</li>
+      </ul></li>
+      <li>type: 12 (<code>offer_features</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*byte</code>:<code>features</code>]</li>
+      </ul></li>
+      <li>type: 14 (<code>offer_absolute_expiry</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>seconds_from_epoch</code>]</li>
+      </ul></li>
+      <li>type: 16 (<code>offer_paths</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*blinded_path</code>:<code>paths</code>]</li>
+      </ul></li>
+      <li>type: 18 (<code>offer_issuer</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*utf8</code>:<code>issuer</code>]</li>
+      </ul></li>
+      <li>type: 20 (<code>offer_quantity_max</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>max</code>]</li>
+      </ul></li>
+      <li>type: 22 (<code>offer_issuer_id</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>point</code>:<code>id</code>]</li>
+      </ul></li>
+      </ol></li>
+      </ol>
+      <h3 data-number="8.2.11"
+      id="bolt-12-requirements-for-offers">Requirements For Offers</h3>
+      <p>A writer of an offer: - MUST NOT set any TLV fields outside the
+      inclusive ranges: 1 to 79 and 1000000000 to 1999999999. - if the
+      chain for the invoice is not solely bitcoin: - MUST specify
+      <code>offer_chains</code> the offer is valid for. - otherwise: -
+      SHOULD omit <code>offer_chains</code>, implying that bitcoin is
+      only chain. - if a specific minimum <code>offer_amount</code> is
+      required for successful payment: - MUST set
+      <code>offer_amount</code> to the amount expected (per item). -
+      MUST set <code>offer_amount</code> greater than zero. - if the
+      currency for <code>offer_amount</code> is that of all entries in
+      <code>chains</code>: - MUST specify <code>offer_amount</code> in
+      multiples of the minimum lightning-payable unit
+      (e.g. milli-satoshis for bitcoin). - otherwise: - MUST specify
+      <code>offer_currency</code> <code>iso4217</code> as an ISO 4217
+      three-letter code. - MUST specify <code>offer_amount</code> in the
+      currency unit adjusted by the ISO 4217 exponent (e.g. USD cents).
+      - MUST set <code>offer_description</code> to a complete
+      description of the purpose of the payment. - otherwise: - MUST NOT
+      set <code>offer_amount</code> - MUST NOT set
+      <code>offer_currency</code> - MAY set
+      <code>offer_description</code> - MAY set
+      <code>offer_metadata</code> for its own use. - if it supports
+      bolt12 offer features: - MUST set
+      <code>offer_features</code>.<code>features</code> to the bitmap of
+      bolt12 features. - if the offer expires: - MUST set
+      <code>offer_absolute_expiry</code> <code>seconds_from_epoch</code>
+      to the number of seconds after midnight 1 January 1970, UTC that
+      invoice_request should not be attempted. - if it is connected only
+      by private channels: - MUST include <code>offer_paths</code>
+      containing one or more paths to the node from publicly reachable
+      nodes. - otherwise: - MAY include <code>offer_paths</code>. - if
+      it includes <code>offer_paths</code>: - MAY set
+      <code>offer_issuer_id</code>. - otherwise: - MUST set
+      <code>offer_issuer_id</code> to the node’s public key to request
+      the invoice from. - if it sets <code>offer_issuer</code>: - SHOULD
+      set it to identify the issuer of the invoice clearly. - if it
+      includes a domain name: - SHOULD begin it with either user@domain
+      or domain - MAY follow with a space and more text - if it can
+      supply more than one item for a single invoice: - if the maximum
+      quantity is known: - MUST set that maximum in
+      <code>offer_quantity_max</code>. - MUST NOT set
+      <code>offer_quantity_max</code> to 0. - otherwise: - MUST set
+      <code>offer_quantity_max</code> to 0. - otherwise: - MUST NOT set
+      <code>offer_quantity_max</code>.</p>
+      <p>A reader of an offer: - if the offer contains any TLV fields
+      outside the inclusive ranges: 1 to 79 and 1000000000 to
+      1999999999: - MUST NOT respond to the offer. - if
+      <code>offer_features</code> contains unknown <em>odd</em> bits
+      that are non-zero: - MUST ignore the bit. - if
+      <code>offer_features</code> contains unknown <em>even</em> bits
+      that are non-zero: - MUST NOT respond to the offer. - SHOULD
+      indicate the unknown bit to the user. - if
+      <code>offer_chains</code> is not set: - if the node does not
+      accept bitcoin invoices: - MUST NOT respond to the offer -
+      otherwise: (<code>offer_chains</code> is set): - if the node does
+      not accept invoices for at least one of the <code>chains</code>: -
+      MUST NOT respond to the offer - if <code>offer_amount</code> is
+      set and <code>offer_description</code> is not set: - MUST NOT
+      respond to the offer. - if <code>offer_amount</code> is set and is
+      not greater than zero: - MUST NOT respond to the offer. - if
+      <code>offer_currency</code> is set and <code>offer_amount</code>
+      is not set: - MUST NOT respond to the offer. - if neither
+      <code>offer_issuer_id</code> nor <code>offer_paths</code> are set:
+      - MUST NOT respond to the offer. - if <code>num_hops</code> is 0
+      in any <code>blinded_path</code> in <code>offer_paths</code>: -
+      MUST NOT respond to the offer. - if it uses
+      <code>offer_amount</code> to provide the user with a cost
+      estimate: - MUST take into account the currency units for
+      <code>offer_amount</code>: - <code>offer_currency</code> field if
+      set - otherwise, the minimum lightning-payable unit
+      (e.g. milli-satoshis for bitcoin). - MUST warn the user if the
+      received <code>invoice_amount</code> differs significantly from
+      that estimate. - if the current time is after
+      <code>offer_absolute_expiry</code>: - MUST NOT respond to the
+      offer. - if it chooses to send an invoice request, it sends an
+      onion message: - if <code>offer_paths</code> is set: - MUST send
+      the onion message via any path in <code>offer_paths</code> to the
+      final <code>onion_msg_hop</code>.<code>blinded_node_id</code> in
+      that path - otherwise: - MUST send the onion message to
+      <code>offer_issuer_id</code> - MAY send more than one invoice
+      request onion message at once.</p>
+      <h3 data-number="8.2.12" id="bolt-12-rationale-1">Rationale</h3>
+      <p>The entire offer is reflected in the invoice_request, both for
+      completeness (so all information will be returned in the invoice),
+      and so that the offer node can be stateless. This makes
+      <code>offer_metadata</code> particularly useful, since it can
+      contain an authentication cookie to validate the other fields.</p>
+      <p>Because offer fields are copied into the invoice request (and
+      then the invoice), they require distinct ranges. The range 1-79 is
+      the normal range, with another billion for self-assigning
+      experimental ranges.</p>
+      <p>A signature is unnecessary, and makes for a longer string
+      (potentially limiting QR code use on low-end cameras); if the
+      offer has an error, no invoice will be given since the request
+      includes all the non-signature fields.</p>
+      <p>The <code>offer_issuer_id</code> can be omitted for brevity, if
+      <code>offer_paths</code> is set, as each of the final
+      <code>blinded_node_id</code> in the paths can serve as a valid
+      public key for the destination.</p>
+      <p>Because <code>offer_amount</code> can be in a different
+      currency (using the <code>offer_currency</code> field) it is
+      merely a guide: the issuer will convert it into a number of
+      millisatoshis for <code>invoice_amount</code> at the time they
+      generate an invoice, or the invoice request can specify the exact
+      amount in <code>invreq_amount</code>, but the issuer may then
+      reject it if it disagrees.</p>
+      <p><code>offer_quantity_max</code> is allowed to be 1, which seems
+      useless, but useful in a system which bases it on available stock.
+      It would be painful to have to special-case the “only one left”
+      offer generation.</p>
+      <p>Offers can be used to simply send money without expecting
+      anything in return (tips, kudos, donations, etc), which means the
+      description field is optional (the <code>offer_issuer</code> field
+      is very useful for this case!); if you are charging for something
+      specific, the description is vital for the user to know what it
+      was they paid for.</p>
+      <p>An empty <code>offer_chains</code> (present but with zero
+      entries) is explicitly invalid because it would make invoice
+      requests impossible. The payer cannot set
+      <code>invreq_chain</code> to “one of <code>offer_chains</code>”
+      when there are no chains listed. Rejecting such offers early
+      provides clear feedback rather than leaving implementations to
+      fail at the invoice request stage.</p>
+      <h3 data-number="8.2.13" id="bolt-12-invoice-requests">Invoice
+      Requests</h3>
+      <p>Invoice Requests are a request for an invoice; the
+      human-readable prefix for invoice requests is
+      <code>lnr</code>.</p>
+      <p>There are two similar-looking uses for invoice requests, which
+      are almost identical from a workflow perspective, but are quite
+      different from a user’s point of view.</p>
+      <p>One is a response to an offer; this contains the
+      <code>offer_issuer_id</code> or <code>offer_paths</code> and all
+      other offer details, and is generally received over an onion
+      message: if it’s valid and refers to a known offer, the response
+      is generally to reply with an <code>invoice</code> using the
+      <code>reply_path</code> field of the onion message.</p>
+      <p>The second case is publishing an invoice request without an
+      offer, such as via QR code. It contains neither
+      <code>offer_issuer_id</code> nor <code>offer_paths</code>, setting
+      the <code>invreq_payer_id</code> (and possibly
+      <code>invreq_paths</code>) instead, as it is the one paying: the
+      other offer fields are filled by the creator of the
+      <code>invoice_request</code>, forming a kind of
+      offer-to-send-money.</p>
+      <p>Note: the <code>invreq_metadata</code> is numbered 0 (not in
+      the 80-159 range for other invreq fields) making it the
+      “numerically-first TLV entry” for <a
+      href="bolt-12.html#bolt-12-signature-calculation">Signature
+      Calculation</a>. This ensures that merkle leaves are unguessable,
+      allowing a future compact representation to hide fields while
+      still allowing signature validation.</p>
+      <h3 data-number="8.2.14"
+      id="bolt-12-tlv-fields-for-invoice_request">TLV Fields for
+      <code>invoice_request</code></h3>
+      <ol type="1">
+      <li><code>tlv_stream</code>: <code>invoice_request</code></li>
+      <li>types:
+      <ol type="1">
+      <li>type: 0 (<code>invreq_metadata</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*byte</code>:<code>blob</code>]</li>
+      </ul></li>
+      <li>type: 2 (<code>offer_chains</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*chain_hash</code>:<code>chains</code>]</li>
+      </ul></li>
+      <li>type: 4 (<code>offer_metadata</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*byte</code>:<code>data</code>]</li>
+      </ul></li>
+      <li>type: 6 (<code>offer_currency</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*utf8</code>:<code>iso4217</code>]</li>
+      </ul></li>
+      <li>type: 8 (<code>offer_amount</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>amount</code>]</li>
+      </ul></li>
+      <li>type: 10 (<code>offer_description</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*utf8</code>:<code>description</code>]</li>
+      </ul></li>
+      <li>type: 12 (<code>offer_features</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*byte</code>:<code>features</code>]</li>
+      </ul></li>
+      <li>type: 14 (<code>offer_absolute_expiry</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>seconds_from_epoch</code>]</li>
+      </ul></li>
+      <li>type: 16 (<code>offer_paths</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*blinded_path</code>:<code>paths</code>]</li>
+      </ul></li>
+      <li>type: 18 (<code>offer_issuer</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*utf8</code>:<code>issuer</code>]</li>
+      </ul></li>
+      <li>type: 20 (<code>offer_quantity_max</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>max</code>]</li>
+      </ul></li>
+      <li>type: 22 (<code>offer_issuer_id</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>point</code>:<code>id</code>]</li>
+      </ul></li>
+      <li>type: 80 (<code>invreq_chain</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>chain_hash</code>:<code>chain</code>]</li>
+      </ul></li>
+      <li>type: 82 (<code>invreq_amount</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>msat</code>]</li>
+      </ul></li>
+      <li>type: 84 (<code>invreq_features</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*byte</code>:<code>features</code>]</li>
+      </ul></li>
+      <li>type: 86 (<code>invreq_quantity</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>quantity</code>]</li>
+      </ul></li>
+      <li>type: 88 (<code>invreq_payer_id</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>point</code>:<code>key</code>]</li>
+      </ul></li>
+      <li>type: 89 (<code>invreq_payer_note</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*utf8</code>:<code>note</code>]</li>
+      </ul></li>
+      <li>type: 90 (<code>invreq_paths</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*blinded_path</code>:<code>paths</code>]</li>
+      </ul></li>
+      <li>type: 91 (<code>invreq_bip_353_name</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>u8</code>:<code>name_len</code>]</li>
+      <li>[<code>name_len*byte</code>:<code>name</code>]</li>
+      <li>[<code>u8</code>:<code>domain_len</code>]</li>
+      <li>[<code>domain_len*byte</code>:<code>domain</code>]</li>
+      </ul></li>
+      <li>type: 240 (<code>signature</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>bip340sig</code>:<code>sig</code>]</li>
+      </ul></li>
+      </ol></li>
+      </ol>
+      <h3 data-number="8.2.15"
+      id="bolt-12-requirements-for-invoice-requests">Requirements for
+      Invoice Requests</h3>
+      <p>The writer: - if it is responding to an offer: - MUST copy all
+      fields from the offer (including unknown fields). - if
+      <code>offer_chains</code> is set: - MUST set
+      <code>invreq_chain</code> to one of <code>offer_chains</code>
+      unless that chain is bitcoin, in which case it SHOULD omit
+      <code>invreq_chain</code>. - otherwise: - if it sets
+      <code>invreq_chain</code> it MUST set it to bitcoin. - MUST set
+      <code>signature</code>.<code>sig</code> as detailed in <a
+      href="bolt-12.html#bolt-12-signature-calculation">Signature
+      Calculation</a> using the <code>invreq_payer_id</code>. - if
+      <code>offer_amount</code> is not present: - MUST specify
+      <code>invreq_amount</code>. - otherwise: - MAY omit
+      <code>invreq_amount</code>. - if it sets
+      <code>invreq_amount</code>: - MUST specify
+      <code>invreq_amount</code>.<code>msat</code> as greater or equal
+      to amount expected by <code>offer_amount</code> (and, if present,
+      <code>offer_currency</code> and <code>invreq_quantity</code>). -
+      MUST set <code>invreq_payer_id</code> to a transient public key. -
+      MUST remember the secret key corresponding to
+      <code>invreq_payer_id</code>. - if <code>offer_quantity_max</code>
+      is present: - MUST set <code>invreq_quantity</code> to greater
+      than zero. - if <code>offer_quantity_max</code> is non-zero: -
+      MUST set <code>invreq_quantity</code> less than or equal to
+      <code>offer_quantity_max</code>. - otherwise: - MUST NOT set
+      <code>invreq_quantity</code> - otherwise (not responding to an
+      offer): - MUST set <code>offer_description</code> to a complete
+      description of the purpose of the payment. - MUST set (or not set)
+      <code>offer_absolute_expiry</code> and <code>offer_issuer</code>
+      as it would for an offer. - MUST set <code>invreq_payer_id</code>
+      (as it would set <code>offer_issuer_id</code> for an offer). -
+      MUST set <code>invreq_paths</code> as it would set (or not set)
+      <code>offer_paths</code> for an offer. - MUST NOT include
+      <code>signature</code>, <code>offer_metadata</code>,
+      <code>offer_chains</code>, <code>offer_amount</code>,
+      <code>offer_currency</code>, <code>offer_features</code>,
+      <code>offer_quantity_max</code>, <code>offer_paths</code> or
+      <code>offer_issuer_id</code> - if the chain for the invoice is not
+      solely bitcoin: - MUST specify <code>invreq_chain</code> the offer
+      is valid for. - MUST set <code>invreq_amount</code>. - MUST NOT
+      set any non-signature TLV fields outside the inclusive ranges: 0
+      to 159 and 1000000000 to 2999999999 - MUST set
+      <code>invreq_metadata</code> to an unpredictable series of bytes.
+      - if it sets <code>invreq_amount</code>: - MUST set
+      <code>msat</code> in multiples of the minimum lightning-payable
+      unit (e.g. milli-satoshis for bitcoin) for
+      <code>invreq_chain</code> (or for bitcoin, if there is no
+      <code>invreq_chain</code>). - if it supports bolt12 invoice
+      request features: - MUST set
+      <code>invreq_features</code>.<code>features</code> to the bitmap
+      of features. - if it received the offer from which it constructed
+      this <code>invoice_request</code> using BIP 353 resolution: - MUST
+      include <code>invreq_bip_353_name</code> with, - <code>name</code>
+      set to the post-₿, pre-@ part of the BIP 353 HRN, -
+      <code>domain</code> set to the post-@ part of the BIP 353 HRN.</p>
+      <p>The reader: - MUST reject the invoice request if
+      <code>invreq_payer_id</code> or <code>invreq_metadata</code> are
+      not present. - MUST reject the invoice request if any
+      non-signature TLV fields are outside the inclusive ranges: 0 to
+      159 and 1000000000 to 2999999999 - if <code>invreq_features</code>
+      contains unknown <em>odd</em> bits that are non-zero: - MUST
+      ignore the bit. - if <code>invreq_features</code> contains unknown
+      <em>even</em> bits that are non-zero: - MUST reject the invoice
+      request. - MUST reject the invoice request if
+      <code>signature</code> is not correct as detailed in <a
+      href="bolt-12.html#bolt-12-signature-calculation">Signature
+      Calculation</a> using the <code>invreq_payer_id</code>. - if
+      <code>num_hops</code> is 0 in any <code>blinded_path</code> in
+      <code>invreq_paths</code>: - MUST reject the invoice request. - if
+      <code>offer_issuer_id</code> is present, and
+      <code>invreq_metadata</code> is identical to a previous
+      <code>invoice_request</code>: - MAY simply reply with the previous
+      invoice. - otherwise: - MUST NOT reply with a previous invoice. -
+      if <code>offer_issuer_id</code> or <code>offer_paths</code> are
+      present (response to an offer): - MUST reject the invoice request
+      if the offer fields do not exactly match a valid, unexpired offer.
+      - if <code>offer_paths</code> is present: - MUST ignore the
+      invoice_request if it did not arrive via one of those paths. -
+      otherwise: - MUST ignore any invoice_request if it arrived via a
+      blinded path. - if <code>offer_quantity_max</code> is present: -
+      MUST reject the invoice request if there is no
+      <code>invreq_quantity</code> field. - if
+      <code>offer_quantity_max</code> is non-zero: - MUST reject the
+      invoice request if <code>invreq_quantity</code> is zero, OR
+      greater than <code>offer_quantity_max</code>. - otherwise: - MUST
+      reject the invoice request if there is an
+      <code>invreq_quantity</code> field. - if <code>offer_amount</code>
+      is present: - MUST calculate the <em>expected amount</em> using
+      the <code>offer_amount</code>: - if <code>offer_currency</code> is
+      not the <code>invreq_chain</code> currency, convert to the
+      <code>invreq_chain</code> currency. - if
+      <code>invreq_quantity</code> is present, multiply by
+      <code>invreq_quantity</code>.<code>quantity</code>. - if
+      <code>invreq_amount</code> is present: - MUST reject the invoice
+      request if <code>invreq_amount</code>.<code>msat</code> is less
+      than the <em>expected amount</em>. - MAY reject the invoice
+      request if <code>invreq_amount</code>.<code>msat</code> greatly
+      exceeds the <em>expected amount</em>. - otherwise (no
+      <code>offer_amount</code>): - MUST reject the invoice request if
+      it does not contain <code>invreq_amount</code>. - SHOULD send an
+      invoice in response using the <code>onionmsg_tlv</code>
+      <code>reply_path</code>. - otherwise (no
+      <code>offer_issuer_id</code> or <code>offer_paths</code>, not a
+      response to our offer): - MUST reject the invoice request if any
+      of the following are present: - <code>offer_chains</code>,
+      <code>offer_features</code> or <code>offer_quantity_max</code>. -
+      MUST reject the invoice request if <code>invreq_amount</code> is
+      not present. - MAY use <code>offer_amount</code> (or
+      <code>offer_currency</code>) for informational display to user. -
+      if it sends an invoice in response: - MUST use
+      <code>invreq_paths</code> if present, otherwise MUST use
+      <code>invreq_payer_id</code> as the node id to send to. - if
+      <code>invreq_chain</code> is not present: - MUST reject the
+      invoice request if bitcoin is not a supported chain. - otherwise:
+      - MUST reject the invoice request if
+      <code>invreq_chain</code>.<code>chain</code> is not a supported
+      chain. - if <code>invreq_bip_353_name</code> is present: - MUST
+      reject the invoice request if <code>name</code> or
+      <code>domain</code> contain any bytes which are not
+      <code>0</code>-<code>9</code>, <code>a</code>-<code>z</code>,
+      <code>A</code>-<code>Z</code>, <code>-</code>, <code>_</code> or
+      <code>.</code>.</p>
+      <h3 data-number="8.2.16" id="bolt-12-rationale-2">Rationale</h3>
+      <p><code>invreq_metadata</code> might typically contain
+      information about the derivation of the
+      <code>invreq_payer_id</code>. This should not leak any information
+      (such as using a simple BIP-32 derivation path); a valid system
+      might be for a node to maintain a base payer key and encode a
+      128-bit tweak here. The payer_id would be derived by tweaking the
+      base key with SHA256(payer_base_pubkey || tweak). It’s also the
+      first entry (if present), ensuring an unpredictable nonce for
+      hashing.</p>
+      <p><code>invreq_payer_note</code> allows you to compliment, taunt,
+      or otherwise engrave graffiti into the invoice for all to see.</p>
+      <p>Users can give a tip (or obscure the amount sent) by specifying
+      an <code>invreq_amount</code> in their invoice request, even
+      though the offer specifies an <code>offer_amount</code>. The
+      recipient will only accept this if the invoice request amount
+      exceeds the amount it’s expecting (i.e. its
+      <code>offer_amount</code> after any currency conversion,
+      multiplied by <code>invreq_quantity</code>, if any).</p>
+      <p>Non-offer-response invoice requests are currently required to
+      explicitly state the <code>invreq_amount</code> in the chain
+      currency, so <code>offer_amount</code> and
+      <code>offer_currency</code> are redundant (but may be informative
+      for the payer to know how the sender claims
+      <code>invreq_amount</code> was derived).</p>
+      <p>The requirement to use <code>offer_paths</code> if present,
+      ensures a node does not reveal it is the source of an offer if it
+      is asked directly. Similarly, the requirement that the correct
+      path is used for the offer ensures that cannot be made to reveal
+      that it is the same node that created some other offer.</p>
+      <h3 data-number="8.2.17" id="bolt-12-invoices">Invoices</h3>
+      <p>Invoices are a payment request, and when the payment is made,
+      the payment preimage can be combined with the invoice to form a
+      cryptographic receipt.</p>
+      <p>The recipient sends an <code>invoice</code> in response to an
+      <code>invoice_request</code> using the <code>onion_message</code>
+      <code>invoice</code> field.</p>
+      <ol type="1">
+      <li><code>tlv_stream</code>: <code>invoice</code></li>
+      <li>types:
+      <ol type="1">
+      <li>type: 0 (<code>invreq_metadata</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*byte</code>:<code>blob</code>]</li>
+      </ul></li>
+      <li>type: 2 (<code>offer_chains</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*chain_hash</code>:<code>chains</code>]</li>
+      </ul></li>
+      <li>type: 4 (<code>offer_metadata</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*byte</code>:<code>data</code>]</li>
+      </ul></li>
+      <li>type: 6 (<code>offer_currency</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*utf8</code>:<code>iso4217</code>]</li>
+      </ul></li>
+      <li>type: 8 (<code>offer_amount</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>amount</code>]</li>
+      </ul></li>
+      <li>type: 10 (<code>offer_description</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*utf8</code>:<code>description</code>]</li>
+      </ul></li>
+      <li>type: 12 (<code>offer_features</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*byte</code>:<code>features</code>]</li>
+      </ul></li>
+      <li>type: 14 (<code>offer_absolute_expiry</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>seconds_from_epoch</code>]</li>
+      </ul></li>
+      <li>type: 16 (<code>offer_paths</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*blinded_path</code>:<code>paths</code>]</li>
+      </ul></li>
+      <li>type: 18 (<code>offer_issuer</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*utf8</code>:<code>issuer</code>]</li>
+      </ul></li>
+      <li>type: 20 (<code>offer_quantity_max</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>max</code>]</li>
+      </ul></li>
+      <li>type: 22 (<code>offer_issuer_id</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>point</code>:<code>id</code>]</li>
+      </ul></li>
+      <li>type: 80 (<code>invreq_chain</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>chain_hash</code>:<code>chain</code>]</li>
+      </ul></li>
+      <li>type: 82 (<code>invreq_amount</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>msat</code>]</li>
+      </ul></li>
+      <li>type: 84 (<code>invreq_features</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*byte</code>:<code>features</code>]</li>
+      </ul></li>
+      <li>type: 86 (<code>invreq_quantity</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>quantity</code>]</li>
+      </ul></li>
+      <li>type: 88 (<code>invreq_payer_id</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>point</code>:<code>key</code>]</li>
+      </ul></li>
+      <li>type: 89 (<code>invreq_payer_note</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*utf8</code>:<code>note</code>]</li>
+      </ul></li>
+      <li>type: 90 (<code>invreq_paths</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*blinded_path</code>:<code>paths</code>]</li>
+      </ul></li>
+      <li>type: 91 (<code>invreq_bip_353_name</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>u8</code>:<code>name_len</code>]</li>
+      <li>[<code>name_len*byte</code>:<code>name</code>]</li>
+      <li>[<code>u8</code>:<code>domain_len</code>]</li>
+      <li>[<code>domain_len*byte</code>:<code>domain</code>]</li>
+      </ul></li>
+      <li>type: 160 (<code>invoice_paths</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*blinded_path</code>:<code>paths</code>]</li>
+      </ul></li>
+      <li>type: 162 (<code>invoice_blindedpay</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*blinded_payinfo</code>:<code>payinfo</code>]</li>
+      </ul></li>
+      <li>type: 164 (<code>invoice_created_at</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>timestamp</code>]</li>
+      </ul></li>
+      <li>type: 166 (<code>invoice_relative_expiry</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu32</code>:<code>seconds_from_creation</code>]</li>
+      </ul></li>
+      <li>type: 168 (<code>invoice_payment_hash</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>sha256</code>:<code>payment_hash</code>]</li>
+      </ul></li>
+      <li>type: 170 (<code>invoice_amount</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>msat</code>]</li>
+      </ul></li>
+      <li>type: 172 (<code>invoice_fallbacks</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*fallback_address</code>:<code>fallbacks</code>]</li>
+      </ul></li>
+      <li>type: 174 (<code>invoice_features</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*byte</code>:<code>features</code>]</li>
+      </ul></li>
+      <li>type: 176 (<code>invoice_node_id</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>point</code>:<code>node_id</code>]</li>
+      </ul></li>
+      <li>type: 240 (<code>signature</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>bip340sig</code>:<code>sig</code>]</li>
+      </ul></li>
+      </ol></li>
+      <li>subtype: <code>blinded_payinfo</code></li>
+      <li>data:
+      <ul>
+      <li>[<code>u32</code>:<code>fee_base_msat</code>]</li>
+      <li>[<code>u32</code>:<code>fee_proportional_millionths</code>]</li>
+      <li>[<code>u16</code>:<code>cltv_expiry_delta</code>]</li>
+      <li>[<code>u64</code>:<code>htlc_minimum_msat</code>]</li>
+      <li>[<code>u64</code>:<code>htlc_maximum_msat</code>]</li>
+      <li>[<code>u16</code>:<code>flen</code>]</li>
+      <li>[<code>flen*byte</code>:<code>features</code>]</li>
+      </ul></li>
+      <li>subtype: <code>fallback_address</code></li>
+      <li>data:
+      <ul>
+      <li>[<code>byte</code>:<code>version</code>]</li>
+      <li>[<code>u16</code>:<code>len</code>]</li>
+      <li>[<code>len*byte</code>:<code>address</code>]</li>
+      </ul></li>
+      </ol>
+      <h3 data-number="8.2.18" id="bolt-12-invoice-features">Invoice
+      Features</h3>
+      <table>
+      <thead>
+      <tr>
+      <th>Bits</th>
+      <th>Description</th>
+      <th>Name</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+      <td>16</td>
+      <td>Multi-part-payment support</td>
+      <td>MPP/compulsory</td>
+      </tr>
+      <tr>
+      <td>17</td>
+      <td>Multi-part-payment support</td>
+      <td>MPP/optional</td>
+      </tr>
+      </tbody>
+      </table>
+      <p>The ‘MPP support’ invoice feature indicates that the payer MUST
+      (16) or MAY (17) use multiple part payments to pay the
+      invoice.</p>
+      <p>Some implementations may not support MPP (e.g. for small
+      payments), or may (due to capacity limits on a single channel)
+      require it.</p>
+      <h3 data-number="8.2.19"
+      id="bolt-12-requirements-1">Requirements</h3>
+      <p>A writer of an invoice: - MUST set
+      <code>invoice_created_at</code> to the number of seconds since
+      Midnight 1 January 1970, UTC when the invoice was created. - MUST
+      set <code>invoice_amount</code> to the minimum amount it will
+      accept, in units of the minimal lightning-payable unit
+      (e.g. milli-satoshis for bitcoin) for <code>invreq_chain</code>. -
+      if the invoice is in response to an <code>invoice_request</code>:
+      - MUST copy all non-signature fields from the invoice request
+      (including unknown fields). - if <code>invreq_amount</code> is
+      present: - MUST set <code>invoice_amount</code> to
+      <code>invreq_amount</code> - otherwise: - MUST set
+      <code>invoice_amount</code> to the <em>expected amount</em>. -
+      MUST set <code>invoice_payment_hash</code> to the SHA256 hash of
+      the <code>payment_preimage</code> that will be given in return for
+      payment. - if <code>offer_issuer_id</code> is present: - MUST set
+      <code>invoice_node_id</code> to the <code>offer_issuer_id</code> -
+      otherwise, if <code>offer_paths</code> is present: - MUST set
+      <code>invoice_node_id</code> to the final
+      <code>blinded_node_id</code> on the path it received the invoice
+      request - MUST specify exactly one signature TLV element:
+      <code>signature</code>. - MUST set <code>sig</code> to the
+      signature using <code>invoice_node_id</code> as described in <a
+      href="bolt-12.html#bolt-12-signature-calculation">Signature
+      Calculation</a>. - if it requires multiple parts to pay the
+      invoice: - MUST set
+      <code>invoice_features</code>.<code>features</code> bit
+      <code>MPP/compulsory</code> - or if it allows multiple parts to
+      pay the invoice: - MUST set
+      <code>invoice_features</code>.<code>features</code> bit
+      <code>MPP/optional</code> - if the expiry for accepting payment is
+      not 7200 seconds after <code>invoice_created_at</code>: - MUST set
+      <code>invoice_relative_expiry</code>.<code>seconds_from_creation</code>
+      to the number of seconds after <code>invoice_created_at</code>
+      that payment of this invoice should not be attempted. - if it
+      accepts onchain payments: - MAY specify
+      <code>invoice_fallbacks</code> - SHOULD specify
+      <code>invoice_fallbacks</code> in order of most-preferred to
+      least-preferred if it has a preference. - for the bitcoin chain,
+      it MUST set each <code>fallback_address</code> with
+      <code>version</code> as a valid witness version and
+      <code>address</code> as a valid witness program - MUST include
+      <code>invoice_paths</code> containing one or more paths to the
+      node. - MUST specify <code>invoice_paths</code> in order of
+      most-preferred to least-preferred if it has a preference. - MUST
+      include <code>invoice_blindedpay</code> with exactly one
+      <code>blinded_payinfo</code> for each <code>blinded_path</code> in
+      <code>paths</code>, in order. - MUST set <code>features</code> in
+      each <code>blinded_payinfo</code> to match
+      <code>encrypted_data_tlv</code>.<code>allowed_features</code> (or
+      empty, if no <code>allowed_features</code>). - SHOULD ignore any
+      payment which does not use one of the paths. - MUST NOT set any
+      non-signature TLV fields outside the inclusive ranges: 0 to 239
+      and 1000000000 to 3999999999.</p>
+      <p>A reader of an invoice: - MUST reject the invoice if
+      <code>invoice_amount</code> is not present. - MUST reject the
+      invoice if <code>invoice_created_at</code> is not present. - MUST
+      reject the invoice if <code>invoice_payment_hash</code> is not
+      present. - MUST reject the invoice if <code>invoice_node_id</code>
+      is not present. - if <code>invreq_chain</code> is not present: -
+      MUST reject the invoice if bitcoin is not a supported chain. -
+      otherwise: - MUST reject the invoice if
+      <code>invreq_chain</code>.<code>chain</code> is not a supported
+      chain. - if <code>invoice_features</code> contains unknown
+      <em>odd</em> bits that are non-zero: - MUST ignore the bit. - if
+      <code>invoice_features</code> contains unknown <em>even</em> bits
+      that are non-zero: - MUST reject the invoice. - if
+      <code>invoice_relative_expiry</code> is present: - MUST reject the
+      invoice if the current time since 1970-01-01 UTC is greater than
+      <code>invoice_created_at</code> plus
+      <code>seconds_from_creation</code>. - otherwise: - MUST reject the
+      invoice if the current time since 1970-01-01 UTC is greater than
+      <code>invoice_created_at</code> plus 7200. - MUST reject the
+      invoice if <code>invoice_paths</code> is not present or is empty.
+      - MUST reject the invoice if <code>num_hops</code> is 0 in any
+      <code>blinded_path</code> in <code>invoice_paths</code>. - MUST
+      reject the invoice if <code>invoice_blindedpay</code> is not
+      present. - MUST reject the invoice if
+      <code>invoice_blindedpay</code> does not contain exactly one
+      <code>blinded_payinfo</code> per
+      <code>invoice_paths</code>.<code>blinded_path</code>. - For each
+      <code>invoice_blindedpay</code>.<code>payinfo</code>: - MUST NOT
+      use the corresponding <code>invoice_paths</code>.<code>path</code>
+      if <code>payinfo</code>.<code>features</code> has any unknown even
+      bits set. - MUST reject the invoice if this leaves no usable
+      paths. - if the invoice is a response to an
+      <code>invoice_request</code>: - MUST reject the invoice if all
+      fields in ranges 0 to 159 and 1000000000 to 2999999999 (inclusive)
+      do not exactly match the invoice request. - if
+      <code>offer_issuer_id</code> is present (invoice_request for an
+      offer): - MUST reject the invoice if <code>invoice_node_id</code>
+      is not equal to <code>offer_issuer_id</code> - otherwise, if
+      <code>offer_paths</code> is present (invoice_request for an offer
+      without id): - MUST reject the invoice if
+      <code>invoice_node_id</code> is not equal to the final
+      <code>blinded_node_id</code> it sent the invoice request to. -
+      otherwise (invoice_request without an offer): - MAY reject the
+      invoice if it cannot confirm that <code>invoice_node_id</code> is
+      correct, out-of-band. - MUST reject the invoice if
+      <code>signature</code> is not a valid signature using
+      <code>invoice_node_id</code> as described in <a
+      href="bolt-12.html#bolt-12-signature-calculation">Signature
+      Calculation</a>. - SHOULD prefer to use earlier
+      <code>invoice_paths</code> over later ones if it has no other
+      reason for preference. - if <code>invoice_features</code> contains
+      the MPP/compulsory bit: - MUST pay the invoice via multiple
+      separate blinded paths. - otherwise, if
+      <code>invoice_features</code> contains the MPP/optional bit: - MAY
+      pay the invoice via multiple separate payments. - otherwise: -
+      MUST NOT use multiple parts to pay the invoice. - if
+      <code>invreq_amount</code> is present: - MUST reject the invoice
+      if <code>invoice_amount</code> is not equal to
+      <code>invreq_amount</code> - otherwise: - SHOULD confirm
+      authorization if <code>invoice_amount</code>.<code>msat</code> is
+      not within the amount range authorized. - for the bitcoin chain,
+      if the invoice specifies <code>invoice_fallbacks</code>: - MUST
+      ignore any <code>fallback_address</code> for which
+      <code>version</code> is greater than 16. - MUST ignore any
+      <code>fallback_address</code> for which <code>address</code> is
+      less than 2 or greater than 40 bytes. - MUST ignore any
+      <code>fallback_address</code> for which <code>address</code> does
+      not meet known requirements for the given <code>version</code> -
+      if <code>invreq_paths</code> is present: - MUST reject the invoice
+      if it did not arrive via one of those paths. - otherwise, neither
+      <code>offer_issuer_id</code> nor <code>offer_paths</code> are
+      present (not derived from an offer): - MUST reject the invoice if
+      it arrived via a blinded path. - otherwise (derived from an
+      offer): - MUST reject the invoice if it did not arrive via invoice
+      request <code>onionmsg_tlv</code> <code>reply_path</code>.</p>
+      <h3 data-number="8.2.20" id="bolt-12-rationale-3">Rationale</h3>
+      <p>Because the messaging layer is unreliable, it’s quite possible
+      to receive multiple requests for the same offer. As it’s the
+      caller’s responsibility to make <code>invreq_metadata</code> both
+      unpredictable and unique, the writer doesn’t have to check all the
+      fields are duplicates before simply returning a previous invoice.
+      Note that such caching is optional, and should be carefully
+      limited when e.g. currency conversion is involved, or if the
+      invoice has expired.</p>
+      <p>The invoice duplicates fields rather than committing to the
+      previous invreq. This flattened format simplifies storage at some
+      space cost, as the payer need only remember the invoice for any
+      refunds or proof.</p>
+      <p>The reader of the invoice cannot trust the invoice correctly
+      reflects the invreq fields, hence the requirements to check that
+      they are correct, although allowance is made for simply sending an
+      unrequested invoice directly.</p>
+      <p>Note that the recipient of the invoice can determine the
+      expected amount from either the offer it received, or the invreq
+      it sent, so often already has authorization for the expected
+      amount.</p>
+      <p>The default <code>invoice_relative_expiry</code> of 7200
+      seconds, which is generally a sufficient time for payment, even if
+      new channels need to be opened.</p>
+      <p>Blinded paths provide an equivalent to
+      <code>payment_secret</code> and <code>payment_metadata</code> used
+      in BOLT 11. Even if <code>invoice_node_id</code> or
+      <code>invreq_payer_id</code> is public, we force the use of
+      blinding paths to keep these features. If the recipient does not
+      care about the added privacy offered by blinded paths, they can
+      create a path of length 1 with only themselves.</p>
+      <p>Rather than provide detailed per-hop-payinfo for each hop in a
+      blinded path, we aggregate the fees and CLTV deltas. This avoids
+      trivially revealing any distinguishing non-uniformity which may
+      distinguish the path.</p>
+      <p>In the case of an invoice where there was no offer (just an
+      invoice request), the payer needs to ensure that the invoice is
+      from the intended payment recipient. This is the basis for the
+      suggestion to confirm the invoice_node_id for this case.</p>
+      <p>Raw invoices (not based on an invoice_request) are generally
+      not supported, though an implementation is allowed to support
+      them, and we may define the behavior in the future. The redundant
+      requirement to check <code>invreq_chain</code> explicitly is a nod
+      to this: if the invoice is a response to an invoice request, that
+      field must have existed due to the invoice request requirements,
+      and we also require it to be mirrored here.</p>
+      <h3 data-number="8.2.21" id="bolt-12-invoice-errors">Invoice
+      Errors</h3>
+      <p>Informative errors can be returned in an onion message
+      <code>invoice_error</code> field (via the onion
+      <code>reply_path</code>) for either <code>invoice_request</code>
+      or <code>invoice</code>.</p>
+      <h3 data-number="8.2.22"
+      id="bolt-12-tlv-fields-for-invoice_error">TLV Fields for
+      <code>invoice_error</code></h3>
+      <ol type="1">
+      <li><code>tlv_stream</code>: <code>invoice_error</code></li>
+      <li>types:
+      <ol type="1">
+      <li>type: 1 (<code>erroneous_field</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>tlv_fieldnum</code>]</li>
+      </ul></li>
+      <li>type: 3 (<code>suggested_value</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*byte</code>:<code>value</code>]</li>
+      </ul></li>
+      <li>type: 5 (<code>error</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*utf8</code>:<code>msg</code>]</li>
+      </ul></li>
+      </ol></li>
+      </ol>
+      <h3 data-number="8.2.23"
+      id="bolt-12-requirements-2">Requirements</h3>
+      <p>A writer of an invoice_error: - MUST set <code>error</code> to
+      an explanatory string. - MAY set <code>erroneous_field</code> to a
+      specific field number in the <code>invoice</code> or
+      <code>invoice_request</code> which had a problem. - if it sets
+      <code>erroneous_field</code>: - MAY set
+      <code>suggested_value</code>. - if it sets
+      <code>suggested_value</code>: - MUST set
+      <code>suggested_value</code> to a valid field for that
+      <code>tlv_fieldnum</code>. - otherwise: - MUST NOT set
+      <code>suggested_value</code>.</p>
+      <p>A reader of an invoice_error: FIXME!</p>
+      <h3 data-number="8.2.24" id="bolt-12-rationale-4">Rationale</h3>
+      <p>Usually an error message is sufficient for diagnostics, however
+      future enhancements may make automated handling useful.</p>
+      <p>In particular, we could allow non-offer-response
+      <code>invoice_request</code>s to omit <code>invreq_amount</code>
+      in the future and use offer fields to indicate alternate
+      currencies. (“I will send you 10c!”). Then the sender of the
+      invoice would have to guess how many msat that was, and could use
+      the <code>invoice_error</code> to indicate if the recipient
+      disagreed with the conversion so the sender can send a new
+      invoice.</p>
+      <h3 data-number="8.2.25" id="bolt-12-payer-proofs">Payer
+      Proofs</h3>
+      <p>Payer proofs are proofs of invoice payment; the human-readable
+      prefix for payer proofs is <code>lnp</code>.</p>
+      <p>The payer proof is based on the <code>invoice</code> TLV
+      stream, with the exception that <code>invreq_metadata</code>
+      cannot be included. Various other invoice fields may be omitted
+      for privacy: numbers corresponding to (but not identical to) their
+      position in the invoice are included, as well as the minimal
+      hashes for missing merkle branches, to allow verification of the
+      invoicing node’s signature.</p>
+      <p>To prove that this <code>payer_proof</code> was created by
+      someone who has the secret key used to request the invoice in the
+      first place, it includes a signature using the
+      <code>invreq_payer_id</code>: this signs the proof fields and
+      invoice fields.</p>
+      <h3 data-number="8.2.26"
+      id="bolt-12-tlv-fields-for-payer_proof">TLV Fields for
+      <code>payer_proof</code></h3>
+      <ol type="1">
+      <li><code>tlv_stream</code>: <code>payer_proof</code></li>
+      <li>types:
+      <ol type="1">
+      <li>type: 2 (<code>offer_chains</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*chain_hash</code>:<code>chains</code>]</li>
+      </ul></li>
+      <li>type: 4 (<code>offer_metadata</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*byte</code>:<code>data</code>]</li>
+      </ul></li>
+      <li>type: 6 (<code>offer_currency</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*utf8</code>:<code>iso4217</code>]</li>
+      </ul></li>
+      <li>type: 8 (<code>offer_amount</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>amount</code>]</li>
+      </ul></li>
+      <li>type: 10 (<code>offer_description</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*utf8</code>:<code>description</code>]</li>
+      </ul></li>
+      <li>type: 12 (<code>offer_features</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*byte</code>:<code>features</code>]</li>
+      </ul></li>
+      <li>type: 14 (<code>offer_absolute_expiry</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>seconds_from_epoch</code>]</li>
+      </ul></li>
+      <li>type: 16 (<code>offer_paths</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*blinded_path</code>:<code>paths</code>]</li>
+      </ul></li>
+      <li>type: 18 (<code>offer_issuer</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*utf8</code>:<code>issuer</code>]</li>
+      </ul></li>
+      <li>type: 20 (<code>offer_quantity_max</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>max</code>]</li>
+      </ul></li>
+      <li>type: 22 (<code>offer_issuer_id</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>point</code>:<code>id</code>]</li>
+      </ul></li>
+      <li>type: 80 (<code>invreq_chain</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>chain_hash</code>:<code>chain</code>]</li>
+      </ul></li>
+      <li>type: 82 (<code>invreq_amount</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>msat</code>]</li>
+      </ul></li>
+      <li>type: 84 (<code>invreq_features</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*byte</code>:<code>features</code>]</li>
+      </ul></li>
+      <li>type: 86 (<code>invreq_quantity</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>quantity</code>]</li>
+      </ul></li>
+      <li>type: 88 (<code>invreq_payer_id</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>point</code>:<code>key</code>]</li>
+      </ul></li>
+      <li>type: 89 (<code>invreq_payer_note</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*utf8</code>:<code>note</code>]</li>
+      </ul></li>
+      <li>type: 90 (<code>invreq_paths</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*blinded_path</code>:<code>paths</code>]</li>
+      </ul></li>
+      <li>type: 91 (<code>invreq_bip_353_name</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>u8</code>:<code>name_len</code>]</li>
+      <li>[<code>name_len*byte</code>:<code>name</code>]</li>
+      <li>[<code>u8</code>:<code>domain_len</code>]</li>
+      <li>[<code>domain_len*byte</code>:<code>domain</code>]</li>
+      </ul></li>
+      <li>type: 160 (<code>invoice_paths</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*blinded_path</code>:<code>paths</code>]</li>
+      </ul></li>
+      <li>type: 162 (<code>invoice_blindedpay</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*blinded_payinfo</code>:<code>payinfo</code>]</li>
+      </ul></li>
+      <li>type: 164 (<code>invoice_created_at</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>timestamp</code>]</li>
+      </ul></li>
+      <li>type: 166 (<code>invoice_relative_expiry</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu32</code>:<code>seconds_from_creation</code>]</li>
+      </ul></li>
+      <li>type: 168 (<code>invoice_payment_hash</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>sha256</code>:<code>payment_hash</code>]</li>
+      </ul></li>
+      <li>type: 170 (<code>invoice_amount</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>tu64</code>:<code>msat</code>]</li>
+      </ul></li>
+      <li>type: 172 (<code>invoice_fallbacks</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*fallback_address</code>:<code>fallbacks</code>]</li>
+      </ul></li>
+      <li>type: 174 (<code>invoice_features</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*byte</code>:<code>features</code>]</li>
+      </ul></li>
+      <li>type: 176 (<code>invoice_node_id</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>point</code>:<code>node_id</code>]</li>
+      </ul></li>
+      <li>type: 240 (<code>signature</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>bip340sig</code>:<code>sig</code>]</li>
+      </ul></li>
+      <li>type: 241 (<code>proof_signature</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>bip340sig</code>:<code>sig</code>]</li>
+      </ul></li>
+      <li>type: 1001 (<code>proof_preimage</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>32*byte</code>:<code>preimage</code>]</li>
+      </ul></li>
+      <li>type: 1002 (<code>proof_omitted_tlvs</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*bigsize</code>:<code>missing</code>]</li>
+      </ul></li>
+      <li>type: 1003 (<code>proof_missing_hashes</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*sha256</code>:<code>hashes</code>]</li>
+      </ul></li>
+      <li>type: 1004 (<code>proof_leaf_hashes</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*sha256</code>:<code>hashes</code>]</li>
+      </ul></li>
+      <li>type: 1005 (<code>proof_note</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*utf8</code>:<code>note</code>]</li>
+      </ul></li>
+      </ol></li>
+      </ol>
+      <h3 data-number="8.2.27"
+      id="bolt-12-requirements-3">Requirements</h3>
+      <p>A writer of a payer_proof: - MUST NOT include
+      <code>invreq_metadata</code>. - MUST include
+      <code>invreq_payer_id</code>, <code>invoice_payment_hash</code>,
+      <code>invoice_node_id</code>, <code>signature</code> and (if
+      present) <code>invoice_features</code> from the invoice. - MUST
+      include <code>proof_preimage</code> containing the
+      <code>payment_preimage</code> returned from successful payment of
+      this invoice. - For each non-signature TLV in the invoice in
+      ascending-type order: - If the field is to be included in the
+      payer_proof: - MUST copy it into the payer_proof. - MUST append
+      the nonce (H(“LnNonce”||TLV0,type)) to
+      <code>proof_leaf_hashes</code>. - otherwise, if the TLV type is
+      not zero: - MUST append a <em>marker number</em> to
+      <code>proof_omitted_tlvs</code> - If the previous TLV type was
+      included: - The <em>marker number</em> is that previous tlv type,
+      plus one. - Otherwise, if <code>proof_omitted_tlvs</code> is
+      empty: - The <em>marker number</em> is 1. - Otherwise, if the last
+      <code>proof_omitted_tlvs</code> entry is 239: - The <em>marker
+      number</em> is 1000000000. - Otherwise: - The <em>marker
+      number</em> is one greater than the last
+      <code>proof_omitted_tlvs</code> entry. - If
+      <code>proof_omitted_tlvs</code> is empty: - MAY omit
+      <code>proof_omitted_tlvs</code> from the payer_proof. - MAY
+      include an annotation on the proof in <code>proof_note</code>. -
+      MUST populate <code>proof_missing_hashes</code> with the merkle
+      hash of the omitted branch of each internal node that has exactly
+      one branch entirely omitted, in post-order depth-first
+      smallest-to-largest TLV order. - MUST copy <code>signature</code>
+      into the payer_proof. - MUST set <code>proof_signature</code> as
+      detailed in <a
+      href="bolt-12.html#bolt-12-signature-calculation">Signature
+      Calculation</a> using the <code>invreq_payer_id</code>.</p>
+      <p>A reader of a payer_proof: - MUST reject the payer_proof if: -
+      <code>invreq_payer_id</code>, <code>invoice_payment_hash</code>,
+      <code>invoice_node_id</code>, <code>signature</code>,
+      <code>proof_preimage</code>, <code>proof_missing_hashes</code>,
+      <code>proof_leaf_hashes</code> or <code>proof_signature</code> are
+      missing. - SHA256(<code>proof_preimage</code>) does not equal
+      <code>invoice_payment_hash</code>. -
+      <code>proof_omitted_tlvs</code> are not in strict ascending order
+      (no duplicates). - <code>proof_omitted_tlvs</code> contains 0. -
+      <code>proof_omitted_tlvs</code> contains number outside both
+      ranges 1 to 239 and 1000000000 to 3999999999. -
+      <code>proof_omitted_tlvs</code> contains the number of an included
+      TLV field. - <code>proof_omitted_tlvs</code> contains a number
+      which is not: - one greater than an included TLV number, - one
+      greater than the previous <code>proof_omitted_tlvs</code> entry,
+      or 0 if it is the first number, or - 1000000000, if the previous
+      <code>proof_omitted_tlvs</code> entry is 239. -
+      <code>proof_leaf_hashes</code> does not contain exactly one hash
+      for each field in ranges 1 to 239 and 1000000000 to 3999999999. -
+      There are not exactly enough <code>proof_missing_hashes</code> to
+      reconstruct the merkle tree root using the
+      <code>proof_omitted_tlvs</code> values (with <code>0</code>
+      implied as the first omitted TLV). - <code>signature</code> is not
+      a valid signature using <code>invoice_node_id</code> as described
+      in <a href="bolt-12.html#bolt-12-signature-calculation">Signature
+      Calculation</a> (with <code>messagename</code> “invoice”) of the
+      reconstructed merkle-root of the invoice (i.e. without fields 1001
+      through 999999999 inclusive). - <code>proof_signature</code> is
+      not a valid signature using <code>invreq_payer_id</code> as
+      described in <a
+      href="bolt-12.html#bolt-12-signature-calculation">Signature
+      Calculation</a>.</p>
+      <h4 data-number="8.2.27.1" id="bolt-12-rationale-5">Rationale</h4>
+      <p>Using the invoice as a base enshrines information about the
+      payment including important offer and invoice_request fields.
+      However, many fields are not useful (such as payment paths), or
+      may compromise privacy (such as invreq_payer_note containing
+      delivery address information), so being able to elide them while
+      still allowing signature validation is vital.</p>
+      <p>We disallow including <code>invreq_metadata</code>: that is the
+      hashing nonce, thus allowing brute-force of omitted fields.</p>
+      <p><code>invreq_payer_id</code> is the key whose signature we have
+      to attach to the proof, and <code>invoice_node_id</code> and
+      <code>signature</code> are needed to validate the original
+      invoice. <code>invoice_features</code> may indicate additional
+      details in the future which would require additional fields to be
+      in the proof. Note that <code>invoice_amount</code> is not
+      compulsory, though it would probably be very useful in most
+      cases.</p>
+      <p>The requirement to include minimal hashes (rather than one for
+      every unknown leaf) minimizes the size, especially when many
+      consecutive fields are omitted. As the exact TLV types of omitted
+      TLVs are unimportant (as long as ordering is maintained), we
+      renumber them to be minimal, as further obfuscation of values.</p>
+      <p>The proof fields are outside the established offer, invoice
+      request and invoice TLV ranges, and above the signature range
+      (240-1000), so they are committed to by the
+      <code>proof_signature</code>.</p>
+      <p>The optional <code>proof_note</code> field allows a
+      challenge-response system to be implemented: someone requiring
+      proof can ask for a signature with a particular note. It can also
+      be missing.</p>
+      <h3 data-number="8.2.28"
+      id="bolt-12-example-for-payer-proofs">Example for Payer
+      Proofs</h3>
+      <p>Consider a trivial TLV construct (not a valid invoice) which we
+      are trying to prove, with the following fields:</p>
+      <p>0 - Omitted 10 - Omitted 20 - Omitted 30 - Omitted 40 -
+      Included 50 - Omitted 60 - Omitted 240 - Omitted (signature
+      field)</p>
+      <p>Here is the full signature Merkle tree, with omitted nodes
+      marked with <code>(o)</code>:</p>
+      <pre><code>                      ____x____
+               ______/         \_______
+              /                        \
+          _x(o)*                     __x__
+        _/      \_                 _/     \_
+       /          \               /         \
+      x(o)        x(o)           x           \
+     / \          / \           / \           \
+    /   \        /   \         /   \           \
+ 0(o)  10(o)    20(o) 30(o)   40  50(o)       60(o)</code></pre>
+      <p>Note that the signature TLV 240 is not included in the merkle
+      tree.</p>
+      <p><code>proof_leaf_hashes</code> contains the nonce hashes for
+      the present non-signature TLVs:</p>
+      <ol type="1">
+      <li>H(“LnNonce”||TLV0,40)</li>
+      </ol>
+      <p>Since four adjacent nodes (0, 10 20 and 30) are omitted, we can
+      (and must) simply provide the hash of the node above them, marked
+      with an asterisk.</p>
+      <p>Thus, <code>proof_missing_hashes</code> contains the following
+      hashes in order:</p>
+      <ol type="1">
+      <li>Merkle of H(“LnLeaf”,TLV50) and H(“LnNonce”||TLV0,50)</li>
+      <li>Merkle of H(“LnLeaf”,TLV60) and H(“LnNonce”||TLV0,60)</li>
+      <li>Merkle of (Merkle of (Merkle of H(“LnLeaf”,TLV0) and
+      H(“LnNonce”||TLV0,0)) (Merkle of H(“LnLeaf”,TLV10) and
+      H(“LnNonce”||TLV0,10))) and (Merkle of (Merkle of
+      H(“LnLeaf”,TLV20) and H(“LnNonce”||TLV0,20)) (Merkle of
+      H(“LnLeaf”,TLV30) and H(“LnNonce”||TLV0,30)))</li>
+      </ol>
+      <p>In this example the correct proof_missing_hashes order is not
+      ascending TLV order: the omitted subtree containing TLVs 0, 10,
+      20, and 30 is emitted after the omitted TLVs 50 and 60, because it
+      is the missing sibling of their parent’s parent.</p>
+      <p>The <code>proof_omitted_tlvs</code> array is based on the
+      omitted tlvs: [0, 10, 20, 30, 50, 60]. It uses the minimal values
+      which hide the real field numbers without changing their order,
+      <code>0</code> is implied (as it’s always omitted), giving an
+      array of [1, 2, 3, 41, 42].</p>
+      <p>The algorithm for creating <code>proof_missing_hashes</code> is
+      most easily implemented in a recursive fashion, traversing
+      smallest-to-largest TLV (left-to-right in the above
+      representation). When you need to combine two hashes where one
+      side is entirely omitted and the other is not, append that hash to
+      <code>proof_missing_hashes</code>.</p>
+      <p>Reconstruction is the exact opposite: when you need to combine
+      a hash where one side is entirely omitted and the other is not,
+      pull a hash from <code>proof_missing_hashes</code>. If there are
+      insufficient <code>proof_missing_hashes</code>, or it isn’t empty
+      when you have completed the merkle tree, the number of
+      <code>proof_missing_hashes</code> was incorrect.</p>
+      <p>See the <a href="bolt12/payer-proof-test.json">Payer Proof Test
+      Vectors</a> for more examples.</p>
+      <h3 data-number="8.2.29"
+      id="bolt-12-fixme-possible-future-extensions">FIXME: Possible
+      future extensions:</h3>
+      <ol type="1">
+      <li>The offer can require delivery info in the
+      <code>invoice_request</code>.</li>
+      <li>An offer can be updated: the response to an
+      <code>invoice_request</code> is another offer, perhaps with a
+      signature from the original <code>offer_issuer_id</code></li>
+      <li>Any empty TLV fields can mean the value is supposed to be
+      known by other means (i.e. transport-specific), but is still
+      hashed for sig.</li>
+      <li>We could upgrade to allow multiple offers in one invreq and
+      invoice, to make a shopping list.</li>
+      <li>All-zero offer_id == gratuitous payment.</li>
+      <li>Streaming invoices?</li>
+      <li>Re-add recurrence.</li>
+      <li>Re-add <code>invoice_replace</code> for requesting replacement
+      of a (stuck-payment) invoice with a new one.</li>
+      <li>Allow non-offer <code>invoice_request</code> with alternate
+      currencies?</li>
+      <li>Add <code>offer_quantity_unit</code> to indicate stepping for
+      quantity (e.g. 100 grams).</li>
+      </ol>
+      <p>[1] https://www.youtube.com/watch?v=4SYc_flMnMQ</p>
+      <nav class="pager pager-bottom" aria-label="Nearby sections">
+        <a class="pager-prev" href="bolt-11.html" rel="prev">BOLT #11: Invoice Protocol for Lightning Payments</a>
+        <a class="pager-next" href="when-channels-close.html" rel="next">When Channels Close</a>
+      </nav>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var btn = document.getElementById("toc-toggle");
+      var toc = document.getElementById("TOC");
+      var page = (location.pathname.split("/").pop() || "index.html");
+      if (toc) {
+        toc.querySelectorAll("a").forEach(function (a) {
+          var href = a.getAttribute("href") || "";
+          if (href.split("#")[0] === page) a.classList.add("current");
+        });
+        var current = toc.querySelector("a.current");
+        if (current) current.scrollIntoView({ block: "center" });
+      }
+      document.querySelectorAll(".main h1[id], .main h2[id], .main h3[id], .main h4[id], .main h5[id], .main h6[id]").forEach(function (h) {
+        if (h.querySelector(".header-anchor")) return;
+        var a = document.createElement("a");
+        a.className = "header-anchor";
+        a.href = "#" + h.id;
+        a.setAttribute("aria-label", "Link to this heading");
+        a.textContent = "\u00B6";
+        h.appendChild(a);
+      });
+      if (!btn) return;
+      btn.addEventListener("click", function () {
+        var open = document.body.classList.toggle("toc-open");
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      toc && toc.addEventListener("click", function (e) {
+        if (e.target.closest("a") && window.matchMedia("(max-width: 879px)").matches) {
+          document.body.classList.remove("toc-open");
+          btn.setAttribute("aria-expanded", "false");
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

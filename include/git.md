@@ -1,4 +1,4 @@
-## Source snapshot
+# Source snapshot
 
 This book was built from the following commit of [lightning/bolts](https://github.com/lightning/bolts). If something here disagrees with upstream, upstream wins.
 

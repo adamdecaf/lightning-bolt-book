@@ -1,4 +1,4 @@
-## How to Read This Book
+# How to Read This Book
 
 You don't have to read this cover to cover. The BOLTs are a specification, not a novel. Still, there is a path through them that matches how Lightning actually works, and that's the path this book follows.
 

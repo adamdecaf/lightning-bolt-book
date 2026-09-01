@@ -1,4 +1,4 @@
-## Introduction
+# Introduction
 
 Welcome to the Lightning Book of BOLTs. This is a reading companion to the [Lightning Network Specifications (BOLTs)](https://github.com/lightning/bolts) — the documents that Lightning implementations actually implement.
 

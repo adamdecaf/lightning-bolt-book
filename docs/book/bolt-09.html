@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="The Lightning BOLT authors" />
+  <meta name="author" content="Compiled by Adam Shannon" />
+  <meta name="keywords" content="bitcoin, lightning, bolts, specification" />
+  <title>BOLT #9: Assigned Feature Flags · Lightning Book of
+BOLTs</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="../web.css" />
+</head>
+<body class="book">
+  <header class="site">
+    <a class="brand" href="../">Lightning Book of BOLTs</a>
+    <button type="button" id="toc-toggle" aria-controls="TOC" aria-expanded="false">Contents</button>
+    <nav class="site-links">
+      <a href="index.html">Contents</a>
+      <a href="https://github.com/adamdecaf/lightning-bolt-book/raw/master/lightning-bolt-book.epub">ePUB</a>
+      <a href="https://github.com/adamdecaf/lightning-bolt-book/raw/master/lightning-bolt-book.pdf">PDF</a>
+    </nav>
+  </header>
+  <div class="layout">
+    <nav id="TOC" role="doc-toc">
+      <h2 id="toc-title">Contents</h2>
+      <ul>
+      <li><a href="introduction.html#introduction"
+      id="toc-introduction">Introduction</a></li>
+      <li><a href="how-to-read-this-book.html#how-to-read-this-book"
+      id="toc-how-to-read-this-book">How to Read This Book</a></li>
+      <li><a href="source-snapshot.html#source-snapshot"
+      id="toc-source-snapshot">Source snapshot</a></li>
+      <li><a href="overview.html#overview" id="toc-overview">Overview</a>
+      <ul>
+      <li><a href="bolt-00.html#bolt-00" id="toc-bolt-00">BOLT #0:
+      Introduction and Index</a></li>
+      </ul></li>
+      <li><a href="connecting-nodes.html#connecting-nodes"
+      id="toc-connecting-nodes">Connecting Nodes</a>
+      <ul>
+      <li><a href="bolt-08.html#bolt-08" id="toc-bolt-08">BOLT #8: Encrypted
+      and Authenticated Transport</a></li>
+      <li><a href="bolt-01.html#bolt-01" id="toc-bolt-01">BOLT #1: Base
+      Protocol</a></li>
+      <li><a href="bolt-09.html#bolt-09" id="toc-bolt-09">BOLT #9: Assigned
+      Feature Flags</a></li>
+      </ul></li>
+      <li><a
+      href="opening-and-running-channels.html#opening-and-running-channels"
+      id="toc-opening-and-running-channels">Opening and Running Channels</a>
+      <ul>
+      <li><a href="bolt-02.html#bolt-02" id="toc-bolt-02">BOLT #2: Peer
+      Protocol for Channel Management</a></li>
+      <li><a href="bolt-03.html#bolt-03" id="toc-bolt-03">BOLT #3: Bitcoin
+      Transaction and Script Formats</a></li>
+      </ul></li>
+      <li><a href="routing-payments.html#routing-payments"
+      id="toc-routing-payments">Routing Payments</a>
+      <ul>
+      <li><a href="bolt-04.html#bolt-04" id="toc-bolt-04">BOLT #4: Onion
+      Routing Protocol</a></li>
+      <li><a href="bolt-07.html#bolt-07" id="toc-bolt-07">BOLT #7: P2P Node
+      and Channel Discovery</a></li>
+      </ul></li>
+      <li><a href="paying-people.html#paying-people"
+      id="toc-paying-people">Paying People</a>
+      <ul>
+      <li><a href="bolt-11.html#bolt-11" id="toc-bolt-11">BOLT #11: Invoice
+      Protocol for Lightning Payments</a></li>
+      <li><a href="bolt-12.html#bolt-12" id="toc-bolt-12">BOLT #12:
+      Negotiation Protocol for Lightning Payments</a></li>
+      </ul></li>
+      <li><a href="when-channels-close.html#when-channels-close"
+      id="toc-when-channels-close">When Channels Close</a>
+      <ul>
+      <li><a href="bolt-05.html#bolt-05" id="toc-bolt-05">BOLT #5:
+      Recommendations for On-chain Transaction Handling</a></li>
+      </ul></li>
+      <li><a href="finding-the-network.html#finding-the-network"
+      id="toc-finding-the-network">Finding the Network</a>
+      <ul>
+      <li><a href="bolt-10.html#bolt-10" id="toc-bolt-10">BOLT #10: DNS
+      Bootstrap and Assisted Node Location</a></li>
+      </ul></li>
+      <li><a href="newer-work.html#newer-work" id="toc-newer-work">Newer
+      Work</a>
+      <ul>
+      <li><a href="bolt-simple-taproot.html#bolt-simple-taproot"
+      id="toc-bolt-simple-taproot">Extension BOLT XX: Simple Taproot
+      Channels</a></li>
+      </ul></li>
+      <li><a href="conclusion.html#conclusion"
+      id="toc-conclusion">Conclusion</a></li>
+      </ul>
+    </nav>
+    <div class="main">
+      <nav class="pager" aria-label="Nearby sections">
+        <a class="pager-prev" href="bolt-01.html" accesskey="p" rel="prev">BOLT #1: Base Protocol</a>
+        <a class="pager-next" href="opening-and-running-channels.html" accesskey="n" rel="next">Opening and Running Channels</a>
+      </nav>
+      <h2 data-number="5.3" id="bolt-09">BOLT #9: Assigned Feature
+      Flags</h2>
+      <p>This document tracks the assignment of <code>features</code>
+      flags in the <code>init</code> message (<a
+      href="bolt-01.html">BOLT #1</a>), as well as <code>features</code>
+      fields in the <code>channel_announcement</code> and
+      <code>node_announcement</code> messages (<a
+      href="bolt-07.html">BOLT #7</a>). The flags are tracked
+      separately, since new flags will likely be added over time.</p>
+      <p>Some features were introduced and became so widespread they are
+      <code>ASSUMED</code> to be present by all nodes, and can be safely
+      ignored (and the semantics are only defined in prior revisions of
+      this spec).</p>
+      <p>Flags are numbered from the least-significant bit, at bit 0
+      (i.e. 0x1, an <em>even</em> bit). They are generally assigned in
+      pairs so that features can be introduced as optional (<em>odd</em>
+      bits) and later upgraded to be compulsory (<em>even</em> bits),
+      which will be refused by outdated nodes: see <a
+      href="bolt-01.html#bolt-01-the-init-message">BOLT #1: The
+      <code>init</code> Message</a>.</p>
+      <p>Some features don’t make sense on a per-channels or per-node
+      basis, so each feature defines how it is presented in those
+      contexts. Some features may be required for opening a channel, but
+      not a requirement for use of the channel, so the presentation of
+      those features depends on the feature itself.</p>
+      <p>The Context column decodes as follows:</p>
+      <ul>
+      <li><code>I</code>: presented in the <code>init</code>
+      message.</li>
+      <li><code>N</code>: presented in the
+      <code>node_announcement</code> messages</li>
+      <li><code>C</code>: presented in the
+      <code>channel_announcement</code> message.</li>
+      <li><code>C-</code>: presented in the
+      <code>channel_announcement</code> message, but always odd
+      (optional).</li>
+      <li><code>C+</code>: presented in the
+      <code>channel_announcement</code> message, but always even
+      (required).</li>
+      <li><code>9</code>: presented in <a href="bolt-11.html">BOLT
+      11</a> invoices.</li>
+      <li><code>B</code>: presented in the <code>allowed_features</code>
+      field of a blinded path.</li>
+      <li><code>T</code>: used in the <code>channel_type</code> field <a
+      href="bolt-02.html#bolt-02-the-open_channel-message">when opening
+      channels</a>.</li>
+      </ul>
+      <table>
+      <colgroup>
+      <col style="width: 3%" />
+      <col style="width: 16%" />
+      <col style="width: 27%" />
+      <col style="width: 4%" />
+      <col style="width: 13%" />
+      <col style="width: 33%" />
+      </colgroup>
+      <thead>
+      <tr>
+      <th>Bits</th>
+      <th>Name</th>
+      <th>Description</th>
+      <th>Context</th>
+      <th>Dependencies</th>
+      <th>Link</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+      <td>0/1</td>
+      <td><code>option_data_loss_protect</code></td>
+      <td>ASSUMED</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      </tr>
+      <tr>
+      <td>4/5</td>
+      <td><code>option_upfront_shutdown_script</code></td>
+      <td>Commits to a shutdown scriptpubkey when opening channel</td>
+      <td>IN</td>
+      <td></td>
+      <td><a href="bolt-02.html#bolt-02-the-open_channel-message">BOLT
+      #2</a></td>
+      </tr>
+      <tr>
+      <td>6/7</td>
+      <td><code>gossip_queries</code></td>
+      <td>Peer has useful gossip to share</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      </tr>
+      <tr>
+      <td>8/9</td>
+      <td><code>var_onion_optin</code></td>
+      <td>ASSUMED</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      </tr>
+      <tr>
+      <td>10/11</td>
+      <td><code>gossip_queries_ex</code></td>
+      <td>Gossip queries can include additional information</td>
+      <td>IN</td>
+      <td></td>
+      <td><a href="bolt-07.html#bolt-07-query-messages">BOLT #7</a></td>
+      </tr>
+      <tr>
+      <td>12/13</td>
+      <td><code>option_static_remotekey</code></td>
+      <td>ASSUMED</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      </tr>
+      <tr>
+      <td>14/15</td>
+      <td><code>payment_secret</code></td>
+      <td>ASSUMED</td>
+      <td></td>
+      <td></td>
+      <td>[Routing Onion Specification][bolt04]</td>
+      </tr>
+      <tr>
+      <td>16/17</td>
+      <td><code>basic_mpp</code></td>
+      <td>Node can receive basic multi-part payments</td>
+      <td>IN9</td>
+      <td><code>payment_secret</code></td>
+      <td><a href="bolt-04.html#bolt-04-basic-multi-part-payments">BOLT
+      #4</a></td>
+      </tr>
+      <tr>
+      <td>18/19</td>
+      <td><code>option_support_large_channel</code></td>
+      <td>Can create large channels</td>
+      <td>IN</td>
+      <td></td>
+      <td><a href="bolt-02.html#bolt-02-the-open_channel-message">BOLT
+      #2</a></td>
+      </tr>
+      <tr>
+      <td>22/23</td>
+      <td><code>option_anchors</code></td>
+      <td>Anchor commitment type with zero fee HTLC transactions</td>
+      <td>INT</td>
+      <td></td>
+      <td><a
+      href="bolt-03.html#bolt-03-htlc-timeout-and-htlc-success-transactions">BOLT
+      #3</a>, <a
+      href="https://lists.linuxfoundation.org/pipermail/lightning-dev/2020-September/002796.html">lightning-dev</a></td>
+      </tr>
+      <tr>
+      <td>24/25</td>
+      <td><code>option_route_blinding</code></td>
+      <td>Node supports blinded paths</td>
+      <td>IN9</td>
+      <td></td>
+      <td><a href="bolt-04.html#bolt-04-route-blinding">BOLT #4</a></td>
+      </tr>
+      <tr>
+      <td>26/27</td>
+      <td><code>option_shutdown_anysegwit</code></td>
+      <td>Future segwit versions allowed in <code>shutdown</code></td>
+      <td>IN</td>
+      <td></td>
+      <td><a
+      href="bolt-02.html#bolt-02-closing-initiation-shutdown">BOLT
+      #2</a></td>
+      </tr>
+      <tr>
+      <td>28/29</td>
+      <td><code>option_dual_fund</code></td>
+      <td>Use v2 of channel open, enables dual funding</td>
+      <td>IN</td>
+      <td></td>
+      <td><a href="bolt-02.html">BOLT #2</a></td>
+      </tr>
+      <tr>
+      <td>34/35</td>
+      <td><code>option_quiesce</code></td>
+      <td>Support for <code>stfu</code> message</td>
+      <td>IN</td>
+      <td></td>
+      <td><a href="bolt-02.html#bolt-02-channel-quiescence">BOLT
+      #2</a></td>
+      </tr>
+      <tr>
+      <td>36/37</td>
+      <td><code>option_attribution_data</code></td>
+      <td>Can generate/relay attribution data and
+      <code>fulfillment_payload</code></td>
+      <td>IN9</td>
+      <td></td>
+      <td><a href="bolt-04.html#bolt-04-returning-errors">BOLT #4</a>,
+      <a href="bolt-04.html#bolt-04-successful-payments">successful
+      payments</a></td>
+      </tr>
+      <tr>
+      <td>38/39</td>
+      <td><code>option_onion_messages</code></td>
+      <td>Can forward onion messages</td>
+      <td>IN</td>
+      <td></td>
+      <td><a href="bolt-04.html#bolt-04-onion-messages">BOLT #4</a></td>
+      </tr>
+      <tr>
+      <td>40/41</td>
+      <td><code>zero_fee_commitments</code></td>
+      <td>Zero-fee commitment and HTLC transactions</td>
+      <td>IN</td>
+      <td><code>option_channel_type</code></td>
+      <td><a
+      href="bolt-03.html#bolt-03-shared_anchor-output-zero_fee_commitments">BOLT
+      #3</a></td>
+      </tr>
+      <tr>
+      <td>42/43</td>
+      <td><code>option_provide_storage</code></td>
+      <td>Can store other nodes’ encrypted backup data</td>
+      <td>IN</td>
+      <td></td>
+      <td><a href="bolt-01.html#bolt-01-peer-storage">BOLT #1</a></td>
+      </tr>
+      <tr>
+      <td>44/45</td>
+      <td><code>option_channel_type</code></td>
+      <td>ASSUMED</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      </tr>
+      <tr>
+      <td>46/47</td>
+      <td><code>option_scid_alias</code></td>
+      <td>Supply channel aliases for routing</td>
+      <td>INT</td>
+      <td></td>
+      <td><a href="bolt-02.html#bolt-02-the-channel_ready-message">BOLT
+      #2</a></td>
+      </tr>
+      <tr>
+      <td>48/49</td>
+      <td><code>option_payment_metadata</code></td>
+      <td>Payment metadata in tlv record</td>
+      <td>9</td>
+      <td></td>
+      <td><a href="bolt-11.html#bolt-11-tagged-fields">BOLT #11</a></td>
+      </tr>
+      <tr>
+      <td>50/51</td>
+      <td><code>option_zeroconf</code></td>
+      <td>Understands zeroconf channel types</td>
+      <td>INT</td>
+      <td><code>option_scid_alias</code></td>
+      <td><a href="bolt-02.html#bolt-02-the-channel_ready-message">BOLT
+      #2</a></td>
+      </tr>
+      <tr>
+      <td>60/61</td>
+      <td><code>option_simple_close</code></td>
+      <td>Simplified closing negotiation</td>
+      <td>IN</td>
+      <td><code>option_shutdown_anysegwit</code></td>
+      <td><a
+      href="bolt-02.html#bolt-02-closing-negotiation-closing_complete-and-closing_sig">BOLT
+      #2</a></td>
+      </tr>
+      <tr>
+      <td>62/63</td>
+      <td><code>option_splice</code></td>
+      <td>Allows replacing the funding transaction with a new one</td>
+      <td>IN</td>
+      <td></td>
+      <td><a href="bolt-02.html#bolt-02-channel-splicing">BOLT
+      #2</a></td>
+      </tr>
+      <tr>
+      <td>66/67</td>
+      <td><code>option_onion_messages_only_channels</code></td>
+      <td>Only accepts onion messages from peers with a channel</td>
+      <td>IN</td>
+      <td><code>option_onion_messages</code></td>
+      <td><a href="bolt-04.html#bolt-04-onion-messages">BOLT #4</a></td>
+      </tr>
+      </tbody>
+      </table>
+      <h3 data-number="5.3.1"
+      id="bolt-09-requirements">Requirements</h3>
+      <p>The origin node: * If it supports a feature above, SHOULD set
+      the corresponding odd bit in all feature fields indicated by the
+      Context column unless indicated that it must set the even feature
+      bit instead. * If it requires a feature above, MUST set the
+      corresponding even feature bit in all feature fields indicated by
+      the Context column, unless indicated that it must set the odd
+      feature bit instead. * MUST NOT set feature bits it does not
+      support. * MUST NOT set feature bits in fields not specified by
+      the table above. * MUST NOT set both the optional and mandatory
+      bits. * MUST set all transitive feature dependencies. * MUST
+      support: * <code>var_onion_optin</code></p>
+      <p>The receiving node: * if both the optional and the mandatory
+      feature bits in a pair are set, the feature should be treated as
+      mandatory.</p>
+      <p>The requirements for receiving specific bits are defined in the
+      linked sections in the table above. The requirements for feature
+      bits that are not defined above can be found in <a
+      href="bolt-01.html#bolt-01-the-init-message">BOLT #1: The
+      <code>init</code> Message</a>.</p>
+      <h3 data-number="5.3.2" id="bolt-09-rationale">Rationale</h3>
+      <p>Note that for feature flags which are available in both the
+      <code>node_announcement</code> and <a href="bolt-11.html">BOLT
+      11</a> invoice contexts, the features as set in the <a
+      href="bolt-11.html">BOLT 11</a> invoice should override those set
+      in the <code>node_announcement</code>. This keeps things
+      consistent with the unknown features behavior as specified in <a
+      href="bolt-07.html#bolt-07-the-node_announcement-message">BOLT
+      7</a>.</p>
+      <p>The origin must set all transitive feature dependencies in
+      order to create a well-formed feature vector. By validating all
+      known dependencies up front, this simplifies logic gated on a
+      single feature bit; the feature’s dependencies are known to be
+      set, and do not need to be validated at every feature gate.</p>
+      <p><img src="media/34101c8bb1c1253f61bed847b98016c2c0f519af.png"
+      title="License CC-BY" alt="Creative Commons License" /> <br> This
+      work is licensed under a <a
+      href="http://creativecommons.org/licenses/by/4.0/">Creative
+      Commons Attribution 4.0 International License</a>.</p>
+      <nav class="pager pager-bottom" aria-label="Nearby sections">
+        <a class="pager-prev" href="bolt-01.html" rel="prev">BOLT #1: Base Protocol</a>
+        <a class="pager-next" href="opening-and-running-channels.html" rel="next">Opening and Running Channels</a>
+      </nav>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var btn = document.getElementById("toc-toggle");
+      var toc = document.getElementById("TOC");
+      var page = (location.pathname.split("/").pop() || "index.html");
+      if (toc) {
+        toc.querySelectorAll("a").forEach(function (a) {
+          var href = a.getAttribute("href") || "";
+          if (href.split("#")[0] === page) a.classList.add("current");
+        });
+        var current = toc.querySelector("a.current");
+        if (current) current.scrollIntoView({ block: "center" });
+      }
+      document.querySelectorAll(".main h1[id], .main h2[id], .main h3[id], .main h4[id], .main h5[id], .main h6[id]").forEach(function (h) {
+        if (h.querySelector(".header-anchor")) return;
+        var a = document.createElement("a");
+        a.className = "header-anchor";
+        a.href = "#" + h.id;
+        a.setAttribute("aria-label", "Link to this heading");
+        a.textContent = "\u00B6";
+        h.appendChild(a);
+      });
+      if (!btn) return;
+      btn.addEventListener("click", function () {
+        var open = document.body.classList.toggle("toc-open");
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      toc && toc.addEventListener("click", function (e) {
+        if (e.target.closest("a") && window.matchMedia("(max-width: 879px)").matches) {
+          document.body.classList.remove("toc-open");
+          btn.setAttribute("aria-expanded", "false");
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

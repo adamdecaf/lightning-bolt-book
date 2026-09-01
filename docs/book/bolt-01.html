@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="The Lightning BOLT authors" />
+  <meta name="author" content="Compiled by Adam Shannon" />
+  <meta name="keywords" content="bitcoin, lightning, bolts, specification" />
+  <title>BOLT #1: Base Protocol · Lightning Book of BOLTs</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="../web.css" />
+</head>
+<body class="book">
+  <header class="site">
+    <a class="brand" href="../">Lightning Book of BOLTs</a>
+    <button type="button" id="toc-toggle" aria-controls="TOC" aria-expanded="false">Contents</button>
+    <nav class="site-links">
+      <a href="index.html">Contents</a>
+      <a href="https://github.com/adamdecaf/lightning-bolt-book/raw/master/lightning-bolt-book.epub">ePUB</a>
+      <a href="https://github.com/adamdecaf/lightning-bolt-book/raw/master/lightning-bolt-book.pdf">PDF</a>
+    </nav>
+  </header>
+  <div class="layout">
+    <nav id="TOC" role="doc-toc">
+      <h2 id="toc-title">Contents</h2>
+      <ul>
+      <li><a href="introduction.html#introduction"
+      id="toc-introduction">Introduction</a></li>
+      <li><a href="how-to-read-this-book.html#how-to-read-this-book"
+      id="toc-how-to-read-this-book">How to Read This Book</a></li>
+      <li><a href="source-snapshot.html#source-snapshot"
+      id="toc-source-snapshot">Source snapshot</a></li>
+      <li><a href="overview.html#overview" id="toc-overview">Overview</a>
+      <ul>
+      <li><a href="bolt-00.html#bolt-00" id="toc-bolt-00">BOLT #0:
+      Introduction and Index</a></li>
+      </ul></li>
+      <li><a href="connecting-nodes.html#connecting-nodes"
+      id="toc-connecting-nodes">Connecting Nodes</a>
+      <ul>
+      <li><a href="bolt-08.html#bolt-08" id="toc-bolt-08">BOLT #8: Encrypted
+      and Authenticated Transport</a></li>
+      <li><a href="bolt-01.html#bolt-01" id="toc-bolt-01">BOLT #1: Base
+      Protocol</a></li>
+      <li><a href="bolt-09.html#bolt-09" id="toc-bolt-09">BOLT #9: Assigned
+      Feature Flags</a></li>
+      </ul></li>
+      <li><a
+      href="opening-and-running-channels.html#opening-and-running-channels"
+      id="toc-opening-and-running-channels">Opening and Running Channels</a>
+      <ul>
+      <li><a href="bolt-02.html#bolt-02" id="toc-bolt-02">BOLT #2: Peer
+      Protocol for Channel Management</a></li>
+      <li><a href="bolt-03.html#bolt-03" id="toc-bolt-03">BOLT #3: Bitcoin
+      Transaction and Script Formats</a></li>
+      </ul></li>
+      <li><a href="routing-payments.html#routing-payments"
+      id="toc-routing-payments">Routing Payments</a>
+      <ul>
+      <li><a href="bolt-04.html#bolt-04" id="toc-bolt-04">BOLT #4: Onion
+      Routing Protocol</a></li>
+      <li><a href="bolt-07.html#bolt-07" id="toc-bolt-07">BOLT #7: P2P Node
+      and Channel Discovery</a></li>
+      </ul></li>
+      <li><a href="paying-people.html#paying-people"
+      id="toc-paying-people">Paying People</a>
+      <ul>
+      <li><a href="bolt-11.html#bolt-11" id="toc-bolt-11">BOLT #11: Invoice
+      Protocol for Lightning Payments</a></li>
+      <li><a href="bolt-12.html#bolt-12" id="toc-bolt-12">BOLT #12:
+      Negotiation Protocol for Lightning Payments</a></li>
+      </ul></li>
+      <li><a href="when-channels-close.html#when-channels-close"
+      id="toc-when-channels-close">When Channels Close</a>
+      <ul>
+      <li><a href="bolt-05.html#bolt-05" id="toc-bolt-05">BOLT #5:
+      Recommendations for On-chain Transaction Handling</a></li>
+      </ul></li>
+      <li><a href="finding-the-network.html#finding-the-network"
+      id="toc-finding-the-network">Finding the Network</a>
+      <ul>
+      <li><a href="bolt-10.html#bolt-10" id="toc-bolt-10">BOLT #10: DNS
+      Bootstrap and Assisted Node Location</a></li>
+      </ul></li>
+      <li><a href="newer-work.html#newer-work" id="toc-newer-work">Newer
+      Work</a>
+      <ul>
+      <li><a href="bolt-simple-taproot.html#bolt-simple-taproot"
+      id="toc-bolt-simple-taproot">Extension BOLT XX: Simple Taproot
+      Channels</a></li>
+      </ul></li>
+      <li><a href="conclusion.html#conclusion"
+      id="toc-conclusion">Conclusion</a></li>
+      </ul>
+    </nav>
+    <div class="main">
+      <nav class="pager" aria-label="Nearby sections">
+        <a class="pager-prev" href="bolt-08.html" accesskey="p" rel="prev">BOLT #8: Encrypted and Authenticated Transport</a>
+        <a class="pager-next" href="bolt-09.html" accesskey="n" rel="next">BOLT #9: Assigned Feature Flags</a>
+      </nav>
+      <h2 data-number="5.2" id="bolt-01">BOLT #1: Base Protocol</h2>
+      <h3 data-number="5.2.1" id="bolt-01-overview">Overview</h3>
+      <p>This protocol assumes an underlying authenticated and ordered
+      transport mechanism that takes care of framing individual
+      messages. <a href="bolt-08.html">BOLT #8</a> specifies the
+      canonical transport layer used in Lightning, though it can be
+      replaced by any transport that fulfills the above guarantees.</p>
+      <p>The default TCP port depends on the network used. The most
+      common networks are:</p>
+      <ul>
+      <li>Bitcoin mainnet with port number 9735 or the corresponding
+      hexadecimal <code>0x2607</code>;</li>
+      <li>Bitcoin testnet with port number 19735
+      (<code>0x4D17</code>);</li>
+      <li>Bitcoin signet with port number 39735
+      (<code>0x9B37</code>).</li>
+      </ul>
+      <p>The Unicode code point for LIGHTNING <sup><a
+      href="#bolt-01-reference-1">1</a></sup>, and the port convention
+      try to follow the Bitcoin Core convention.</p>
+      <p>All data fields are unsigned big-endian unless otherwise
+      specified.</p>
+      <h3 data-number="5.2.2" id="bolt-01-table-of-contents">Table of
+      Contents</h3>
+      <ul>
+      <li><a
+      href="bolt-01.html#bolt-01-connection-handling-and-multiplexing">Connection
+      Handling and Multiplexing</a></li>
+      <li><a
+      href="bolt-01.html#bolt-01-lightning-message-format">Lightning
+      Message Format</a></li>
+      <li><a
+      href="bolt-01.html#bolt-01-type-length-value-format">Type-Length-Value
+      Format</a></li>
+      <li><a href="bolt-01.html#bolt-01-fundamental-types">Fundamental
+      Types</a></li>
+      <li><a href="bolt-01.html#bolt-01-setup-messages">Setup
+      Messages</a>
+      <ul>
+      <li><a href="bolt-01.html#bolt-01-the-init-message">The
+      <code>init</code> Message</a></li>
+      <li><a
+      href="bolt-01.html#bolt-01-the-error-and-warning-messages">The
+      <code>error</code> and <code>warning</code> Messages</a></li>
+      </ul></li>
+      <li><a href="bolt-01.html#bolt-01-control-messages">Control
+      Messages</a>
+      <ul>
+      <li><a href="bolt-01.html#bolt-01-the-ping-and-pong-messages">The
+      <code>ping</code> and <code>pong</code> Messages</a></li>
+      </ul></li>
+      <li><a href="bolt-01.html#bolt-01-peer-storage">Peer Storage</a>
+      <ul>
+      <li><a
+      href="bolt-01.html#bolt-01-the-peer_storage-and-peer_storage_retrieval-messages">The
+      <code>peer_storage</code> and <code>peer_storage_retrieval</code>
+      Messages</a></li>
+      </ul></li>
+      <li><a
+      href="bolt-01.html#bolt-01-appendix-a-bigsize-test-vectors">Appendix
+      A: BigSize Test Vectors</a></li>
+      <li><a
+      href="bolt-01.html#bolt-01-appendix-b-type-length-value-test-vectors">Appendix
+      B: Type-Length-Value Test Vectors</a></li>
+      <li><a
+      href="bolt-01.html#bolt-01-appendix-c-message-extension">Appendix
+      C: Message Extension</a></li>
+      <li><a
+      href="bolt-01.html#bolt-01-appendix-d-signed-integers-test-vectors">Appendix
+      D: Signed Integers Test Vectors</a></li>
+      <li><a
+      href="bolt-01.html#bolt-01-acknowledgments">Acknowledgments</a></li>
+      <li><a href="bolt-01.html#bolt-01-references">References</a></li>
+      <li><a href="bolt-01.html#bolt-01-authors">Authors</a></li>
+      </ul>
+      <h3 data-number="5.2.3"
+      id="bolt-01-connection-handling-and-multiplexing">Connection
+      Handling and Multiplexing</h3>
+      <p>Implementations MUST use a single connection per peer; channel
+      messages (which include a channel ID) are multiplexed over this
+      single connection.</p>
+      <h3 data-number="5.2.4"
+      id="bolt-01-lightning-message-format">Lightning Message
+      Format</h3>
+      <p>After decryption, all Lightning messages are of the form:</p>
+      <ol type="1">
+      <li><code>type</code>: a 2-byte big-endian field indicating the
+      type of message</li>
+      <li><code>payload</code>: a variable-length payload that comprises
+      the remainder of the message and that conforms to a format
+      matching the <code>type</code></li>
+      <li><code>extension</code>: an optional <a
+      href="bolt-01.html#bolt-01-type-length-value-format">TLV
+      stream</a></li>
+      </ol>
+      <p>The <code>type</code> field indicates how to interpret the
+      <code>payload</code> field. The format for each individual type is
+      defined by a specification in this repository. The type follows
+      the <em>it’s ok to be odd</em> rule, so nodes MAY send
+      <em>odd</em>-numbered types without ascertaining that the
+      recipient understands it.</p>
+      <p>The messages are grouped logically into five groups, ordered by
+      the most significant bit that is set:</p>
+      <ul>
+      <li>Setup &amp; Control (types <code>0</code>-<code>31</code>):
+      messages related to connection setup, control, supported features,
+      and error reporting (described below)</li>
+      <li>Channel (types <code>32</code>-<code>127</code>): messages
+      used to setup and tear down micropayment channels (described in <a
+      href="bolt-02.html">BOLT #2</a>)</li>
+      <li>Commitment (types <code>128</code>-<code>255</code>): messages
+      related to updating the current commitment transaction, which
+      includes adding, revoking, and settling HTLCs as well as updating
+      fees and exchanging signatures (described in <a
+      href="bolt-02.html">BOLT #2</a>)</li>
+      <li>Routing (types <code>256</code>-<code>511</code>): messages
+      containing node and channel announcements, as well as any active
+      route exploration (described in <a href="bolt-07.html">BOLT
+      #7</a>)</li>
+      <li>Custom (types <code>32768</code>-<code>65535</code>):
+      experimental and application-specific messages</li>
+      </ul>
+      <p>The size of the message is required by the transport layer to
+      fit into a 2-byte unsigned int; therefore, the maximum possible
+      size is 65535 bytes.</p>
+      <p>A sending node: - MUST NOT send an evenly-typed message not
+      listed here without prior negotiation. - MUST NOT send
+      evenly-typed TLV records in the <code>extension</code> without
+      prior negotiation. - that negotiates an option in this
+      specification: - MUST include all the fields annotated with that
+      option. - When defining custom messages: - SHOULD pick a random
+      <code>type</code> to avoid collision with other custom types. -
+      SHOULD pick a <code>type</code> that doesn’t conflict with other
+      experiments listed in <a
+      href="https://github.com/lightningnetwork/lightning-rfc/issues/716">this
+      issue</a>. - SHOULD pick an odd <code>type</code> identifiers when
+      regular nodes should ignore the additional data. - SHOULD pick an
+      even <code>type</code> identifiers when regular nodes should
+      reject the message and close the connection.</p>
+      <p>A receiving node: - upon receiving a message of <em>odd</em>,
+      unknown type: - MUST ignore the received message. - upon receiving
+      a message of <em>even</em>, unknown type: - MUST close the
+      connection. - MAY fail the channels. - upon receiving a known
+      message with insufficient length for the contents: - MUST close
+      the connection. - MAY fail the channels. - upon receiving a
+      message with an <code>extension</code>: - MAY ignore the
+      <code>extension</code>. - Otherwise, if the <code>extension</code>
+      is invalid: - MUST close the connection. - MAY fail the
+      channels.</p>
+      <h4 data-number="5.2.4.1" id="bolt-01-rationale">Rationale</h4>
+      <p>By default <code>SHA2</code> and Bitcoin public keys are both
+      encoded as big endian, thus it would be unusual to use a different
+      endian for other fields.</p>
+      <p>Length is limited to 65535 bytes by the cryptographic wrapping,
+      and messages in the protocol are never more than that length
+      anyway.</p>
+      <p>The <em>it’s ok to be odd</em> rule allows for future optional
+      extensions without negotiation or special coding in clients. The
+      <em>extension</em> field similarly allows for future expansion by
+      letting senders include additional TLV data. Note that an
+      <em>extension</em> field can only be added when the message
+      <code>payload</code> doesn’t already fill the 65535 bytes maximum
+      length.</p>
+      <p>Implementations may prefer to have message data aligned on an
+      8-byte boundary (the largest natural alignment requirement of any
+      type here); however, adding a 6-byte padding after the type field
+      was considered wasteful: alignment may be achieved by decrypting
+      the message into a buffer with 6-bytes of pre-padding.</p>
+      <h3 data-number="5.2.5"
+      id="bolt-01-type-length-value-format">Type-Length-Value
+      Format</h3>
+      <p>Throughout the protocol, a TLV (Type-Length-Value) format is
+      used to allow for the backwards-compatible addition of new fields
+      to existing message types.</p>
+      <p>A <code>tlv_record</code> represents a single field, encoded in
+      the form:</p>
+      <ul>
+      <li>[<code>bigsize</code>: <code>type</code>]</li>
+      <li>[<code>bigsize</code>: <code>length</code>]</li>
+      <li>[<code>length</code>: <code>value</code>]</li>
+      </ul>
+      <p>A <code>tlv_stream</code> is a series of (possibly zero)
+      <code>tlv_record</code>s, represented as the concatenation of the
+      encoded <code>tlv_record</code>s. When used to extend existing
+      messages, a <code>tlv_stream</code> is typically placed after all
+      currently defined fields.</p>
+      <p>The <code>type</code> is encoded using the BigSize format. It
+      functions as a message-specific, 64-bit identifier for the
+      <code>tlv_record</code> determining how the contents of
+      <code>value</code> should be decoded. <code>type</code>
+      identifiers below 2^16 are reserved for use in this specification.
+      <code>type</code> identifiers greater than or equal to 2^16 are
+      available for custom records. Any record not defined in this
+      specification is considered a custom record. This includes
+      experimental and application-specific messages.</p>
+      <p>The <code>length</code> is encoded using the BigSize format
+      signaling the size of <code>value</code> in bytes.</p>
+      <p>The <code>value</code> depends entirely on the
+      <code>type</code>, and should be encoded or decoded according to
+      the message-specific format determined by <code>type</code>.</p>
+      <h4 data-number="5.2.5.1"
+      id="bolt-01-requirements">Requirements</h4>
+      <p>The sending node: - MUST order <code>tlv_record</code>s in a
+      <code>tlv_stream</code> by strictly-increasing <code>type</code>,
+      hence MUST not produce more than a single TLV record with the same
+      <code>type</code> - MUST minimally encode <code>type</code> and
+      <code>length</code>. - When defining custom record
+      <code>type</code> identifiers: - SHOULD pick random
+      <code>type</code> identifiers to avoid collision with other custom
+      types. - SHOULD pick odd <code>type</code> identifiers when
+      regular nodes should ignore the additional data. - SHOULD pick
+      even <code>type</code> identifiers when regular nodes should
+      reject the full tlv stream containing the custom record. - SHOULD
+      NOT use redundant, variable-length encodings in a
+      <code>tlv_record</code>.</p>
+      <p>The receiving node: - if zero bytes remain before parsing a
+      <code>type</code>: - MUST stop parsing the
+      <code>tlv_stream</code>. - if a <code>type</code> or
+      <code>length</code> is not minimally encoded: - MUST fail to parse
+      the <code>tlv_stream</code>. - if decoded <code>type</code>s are
+      not strictly-increasing (including situations when two or more
+      occurrences of the same <code>type</code> are met): - MUST fail to
+      parse the <code>tlv_stream</code>. - if <code>length</code>
+      exceeds the number of bytes remaining in the message: - MUST fail
+      to parse the <code>tlv_stream</code>. - if <code>type</code> is
+      known: - MUST decode the next <code>length</code> bytes using the
+      known encoding for <code>type</code>. - if <code>length</code> is
+      not exactly equal to that required for the known encoding for
+      <code>type</code>: - MUST fail to parse the
+      <code>tlv_stream</code>. - if variable-length fields within the
+      known encoding for <code>type</code> are not minimal: - MUST fail
+      to parse the <code>tlv_stream</code>. - otherwise, if
+      <code>type</code> is unknown: - if <code>type</code> is even: -
+      MUST fail to parse the <code>tlv_stream</code>. - otherwise, if
+      <code>type</code> is odd: - MUST discard the next
+      <code>length</code> bytes.</p>
+      <h4 data-number="5.2.5.2" id="bolt-01-rationale-1">Rationale</h4>
+      <p>The primary advantage in using TLV is that a reader is able to
+      ignore new fields that it does not understand, since each field
+      carries the exact size of the encoded element. Without TLV, even
+      if a node does not wish to use a particular field, the node is
+      forced to add parsing logic for that field in order to determine
+      the offset of any fields that follow.</p>
+      <p>The strict monotonicity constraint ensures that all
+      <code>type</code>s are unique and can appear at most once. Fields
+      that map to complex objects, e.g. vectors, maps, or structs,
+      should do so by defining the encoding such that the object is
+      serialized within a single <code>tlv_record</code>. The uniqueness
+      constraint, among other things, enables the following
+      optimizations: - canonical ordering is defined independent of the
+      encoded <code>value</code>s. - canonical ordering can be known at
+      compile-time, rather than being determined dynamically at the time
+      of encoding. - verifying canonical ordering requires less state
+      and is less-expensive. - variable-size fields can reserve their
+      expected size up front, rather than appending elements
+      sequentially and incurring double-and-copy overhead.</p>
+      <p>The use of a bigsize for <code>type</code> and
+      <code>length</code> permits a space savings for small
+      <code>type</code>s or short <code>value</code>s. This potentially
+      leaves more space for application data over the wire or in an
+      onion payload.</p>
+      <p>All <code>type</code>s must appear in increasing order to
+      create a canonical encoding of the underlying
+      <code>tlv_record</code>s. This is crucial when computing
+      signatures over a <code>tlv_stream</code>, as it ensures verifiers
+      will be able to recompute the same message digest as the signer.
+      Note that the canonical ordering over the set of fields can be
+      enforced even if the verifier does not understand what the fields
+      contain.</p>
+      <p>Writers should avoid using redundant, variable-length encodings
+      in a <code>tlv_record</code> since this results in encoding the
+      length twice and complicates computing the outer length. As an
+      example, when writing a variable length byte array, the
+      <code>value</code> should contain only the raw bytes and forgo an
+      additional internal length since the <code>tlv_record</code>
+      already carries the number of bytes that follow. On the other
+      hand, if a <code>tlv_record</code> contains multiple,
+      variable-length elements then this would not be considered
+      redundant, and is needed to allow the receiver to parse individual
+      elements from <code>value</code>.</p>
+      <h3 data-number="5.2.6" id="bolt-01-fundamental-types">Fundamental
+      Types</h3>
+      <p>Various fundamental types are referred to in the message
+      specifications:</p>
+      <ul>
+      <li><code>byte</code>: an 8-bit byte</li>
+      <li><code>s8</code>: an 8-bit signed integer</li>
+      <li><code>u16</code>: a 2 byte unsigned integer</li>
+      <li><code>s16</code>: a 2 byte signed integer</li>
+      <li><code>u32</code>: a 4 byte unsigned integer</li>
+      <li><code>s32</code>: a 4 byte signed integer</li>
+      <li><code>u64</code>: an 8 byte unsigned integer</li>
+      <li><code>s64</code>: an 8 byte signed integer</li>
+      </ul>
+      <p>Signed integers use standard big-endian two’s complement
+      representation (see test vectors <a
+      href="bolt-01.html#bolt-01-appendix-d-signed-integers-test-vectors">below</a>).</p>
+      <p>For the final value in TLV records, truncated integers may be
+      used. Leading zeros in truncated integers MUST be omitted:</p>
+      <ul>
+      <li><code>tu16</code>: a 0 to 2 byte truncated unsigned
+      integer</li>
+      <li><code>tu32</code>: a 0 to 4 byte truncated unsigned
+      integer</li>
+      <li><code>tu64</code>: a 0 to 8 byte truncated unsigned
+      integer</li>
+      </ul>
+      <p>When used to encode amounts, the previous fields MUST comply
+      with the upper bound of 21 million BTC:</p>
+      <ul>
+      <li>satoshi amounts MUST be at most
+      <code>0x000775f05a074000</code></li>
+      <li>milli-satoshi amounts MUST be at most
+      <code>0x1d24b2dfac520000</code></li>
+      </ul>
+      <p>The following convenience types are also defined:</p>
+      <ul>
+      <li><code>chain_hash</code>: a 32-byte chain identifier (see <a
+      href="bolt-00.html#bolt-00-glossary-and-terminology-guide">BOLT
+      #0</a>)</li>
+      <li><code>channel_id</code>: a 32-byte channel_id (see <a
+      href="bolt-02.html#bolt-02-definition-of-channel-id">BOLT
+      #2</a>)</li>
+      <li><code>sha256</code>: a 32-byte SHA2-256 hash</li>
+      <li><code>signature</code>: a 64-byte bitcoin Elliptic Curve
+      signature</li>
+      <li><code>bip340sig</code>: a 64-byte bitcoin Elliptic Curve
+      Schnorr signature as per <a
+      href="https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki">BIP-340</a></li>
+      <li><code>point</code>: a 33-byte Elliptic Curve point (compressed
+      encoding as per <a
+      href="http://www.secg.org/sec1-v2.pdf#subsubsection.2.3.3">SEC 1
+      standard</a>)</li>
+      <li><code>short_channel_id</code>: an 8 byte value identifying a
+      channel (see <a
+      href="bolt-07.html#bolt-07-definition-of-short-channel-id">BOLT
+      #7</a>)</li>
+      <li><code>sciddir_or_pubkey</code>: either 9 or 33 bytes
+      referencing or identifying a node, respectively
+      <ul>
+      <li>if the first byte is 0 or 1, then an 8-byte
+      <code>short_channel_id</code> follows for a total of 9 bytes
+      <ul>
+      <li>0 for the first byte indicates this refers to
+      <code>node_id_1</code> in the <code>channel_announcement</code>
+      for <code>short_channel_id</code></li>
+      <li>1 for the first byte indicates this refers to
+      <code>node_id_2</code> in the <code>channel_announcement</code>
+      for <code>short_channel_id</code> (see <a
+      href="bolt-07.html#bolt-07-the-channel_announcement-message">BOLT
+      #7</a></li>
+      </ul></li>
+      <li>if the first byte is 2 or 3, then the value is a 33-byte
+      <code>point</code></li>
+      </ul></li>
+      <li><code>bigsize</code>: a variable-length, unsigned integer
+      similar to Bitcoin’s CompactSize encoding, but big-endian.
+      Described in <a
+      href="bolt-01.html#bolt-01-appendix-a-bigsize-test-vectors">BigSize</a>.</li>
+      <li><code>utf8</code>: a byte as part of a UTF-8 string. A writer
+      MUST ensure an array of these is a valid UTF-8 string, a reader
+      MAY reject any messages containing an array of these which is not
+      a valid UTF-8 string.</li>
+      </ul>
+      <h3 data-number="5.2.7" id="bolt-01-setup-messages">Setup
+      Messages</h3>
+      <h4 data-number="5.2.7.1" id="bolt-01-the-init-message">The
+      <code>init</code> Message</h4>
+      <p>Once authentication is complete, the first message reveals the
+      features supported or required by this node, even if this is a
+      reconnection.</p>
+      <p><a href="bolt-09.html">BOLT #9</a> specifies lists of features.
+      Each feature is generally represented by 2 bits. The
+      least-significant bit is numbered 0, which is <em>even</em>, and
+      the next most significant bit is numbered 1, which is
+      <em>odd</em>. For historical reasons, features are divided into
+      global and local feature bitmasks.</p>
+      <p>A feature is <em>offered</em> if a peer set it in the
+      <code>init</code> message for the current connection (as either
+      even or odd). A feature is <em>negotiated</em> if either both
+      peers offered it, or the local node offered it as even: it can
+      assume the peer supports it, as it did not disconnect as it would
+      be required to do.</p>
+      <p>The <code>features</code> field MUST be padded to bytes with
+      0s.</p>
+      <ol type="1">
+      <li>type: 16 (<code>init</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>u16</code>:<code>gflen</code>]</li>
+      <li>[<code>gflen*byte</code>:<code>globalfeatures</code>]</li>
+      <li>[<code>u16</code>:<code>flen</code>]</li>
+      <li>[<code>flen*byte</code>:<code>features</code>]</li>
+      <li>[<code>init_tlvs</code>:<code>tlvs</code>]</li>
+      </ul></li>
+      <li><code>tlv_stream</code>: <code>init_tlvs</code></li>
+      <li>types:
+      <ol type="1">
+      <li>type: 1 (<code>networks</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*chain_hash</code>:<code>chains</code>]</li>
+      </ul></li>
+      <li>type: 3 (<code>remote_addr</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>...*byte</code>:<code>data</code>]</li>
+      </ul></li>
+      </ol></li>
+      </ol>
+      <p>The optional <code>networks</code> indicates the chains the
+      node is interested in. The optional <code>remote_addr</code> can
+      be used to circumvent NAT issues.</p>
+      <h5 data-number="5.2.7.1.1"
+      id="bolt-01-requirements-1">Requirements</h5>
+      <p>The sending node: - MUST send <code>init</code> as the first
+      Lightning message for any connection. - MUST set feature bits as
+      defined in <a href="bolt-09.html">BOLT #9</a>. - MUST set any
+      undefined feature bits to 0. - SHOULD NOT set features greater
+      than 13 in <code>globalfeatures</code>. - SHOULD use the minimum
+      length required to represent the <code>features</code> field. -
+      SHOULD set <code>networks</code> to all chains it will gossip or
+      open channels for. - SHOULD set <code>remote_addr</code> to
+      reflect the remote IP address (and port) of an incoming
+      connection, if the node is the receiver and the connection was
+      done via IP. - if it sets <code>remote_addr</code>: - MUST set it
+      to a valid <code>address descriptor</code> (1 byte type and data)
+      as described in <a
+      href="bolt-07.html#bolt-07-the-node_announcement-message">BOLT
+      7</a>. - SHOULD NOT set private addresses as
+      <code>remote_addr</code>.</p>
+      <p>The receiving node: - MUST wait to receive <code>init</code>
+      before sending any other messages. - MUST combine (bitwise OR) the
+      two feature bitmaps into one logical <code>features</code> map. -
+      MUST respond to known feature bits as specified in <a
+      href="bolt-09.html">BOLT #9</a>. - upon receiving unknown
+      <em>odd</em> feature bits that are non-zero: - MUST ignore the
+      bit. - upon receiving unknown <em>even</em> feature bits that are
+      non-zero: - MUST close the connection. - upon receiving
+      <code>networks</code> containing no common chains - MAY close the
+      connection. - if the feature vector does not set all known,
+      transitive dependencies: - MUST close the connection. - MAY use
+      the <code>remote_addr</code> to update its
+      <code>node_announcement</code></p>
+      <h5 data-number="5.2.7.1.2"
+      id="bolt-01-rationale-2">Rationale</h5>
+      <p>There used to be two feature bitfields here, but for backwards
+      compatibility they’re now combined into one.</p>
+      <p>This semantic allows both future incompatible changes and
+      future backward compatible changes. Bits should generally be
+      assigned in pairs, in order that optional features may later
+      become compulsory.</p>
+      <p>Nodes wait for receipt of the other’s features to simplify
+      error diagnosis when features are incompatible.</p>
+      <p>Since all networks share the same port, but most
+      implementations only support a single network, the
+      <code>networks</code> fields avoids nodes erroneously believing
+      they will receive updates about their preferred network, or that
+      they can open channels.</p>
+      <h4 data-number="5.2.7.2"
+      id="bolt-01-the-error-and-warning-messages">The <code>error</code>
+      and <code>warning</code> Messages</h4>
+      <p>For simplicity of diagnosis, it’s often useful to tell a peer
+      that something is incorrect.</p>
+      <ol type="1">
+      <li>type: 17 (<code>error</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>channel_id</code>:<code>channel_id</code>]</li>
+      <li>[<code>u16</code>:<code>len</code>]</li>
+      <li>[<code>len*byte</code>:<code>data</code>]</li>
+      </ul></li>
+      <li>type: 1 (<code>warning</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>channel_id</code>:<code>channel_id</code>]</li>
+      <li>[<code>u16</code>:<code>len</code>]</li>
+      <li>[<code>len*byte</code>:<code>data</code>]</li>
+      </ul></li>
+      </ol>
+      <h5 data-number="5.2.7.2.1"
+      id="bolt-01-requirements-2">Requirements</h5>
+      <p>The channel is referred to by <code>channel_id</code>, unless
+      <code>channel_id</code> is 0 (i.e. all bytes are 0), in which case
+      it refers to all channels.</p>
+      <p>The funding node using channel establishment v1
+      (<code>open_channel</code>): - for all error messages sent before
+      (and including) the <code>funding_created</code> message: - MUST
+      use <code>temporary_channel_id</code> in lieu of
+      <code>channel_id</code>.</p>
+      <p>The fundee node using channel establishment v1
+      (<code>accept_channel</code>): - for all error messages sent
+      before (and not including) the <code>funding_signed</code>
+      message: - MUST use <code>temporary_channel_id</code> in lieu of
+      <code>channel_id</code>.</p>
+      <p>The opener node using channel establishment v2
+      (<code>open_channel2</code>): - for all error messages sent before
+      the <code>accept_channel2</code> message is received: - MUST use
+      <code>temporary_channel_id</code> in lieu of
+      <code>channel_id</code>.</p>
+      <p>The accepter node using channel establishment v2
+      (<code>open_channel2</code>): - for all error messages sent before
+      (and including) the <code>accept_channel2</code> message: - MUST
+      use <code>temporary_channel_id</code> in lieu of
+      <code>channel_id</code>.</p>
+      <p>A sending node: - SHOULD send <code>error</code> for protocol
+      violations or internal errors that make channels unusable or that
+      make further communication unusable. - SHOULD send
+      <code>error</code> with the unknown <code>channel_id</code> in
+      reply to messages of type <code>32</code>-<code>255</code> related
+      to unknown channels. - when sending <code>error</code>: - MUST
+      fail the channel(s) referred to by the error message. - MAY set
+      <code>channel_id</code> to all zero to indicate all channels. -
+      when sending <code>warning</code>: - MAY set
+      <code>channel_id</code> to all zero if the warning is not related
+      to a specific channel. - MAY send an empty <code>data</code>
+      field. - when failure was caused by an invalid signature check: -
+      SHOULD include the raw, hex-encoded transaction in reply to a
+      <code>funding_created</code>, <code>funding_signed</code>,
+      <code>closing_signed</code>, or <code>commitment_signed</code>
+      message.</p>
+      <p>The receiving node: - upon receiving <code>error</code>: - if
+      <code>channel_id</code> is all zero: - MUST fail all channels with
+      the sending node. - otherwise: - MUST fail the channel referred to
+      by <code>channel_id</code>, if that channel is with the sending
+      node. - upon receiving <code>warning</code>: - SHOULD log the
+      message for later diagnosis. - MAY attempt <code>shutdown</code>
+      if permitted at this point. - if no existing channel is referred
+      to by <code>channel_id</code>: - MUST ignore the message. - if
+      <code>data</code> is not composed solely of printable ASCII
+      characters (For reference: the printable character set includes
+      byte values 32 through 126, inclusive): - SHOULD NOT print out
+      <code>data</code> verbatim.</p>
+      <h5 data-number="5.2.7.2.2"
+      id="bolt-01-rationale-3">Rationale</h5>
+      <p>There are unrecoverable errors that require an abort of
+      conversations; if the connection is simply dropped, then the peer
+      may retry the connection. It’s also useful to describe protocol
+      violations for diagnosis, as this indicates that one peer has a
+      bug.</p>
+      <p>On the other hand, overuse of error messages has lead to
+      implementations ignoring them (to avoid an otherwise expensive
+      channel break), so the “warning” message was added to allow some
+      degree of retry or recovery for spurious errors.</p>
+      <p>It may be wise not to distinguish errors in production
+      settings, lest it leak information — hence, the optional
+      <code>data</code> field.</p>
+      <h3 data-number="5.2.8" id="bolt-01-control-messages">Control
+      Messages</h3>
+      <h4 data-number="5.2.8.1"
+      id="bolt-01-the-ping-and-pong-messages">The <code>ping</code> and
+      <code>pong</code> Messages</h4>
+      <p>In order to allow for the existence of long-lived TCP
+      connections, at times it may be required that both ends keep alive
+      the TCP connection at the application level. Such messages also
+      allow obfuscation of traffic patterns.</p>
+      <ol type="1">
+      <li>type: 18 (<code>ping</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>u16</code>:<code>num_pong_bytes</code>]</li>
+      <li>[<code>u16</code>:<code>byteslen</code>]</li>
+      <li>[<code>byteslen*byte</code>:<code>ignored</code>]</li>
+      </ul></li>
+      </ol>
+      <p>The <code>pong</code> message is to be sent whenever a
+      <code>ping</code> message is received. It serves as a reply and
+      also serves to keep the connection alive, while explicitly
+      notifying the other end that the receiver is still active. Within
+      the received <code>ping</code> message, the sender will specify
+      the number of bytes to be included within the data payload of the
+      <code>pong</code> message.</p>
+      <ol type="1">
+      <li>type: 19 (<code>pong</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>u16</code>:<code>byteslen</code>]</li>
+      <li>[<code>byteslen*byte</code>:<code>ignored</code>]</li>
+      </ul></li>
+      </ol>
+      <h5 data-number="5.2.8.1.1"
+      id="bolt-01-requirements-3">Requirements</h5>
+      <p>A node sending a <code>ping</code> message: - SHOULD set
+      <code>ignored</code> to 0s. - MUST NOT set <code>ignored</code> to
+      sensitive data such as secrets or portions of initialized memory.
+      - if it doesn’t receive a corresponding <code>pong</code>: - MAY
+      close the network connection, - and MUST NOT fail the channels in
+      this case.</p>
+      <p>A node sending a <code>pong</code> message: - SHOULD set
+      <code>ignored</code> to 0s. - MUST NOT set <code>ignored</code> to
+      sensitive data such as secrets or portions of initialized
+      memory.</p>
+      <p>A node receiving a <code>ping</code> message: - if
+      <code>num_pong_bytes</code> is less than 65532: - MUST respond by
+      sending a <code>pong</code> message, with <code>byteslen</code>
+      equal to <code>num_pong_bytes</code>. - otherwise
+      (<code>num_pong_bytes</code> is <strong>not</strong> less than
+      65532): - MUST ignore the <code>ping</code>.</p>
+      <p>A node receiving a <code>pong</code> message: - if
+      <code>byteslen</code> does not correspond to any
+      <code>ping</code>’s <code>num_pong_bytes</code> value it has sent:
+      - MAY close the connection.</p>
+      <h4 data-number="5.2.8.2" id="bolt-01-rationale-4">Rationale</h4>
+      <p>The largest possible message is 65535 bytes; thus, the maximum
+      sensible <code>byteslen</code> is 65531 — in order to account for
+      the type field (<code>pong</code>) and the <code>byteslen</code>
+      itself. This allows a convenient cutoff for
+      <code>num_pong_bytes</code> to indicate that no reply should be
+      sent.</p>
+      <p>Connections between nodes within the network may be long lived,
+      as payment channels have an indefinite lifetime. However, it’s
+      likely that no new data will be exchanged for a significant
+      portion of a connection’s lifetime. Also, on several platforms
+      it’s possible that Lightning clients will be put to sleep without
+      prior warning. Hence, a distinct <code>ping</code> message is
+      used, in order to probe for the liveness of the connection on the
+      other side, as well as to keep the established connection
+      active.</p>
+      <p>Additionally, the ability for a sender to request that the
+      receiver send a response with a particular number of bytes enables
+      nodes on the network to create <em>synthetic</em> traffic. Such
+      traffic can be used to partially defend against packet and timing
+      analysis — as nodes can fake the traffic patterns of typical
+      exchanges without applying any true updates to their respective
+      channels.</p>
+      <p>When combined with the onion routing protocol defined in <a
+      href="bolt-04.html">BOLT #4</a>, careful statistically driven
+      synthetic traffic can serve to further bolster the privacy of
+      participants within the network.</p>
+      <p>Limited precautions are recommended against <code>ping</code>
+      flooding, however some latitude is given because of network
+      delays. Note that there are other methods of incoming traffic
+      flooding (e.g. sending <em>odd</em> unknown message types, or
+      padding every message maximally).</p>
+      <p>Finally, the usage of periodic <code>ping</code> messages
+      serves to promote frequent key rotations as specified within <a
+      href="bolt-08.html">BOLT #8</a>.</p>
+      <h3 data-number="5.2.9" id="bolt-01-peer-storage">Peer
+      storage</h3>
+      <h4 data-number="5.2.9.1"
+      id="bolt-01-the-peer_storage-and-peer_storage_retrieval-messages">The
+      <code>peer_storage</code> and <code>peer_storage_retrieval</code>
+      Messages</h4>
+      <p>Nodes that advertise the <code>option_provide_storage</code>
+      feature offer storing arbitrary data for their peers. The data
+      stored must not exceed 65531 bytes, which lets it fit in lightning
+      messages.</p>
+      <p>Nodes can verify that their <code>option_provide_storage</code>
+      peers correctly store their data at each reconnection, by
+      comparing the contents of the retrieved data with the last one
+      they sent. However, nodes should not expect their peers to always
+      have their latest data available.</p>
+      <p>Nodes ask their peers to store data using the
+      <code>peer_storage</code> message and expect peers to return the
+      latest data to them using the <code>peer_storage_retrieval</code>
+      message:</p>
+      <ol type="1">
+      <li>type: 7 (<code>peer_storage</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>u16</code>:<code>length</code>]</li>
+      <li>[<code>length*byte</code>:<code>blob</code>]</li>
+      </ul></li>
+      <li>type: 9 (<code>peer_storage_retrieval</code>)</li>
+      <li>data:
+      <ul>
+      <li>[<code>u16</code>:<code>length</code>]</li>
+      <li>[<code>length*byte</code>:<code>blob</code>]</li>
+      </ul></li>
+      </ol>
+      <p>Requirements:</p>
+      <p>The sender of <code>peer_storage</code>: - MAY send
+      <code>peer_storage</code> whenever necessary. - MUST limit its
+      <code>blob</code> to 65531 bytes. - MUST encrypt the data in a
+      manner that ensures its integrity upon receipt. - SHOULD pad the
+      <code>blob</code> to ensure its length is always exactly 65531
+      bytes.</p>
+      <p>The receiver of <code>peer_storage</code>: - If it offered
+      <code>option_provide_storage</code>: - if it has an open channel
+      with the sender: - MUST store the message. - MAY store the message
+      anyway.</p>
+      <ul>
+      <li>If it does store the message:
+      <ul>
+      <li>MAY delay storage to ratelimit peer to no more than one update
+      per minute.</li>
+      <li>MUST replace the old <code>blob</code> with the latest
+      received.</li>
+      <li>MUST send <code>peer_storage_retrieval</code> again after
+      reconnection, after exchanging <code>init</code> messages.</li>
+      </ul></li>
+      </ul>
+      <p>The sender of <code>peer_storage_retrieval</code>: - MUST
+      include the last <code>blob</code> it stored for that peer. - when
+      all channels with that peer are closed: - SHOULD wait at least
+      2016 blocks before deleting the <code>blob</code>.</p>
+      <p>The receiver of <code>peer_storage_retrieval</code>: - when it
+      receives <code>peer_storage_retrieval</code> with an outdated or
+      irrelevant data: - MAY send a warning.</p>
+      <h5 data-number="5.2.9.1.1"
+      id="bolt-01-rationale-5">Rationale:</h5>
+      <p>The <code>peer_storage</code> and
+      <code>peer_storage_retrieval</code> messages enable nodes to
+      securely store and share data with other nodes in the network,
+      serving as a backup mechanism for important information. By
+      utilizing them, nodes can safeguard crucial data, enhancing the
+      network’s resilience and reliability. Additionally, even if we
+      don’t have an open channel, some nodes might provide this service
+      in exchange for some sats so they may store
+      <code>peer_storage</code>.</p>
+      <p>Nodes should pad the <code>blob</code> to obscure its actual
+      size, enhancing privacy by making size-based analysis more
+      difficult for the receiver.</p>
+      <p><code>peer_storage_retrieval</code> should not be sent after
+      <code>channel_reestablish</code> because then the user wouldn’t
+      have an option to recover the node and update its state in case
+      they lost data.</p>
+      <p>Nodes should send a <code>peer_storage</code> message whenever
+      they wish to update the <code>blob</code> stored with their peers.
+      This <code>blob</code> can be used to distribute encrypted data,
+      which could be helpful in restoring the node.</p>
+      <h3 data-number="5.2.10"
+      id="bolt-01-appendix-a-bigsize-test-vectors">Appendix A: BigSize
+      Test Vectors</h3>
+      <p>The following test vectors can be used to assert the
+      correctness of a BigSize implementation used in the TLV format.
+      The format is identical to the CompactSize encoding used in
+      bitcoin, but replaces the little-endian encoding of multi-byte
+      values with big-endian.</p>
+      <p>Values encoded with BigSize will produce an encoding of either
+      1, 3, 5, or 9 bytes depending on the size of the integer. The
+      encoding is a piece-wise function that takes a <code>uint64</code>
+      value <code>x</code> and produces:</p>
+      <pre><code>        uint8(x)                if x &lt; 0xfd
+        0xfd + be16(uint16(x))  if x &lt; 0x10000
+        0xfe + be32(uint32(x))  if x &lt; 0x100000000
+        0xff + be64(x)          otherwise.</code></pre>
+      <p>Here <code>+</code> denotes concatenation and
+      <code>be16</code>, <code>be32</code>, and <code>be64</code>
+      produce a big-endian encoding of the input for 16, 32, and 64-bit
+      integers, respectively.</p>
+      <p>A value is said to be <em>minimally encoded</em> if it could
+      not be encoded using fewer bytes. For example, a BigSize encoding
+      that occupies 5 bytes but whose value is less than 0x10000 is not
+      minimally encoded. All values decoded with BigSize should be
+      checked to ensure they are minimally encoded.</p>
+      <h4 data-number="5.2.10.1"
+      id="bolt-01-bigsize-decoding-tests">BigSize Decoding Tests</h4>
+      <p>The following is an example of how to execute the BigSize
+      decoding tests.</p>
+      <pre class="golang"><code>func testReadBigSize(t *testing.T, test bigSizeTest) {
+        var buf [8]byte 
+        r := bytes.NewReader(test.Bytes)
+        val, err := tlv.ReadBigSize(r, &amp;buf)
+        if err != nil &amp;&amp; err.Error() != test.ExpErr {
+                t.Fatalf(&quot;expected decoding error: %v, got: %v&quot;,
+                        test.ExpErr, err)
+        }
+
+        // If we expected a decoding error, there&#39;s no point checking the value.
+        if test.ExpErr != &quot;&quot; {
+                return
+        }
+
+        if val != test.Value {
+                t.Fatalf(&quot;expected value: %d, got %d&quot;, test.Value, val)
+        }
+}</code></pre>
+      <p>A correct implementation should pass against these test
+      vectors:</p>
+      <pre class="json"><code>[
+    {
+        &quot;name&quot;: &quot;zero&quot;,
+        &quot;value&quot;: 0,
+        &quot;bytes&quot;: &quot;00&quot;
+    },
+    {
+        &quot;name&quot;: &quot;one byte high&quot;,
+        &quot;value&quot;: 252,
+        &quot;bytes&quot;: &quot;fc&quot;
+    },
+    {
+        &quot;name&quot;: &quot;two byte low&quot;,
+        &quot;value&quot;: 253,
+        &quot;bytes&quot;: &quot;fd00fd&quot;
+    },
+    {
+        &quot;name&quot;: &quot;two byte high&quot;,
+        &quot;value&quot;: 65535,
+        &quot;bytes&quot;: &quot;fdffff&quot;
+    },
+    {
+        &quot;name&quot;: &quot;four byte low&quot;,
+        &quot;value&quot;: 65536,
+        &quot;bytes&quot;: &quot;fe00010000&quot;
+    },
+    {
+        &quot;name&quot;: &quot;four byte high&quot;,
+        &quot;value&quot;: 4294967295,
+        &quot;bytes&quot;: &quot;feffffffff&quot;
+    },
+    {
+        &quot;name&quot;: &quot;eight byte low&quot;,
+        &quot;value&quot;: 4294967296,
+        &quot;bytes&quot;: &quot;ff0000000100000000&quot;
+    },
+    {
+        &quot;name&quot;: &quot;eight byte high&quot;,
+        &quot;value&quot;: 18446744073709551615,
+        &quot;bytes&quot;: &quot;ffffffffffffffffff&quot;
+    },
+    {
+        &quot;name&quot;: &quot;two byte not canonical&quot;,
+        &quot;value&quot;: 0,
+        &quot;bytes&quot;: &quot;fd00fc&quot;,
+        &quot;exp_error&quot;: &quot;decoded bigsize is not canonical&quot;
+    },
+    {
+        &quot;name&quot;: &quot;four byte not canonical&quot;,
+        &quot;value&quot;: 0,
+        &quot;bytes&quot;: &quot;fe0000ffff&quot;,
+        &quot;exp_error&quot;: &quot;decoded bigsize is not canonical&quot;
+    },
+    {
+        &quot;name&quot;: &quot;eight byte not canonical&quot;,
+        &quot;value&quot;: 0,
+        &quot;bytes&quot;: &quot;ff00000000ffffffff&quot;,
+        &quot;exp_error&quot;: &quot;decoded bigsize is not canonical&quot;
+    },
+    {
+        &quot;name&quot;: &quot;two byte short read&quot;,
+        &quot;value&quot;: 0,
+        &quot;bytes&quot;: &quot;fd00&quot;,
+        &quot;exp_error&quot;: &quot;unexpected EOF&quot;
+    },
+    {
+        &quot;name&quot;: &quot;four byte short read&quot;,
+        &quot;value&quot;: 0,
+        &quot;bytes&quot;: &quot;feffff&quot;,
+        &quot;exp_error&quot;: &quot;unexpected EOF&quot;
+    },
+    {
+        &quot;name&quot;: &quot;eight byte short read&quot;,
+        &quot;value&quot;: 0,
+        &quot;bytes&quot;: &quot;ffffffffff&quot;,
+        &quot;exp_error&quot;: &quot;unexpected EOF&quot;
+    },
+    {
+        &quot;name&quot;: &quot;one byte no read&quot;,
+        &quot;value&quot;: 0,
+        &quot;bytes&quot;: &quot;&quot;,
+        &quot;exp_error&quot;: &quot;EOF&quot;
+    },
+    {
+        &quot;name&quot;: &quot;two byte no read&quot;,
+        &quot;value&quot;: 0,
+        &quot;bytes&quot;: &quot;fd&quot;,
+        &quot;exp_error&quot;: &quot;unexpected EOF&quot;
+    },
+    {
+        &quot;name&quot;: &quot;four byte no read&quot;,
+        &quot;value&quot;: 0,
+        &quot;bytes&quot;: &quot;fe&quot;,
+        &quot;exp_error&quot;: &quot;unexpected EOF&quot;
+    },
+    {
+        &quot;name&quot;: &quot;eight byte no read&quot;,
+        &quot;value&quot;: 0,
+        &quot;bytes&quot;: &quot;ff&quot;,
+        &quot;exp_error&quot;: &quot;unexpected EOF&quot;
+    }
+]</code></pre>
+      <h4 data-number="5.2.10.2"
+      id="bolt-01-bigsize-encoding-tests">BigSize Encoding Tests</h4>
+      <p>The following is an example of how to execute the BigSize
+      encoding tests.</p>
+      <pre class="golang"><code>func testWriteBigSize(t *testing.T, test bigSizeTest) {
+        var (
+                w   bytes.Buffer
+                buf [8]byte
+        )
+        err := tlv.WriteBigSize(&amp;w, test.Value, &amp;buf)
+        if err != nil {
+                t.Fatalf(&quot;unable to encode %d as bigsize: %v&quot;,
+                        test.Value, err)
+        }
+
+        if bytes.Compare(w.Bytes(), test.Bytes) != 0 {
+                t.Fatalf(&quot;expected bytes: %v, got %v&quot;,
+                        test.Bytes, w.Bytes())
+        }
+}</code></pre>
+      <p>A correct implementation should pass against the following test
+      vectors:</p>
+      <pre class="json"><code>[
+    {
+        &quot;name&quot;: &quot;zero&quot;,
+        &quot;value&quot;: 0,
+        &quot;bytes&quot;: &quot;00&quot;
+    },
+    {
+        &quot;name&quot;: &quot;one byte high&quot;,
+        &quot;value&quot;: 252,
+        &quot;bytes&quot;: &quot;fc&quot;
+    },
+    {
+        &quot;name&quot;: &quot;two byte low&quot;,
+        &quot;value&quot;: 253,
+        &quot;bytes&quot;: &quot;fd00fd&quot;
+    },
+    {
+        &quot;name&quot;: &quot;two byte high&quot;,
+        &quot;value&quot;: 65535,
+        &quot;bytes&quot;: &quot;fdffff&quot;
+    },
+    {
+        &quot;name&quot;: &quot;four byte low&quot;,
+        &quot;value&quot;: 65536,
+        &quot;bytes&quot;: &quot;fe00010000&quot;
+    },
+    {
+        &quot;name&quot;: &quot;four byte high&quot;,
+        &quot;value&quot;: 4294967295,
+        &quot;bytes&quot;: &quot;feffffffff&quot;
+    },
+    {
+        &quot;name&quot;: &quot;eight byte low&quot;,
+        &quot;value&quot;: 4294967296,
+        &quot;bytes&quot;: &quot;ff0000000100000000&quot;
+    },
+    {
+        &quot;name&quot;: &quot;eight byte high&quot;,
+        &quot;value&quot;: 18446744073709551615,
+        &quot;bytes&quot;: &quot;ffffffffffffffffff&quot;
+    }
+]</code></pre>
+      <h3 data-number="5.2.11"
+      id="bolt-01-appendix-b-type-length-value-test-vectors">Appendix B:
+      Type-Length-Value Test Vectors</h3>
+      <p>The following tests assume that two separate TLV namespaces
+      exist: n1 and n2.</p>
+      <p>The n1 namespace supports the following TLV types:</p>
+      <ol type="1">
+      <li><code>tlv_stream</code>: <code>n1</code></li>
+      <li>types:
+      <ol type="1">
+      <li>type: 1 (<code>tlv1</code>)</li>
+      <li>data:</li>
+      </ol>
+      <ul>
+      <li>[<code>tu64</code>:<code>amount_msat</code>]</li>
+      </ul>
+      <ol type="1">
+      <li>type: 2 (<code>tlv2</code>)</li>
+      <li>data:</li>
+      </ol>
+      <ul>
+      <li>[<code>short_channel_id</code>:<code>scid</code>]</li>
+      </ul>
+      <ol type="1">
+      <li>type: 3 (<code>tlv3</code>)</li>
+      <li>data:</li>
+      </ol>
+      <ul>
+      <li>[<code>point</code>:<code>node_id</code>]</li>
+      <li>[<code>u64</code>:<code>amount_msat_1</code>]</li>
+      <li>[<code>u64</code>:<code>amount_msat_2</code>]</li>
+      </ul>
+      <ol type="1">
+      <li>type: 254 (<code>tlv4</code>)</li>
+      <li>data:</li>
+      </ol>
+      <ul>
+      <li>[<code>u16</code>:<code>cltv_delta</code>]</li>
+      </ul></li>
+      </ol>
+      <p>The n2 namespace supports the following TLV types:</p>
+      <ol type="1">
+      <li><code>tlv_stream</code>: <code>n2</code></li>
+      <li>types:
+      <ol type="1">
+      <li>type: 0 (<code>tlv1</code>)</li>
+      <li>data:</li>
+      </ol>
+      <ul>
+      <li>[<code>tu64</code>:<code>amount_msat</code>]</li>
+      </ul>
+      <ol type="1">
+      <li>type: 11 (<code>tlv2</code>)</li>
+      <li>data:</li>
+      </ol>
+      <ul>
+      <li>[<code>tu32</code>:<code>cltv_expiry</code>]</li>
+      </ul></li>
+      </ol>
+      <h4 data-number="5.2.11.1" id="bolt-01-tlv-decoding-failures">TLV
+      Decoding Failures</h4>
+      <p>The following TLV streams in any namespace should trigger a
+      decoding failure:</p>
+      <ol type="1">
+      <li><p>Invalid stream: 0xfd</p></li>
+      <li><p>Reason: type truncated</p></li>
+      <li><p>Invalid stream: 0xfd01</p></li>
+      <li><p>Reason: type truncated</p></li>
+      <li><p>Invalid stream: 0xfd0001 00</p></li>
+      <li><p>Reason: not minimally encoded type</p></li>
+      <li><p>Invalid stream: 0xfd0101</p></li>
+      <li><p>Reason: missing length</p></li>
+      <li><p>Invalid stream: 0x0f fd</p></li>
+      <li><p>Reason: (length truncated)</p></li>
+      <li><p>Invalid stream: 0x0f fd26</p></li>
+      <li><p>Reason: (length truncated)</p></li>
+      <li><p>Invalid stream: 0x0f fd2602</p></li>
+      <li><p>Reason: missing value</p></li>
+      <li><p>Invalid stream: 0x0f fd0001 00</p></li>
+      <li><p>Reason: not minimally encoded length</p></li>
+      <li><p>Invalid stream: 0x0f fd0201
+      000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</p></li>
+      <li><p>Reason: value truncated</p></li>
+      </ol>
+      <p>The following TLV streams in either namespace should trigger a
+      decoding failure:</p>
+      <ol type="1">
+      <li><p>Invalid stream: 0x12 00</p></li>
+      <li><p>Reason: unknown even type.</p></li>
+      <li><p>Invalid stream: 0xfd0102 00</p></li>
+      <li><p>Reason: unknown even type.</p></li>
+      <li><p>Invalid stream: 0xfe01000002 00</p></li>
+      <li><p>Reason: unknown even type.</p></li>
+      <li><p>Invalid stream: 0xff0100000000000002 00</p></li>
+      <li><p>Reason: unknown even type.</p></li>
+      </ol>
+      <p>The following TLV streams in namespace <code>n1</code> should
+      trigger a decoding failure:</p>
+      <ol type="1">
+      <li><p>Invalid stream: 0x01 09 ffffffffffffffffff</p></li>
+      <li><p>Reason: greater than encoding length for <code>n1</code>s
+      <code>tlv1</code>.</p></li>
+      <li><p>Invalid stream: 0x01 01 00</p></li>
+      <li><p>Reason: encoding for <code>n1</code>s <code>tlv1</code>s
+      <code>amount_msat</code> is not minimal</p></li>
+      <li><p>Invalid stream: 0x01 02 0001</p></li>
+      <li><p>Reason: encoding for <code>n1</code>s <code>tlv1</code>s
+      <code>amount_msat</code> is not minimal</p></li>
+      <li><p>Invalid stream: 0x01 03 000100</p></li>
+      <li><p>Reason: encoding for <code>n1</code>s <code>tlv1</code>s
+      <code>amount_msat</code> is not minimal</p></li>
+      <li><p>Invalid stream: 0x01 04 00010000</p></li>
+      <li><p>Reason: encoding for <code>n1</code>s <code>tlv1</code>s
+      <code>amount_msat</code> is not minimal</p></li>
+      <li><p>Invalid stream: 0x01 05 0001000000</p></li>
+      <li><p>Reason: encoding for <code>n1</code>s <code>tlv1</code>s
+      <code>amount_msat</code> is not minimal</p></li>
+      <li><p>Invalid stream: 0x01 06 000100000000</p></li>
+      <li><p>Reason: encoding for <code>n1</code>s <code>tlv1</code>s
+      <code>amount_msat</code> is not minimal</p></li>
+      <li><p>Invalid stream: 0x01 07 00010000000000</p></li>
+      <li><p>Reason: encoding for <code>n1</code>s <code>tlv1</code>s
+      <code>amount_msat</code> is not minimal</p></li>
+      <li><p>Invalid stream: 0x01 08 0001000000000000</p></li>
+      <li><p>Reason: encoding for <code>n1</code>s <code>tlv1</code>s
+      <code>amount_msat</code> is not minimal</p></li>
+      <li><p>Invalid stream: 0x02 07 01010101010101</p></li>
+      <li><p>Reason: less than encoding length for <code>n1</code>s
+      <code>tlv2</code>.</p></li>
+      <li><p>Invalid stream: 0x02 09 010101010101010101</p></li>
+      <li><p>Reason: greater than encoding length for <code>n1</code>s
+      <code>tlv2</code>.</p></li>
+      <li><p>Invalid stream: 0x03 21
+      023da092f6980e58d2c037173180e9a465476026ee50f96695963e8efe436f54eb</p></li>
+      <li><p>Reason: less than encoding length for <code>n1</code>s
+      <code>tlv3</code>.</p></li>
+      <li><p>Invalid stream: 0x03 29
+      023da092f6980e58d2c037173180e9a465476026ee50f96695963e8efe436f54eb0000000000000001</p></li>
+      <li><p>Reason: less than encoding length for <code>n1</code>s
+      <code>tlv3</code>.</p></li>
+      <li><p>Invalid stream: 0x03 30
+      023da092f6980e58d2c037173180e9a465476026ee50f96695963e8efe436f54eb000000000000000100000000000001</p></li>
+      <li><p>Reason: less than encoding length for <code>n1</code>s
+      <code>tlv3</code>.</p></li>
+      <li><p>Invalid stream: 0x03 31
+      043da092f6980e58d2c037173180e9a465476026ee50f96695963e8efe436f54eb00000000000000010000000000000002</p></li>
+      <li><p>Reason: <code>n1</code>s <code>node_id</code> is not a
+      valid point.</p></li>
+      <li><p>Invalid stream: 0x03 32
+      023da092f6980e58d2c037173180e9a465476026ee50f96695963e8efe436f54eb0000000000000001000000000000000001</p></li>
+      <li><p>Reason: greater than encoding length for <code>n1</code>s
+      <code>tlv3</code>.</p></li>
+      <li><p>Invalid stream: 0xfd00fe 00</p></li>
+      <li><p>Reason: less than encoding length for <code>n1</code>s
+      <code>tlv4</code>.</p></li>
+      <li><p>Invalid stream: 0xfd00fe 01 01</p></li>
+      <li><p>Reason: less than encoding length for <code>n1</code>s
+      <code>tlv4</code>.</p></li>
+      <li><p>Invalid stream: 0xfd00fe 03 010101</p></li>
+      <li><p>Reason: greater than encoding length for <code>n1</code>s
+      <code>tlv4</code>.</p></li>
+      <li><p>Invalid stream: 0x00 00</p></li>
+      <li><p>Reason: unknown even field for <code>n1</code>s
+      namespace.</p></li>
+      </ol>
+      <h4 data-number="5.2.11.2" id="bolt-01-tlv-decoding-successes">TLV
+      Decoding Successes</h4>
+      <p>The following TLV streams in either namespace should correctly
+      decode, and be ignored:</p>
+      <ol type="1">
+      <li><p>Valid stream: 0x</p></li>
+      <li><p>Explanation: empty message</p></li>
+      <li><p>Valid stream: 0x21 00</p></li>
+      <li><p>Explanation: Unknown odd type.</p></li>
+      <li><p>Valid stream: 0xfd0201 00</p></li>
+      <li><p>Explanation: Unknown odd type.</p></li>
+      <li><p>Valid stream: 0xfd00fd 00</p></li>
+      <li><p>Explanation: Unknown odd type.</p></li>
+      <li><p>Valid stream: 0xfd00ff 00</p></li>
+      <li><p>Explanation: Unknown odd type.</p></li>
+      <li><p>Valid stream: 0xfe02000001 00</p></li>
+      <li><p>Explanation: Unknown odd type.</p></li>
+      <li><p>Valid stream: 0xff0200000000000001 00</p></li>
+      <li><p>Explanation: Unknown odd type.</p></li>
+      </ol>
+      <p>The following TLV streams in <code>n1</code> namespace should
+      correctly decode, with the values given here:</p>
+      <ol type="1">
+      <li><p>Valid stream: 0x01 00</p></li>
+      <li><p>Values: <code>tlv1</code>
+      <code>amount_msat</code>=0</p></li>
+      <li><p>Valid stream: 0x01 01 01</p></li>
+      <li><p>Values: <code>tlv1</code>
+      <code>amount_msat</code>=1</p></li>
+      <li><p>Valid stream: 0x01 02 0100</p></li>
+      <li><p>Values: <code>tlv1</code>
+      <code>amount_msat</code>=256</p></li>
+      <li><p>Valid stream: 0x01 03 010000</p></li>
+      <li><p>Values: <code>tlv1</code>
+      <code>amount_msat</code>=65536</p></li>
+      <li><p>Valid stream: 0x01 04 01000000</p></li>
+      <li><p>Values: <code>tlv1</code>
+      <code>amount_msat</code>=16777216</p></li>
+      <li><p>Valid stream: 0x01 05 0100000000</p></li>
+      <li><p>Values: <code>tlv1</code>
+      <code>amount_msat</code>=4294967296</p></li>
+      <li><p>Valid stream: 0x01 06 010000000000</p></li>
+      <li><p>Values: <code>tlv1</code>
+      <code>amount_msat</code>=1099511627776</p></li>
+      <li><p>Valid stream: 0x01 07 01000000000000</p></li>
+      <li><p>Values: <code>tlv1</code>
+      <code>amount_msat</code>=281474976710656</p></li>
+      <li><p>Valid stream: 0x01 08 0100000000000000</p></li>
+      <li><p>Values: <code>tlv1</code>
+      <code>amount_msat</code>=72057594037927936</p></li>
+      <li><p>Valid stream: 0x02 08 0000000000000226</p></li>
+      <li><p>Values: <code>tlv2</code>
+      <code>scid</code>=0x0x550</p></li>
+      <li><p>Valid stream: 0x03 31
+      023da092f6980e58d2c037173180e9a465476026ee50f96695963e8efe436f54eb00000000000000010000000000000002</p></li>
+      <li><p>Values: <code>tlv3</code>
+      <code>node_id</code>=023da092f6980e58d2c037173180e9a465476026ee50f96695963e8efe436f54eb
+      <code>amount_msat_1</code>=1 <code>amount_msat_2</code>=2</p></li>
+      <li><p>Valid stream: 0xfd00fe 02 0226</p></li>
+      <li><p>Values: <code>tlv4</code>
+      <code>cltv_delta</code>=550</p></li>
+      </ol>
+      <h4 data-number="5.2.11.3"
+      id="bolt-01-tlv-stream-decoding-failure">TLV Stream Decoding
+      Failure</h4>
+      <p>Any appending of an invalid stream to a valid stream should
+      trigger a decoding failure.</p>
+      <p>Any appending of a higher-numbered valid stream to a
+      lower-numbered valid stream should not trigger a decoding
+      failure.</p>
+      <p>In addition, the following TLV streams in namespace
+      <code>n1</code> should trigger a decoding failure:</p>
+      <ol type="1">
+      <li><p>Invalid stream: 0x02 08 0000000000000226 01 01 2a</p></li>
+      <li><p>Reason: valid TLV records but invalid ordering</p></li>
+      <li><p>Invalid stream: 0x02 08 0000000000000231 02 08
+      0000000000000451</p></li>
+      <li><p>Reason: duplicate TLV type</p></li>
+      <li><p>Invalid stream: 0x1f 00 0f 01 2a</p></li>
+      <li><p>Reason: valid (ignored) TLV records but invalid
+      ordering</p></li>
+      <li><p>Invalid stream: 0x1f 00 1f 01 2a</p></li>
+      <li><p>Reason: duplicate TLV type (ignored)</p></li>
+      </ol>
+      <p>The following TLV stream in namespace <code>n2</code> should
+      trigger a decoding failure:</p>
+      <ol type="1">
+      <li>Invalid stream: 0xffffffffffffffffff 00 00 00</li>
+      <li>Reason: valid TLV records but invalid ordering</li>
+      </ol>
+      <h3 data-number="5.2.12"
+      id="bolt-01-appendix-c-message-extension">Appendix C: Message
+      Extension</h3>
+      <p>This section contains examples of valid and invalid extensions
+      on the <code>init</code> message. The base <code>init</code>
+      message (without extensions) for these examples is
+      <code>0x001000000000</code> (all features turned off).</p>
+      <p>The following <code>init</code> messages are valid:</p>
+      <ul>
+      <li><code>0x001000000000</code>: no extension provided</li>
+      <li><code>0x001000000000c9012acb0104</code>: the extension
+      contains two unknown <em>odd</em> TLV records (with types
+      <code>0xc9</code> and <code>0xcb</code>)</li>
+      </ul>
+      <p>The following <code>init</code> messages are invalid:</p>
+      <ul>
+      <li><code>0x00100000000001</code>: the extension is present but
+      truncated</li>
+      <li><code>0x001000000000ca012a</code>: the extension contains
+      unknown <em>even</em> TLV records (assuming that TLV type
+      <code>0xca</code> is unknown)</li>
+      <li><code>0x001000000000c90101c90102</code>: the extension TLV
+      stream is invalid (duplicate TLV record type
+      <code>0xc9</code>)</li>
+      </ul>
+      <p>Note that when messages are signed, the <em>extension</em> is
+      part of the signed bytes. Nodes should store the
+      <em>extension</em> bytes even if they don’t understand them to be
+      able to correctly verify signatures.</p>
+      <h3 data-number="5.2.13"
+      id="bolt-01-appendix-d-signed-integers-test-vectors">Appendix D:
+      Signed Integers Test Vectors</h3>
+      <p>The following test vector show how signed integers
+      (<code>s8</code>, <code>s16</code>, <code>s32</code> and
+      <code>s64</code>) are encoded using big-endian two’s
+      complement.</p>
+      <pre class="json"><code>[
+    {
+        &quot;value&quot;: 0,
+        &quot;bytes&quot;: &quot;00&quot;
+    },
+    {
+        &quot;value&quot;: 42,
+        &quot;bytes&quot;: &quot;2a&quot;
+    },
+    {
+        &quot;value&quot;: -42,
+        &quot;bytes&quot;: &quot;d6&quot;
+    },
+    {
+        &quot;value&quot;: 127,
+        &quot;bytes&quot;: &quot;7f&quot;
+    },
+    {
+        &quot;value&quot;: -128,
+        &quot;bytes&quot;: &quot;80&quot;
+    },
+    {
+        &quot;value&quot;: 128,
+        &quot;bytes&quot;: &quot;0080&quot;
+    },
+    {
+        &quot;value&quot;: -129,
+        &quot;bytes&quot;: &quot;ff7f&quot;
+    },
+    {
+        &quot;value&quot;: 15000,
+        &quot;bytes&quot;: &quot;3a98&quot;
+    },
+    {
+        &quot;value&quot;: -15000,
+        &quot;bytes&quot;: &quot;c568&quot;
+    },
+    {
+        &quot;value&quot;: 32767,
+        &quot;bytes&quot;: &quot;7fff&quot;
+    },
+    {
+        &quot;value&quot;: -32768,
+        &quot;bytes&quot;: &quot;8000&quot;
+    },
+    {
+        &quot;value&quot;: 32768,
+        &quot;bytes&quot;: &quot;00008000&quot;
+    },
+    {
+        &quot;value&quot;: -32769,
+        &quot;bytes&quot;: &quot;ffff7fff&quot;
+    },
+    {
+        &quot;value&quot;: 21000000,
+        &quot;bytes&quot;: &quot;01406f40&quot;
+    },
+    {
+        &quot;value&quot;: -21000000,
+        &quot;bytes&quot;: &quot;febf90c0&quot;
+    },
+    {
+        &quot;value&quot;: 2147483647,
+        &quot;bytes&quot;: &quot;7fffffff&quot;
+    },
+    {
+        &quot;value&quot;: -2147483648,
+        &quot;bytes&quot;: &quot;80000000&quot;
+    },
+    {
+        &quot;value&quot;: 2147483648,
+        &quot;bytes&quot;: &quot;0000000080000000&quot;
+    },
+    {
+        &quot;value&quot;: -2147483649,
+        &quot;bytes&quot;: &quot;ffffffff7fffffff&quot;
+    },
+    {
+        &quot;value&quot;: 500000000000,
+        &quot;bytes&quot;: &quot;000000746a528800&quot;
+    },
+    {
+        &quot;value&quot;: -500000000000,
+        &quot;bytes&quot;: &quot;ffffff8b95ad7800&quot;
+    },
+    {
+        &quot;value&quot;: 9223372036854775807,
+        &quot;bytes&quot;: &quot;7fffffffffffffff&quot;
+    },
+    {
+        &quot;value&quot;: -9223372036854775808,
+        &quot;bytes&quot;: &quot;8000000000000000&quot;
+    }
+]</code></pre>
+      <h3 data-number="5.2.14"
+      id="bolt-01-acknowledgments">Acknowledgments</h3>
+      <p>[ TODO: (roasbeef); fin ]</p>
+      <h3 data-number="5.2.15" id="bolt-01-references">References</h3>
+      <ol type="1">
+      <li><a id="reference-1">http://www.unicode.org/charts/PDF/U2600.pdf</a></li>
+      </ol>
+      <h3 data-number="5.2.16" id="bolt-01-authors">Authors</h3>
+      <p>[ FIXME: Insert Author List ]</p>
+      <p><img src="media/34101c8bb1c1253f61bed847b98016c2c0f519af.png"
+      title="License CC-BY" alt="Creative Commons License" /> <br> This
+      work is licensed under a <a
+      href="http://creativecommons.org/licenses/by/4.0/">Creative
+      Commons Attribution 4.0 International License</a>.</p>
+      <nav class="pager pager-bottom" aria-label="Nearby sections">
+        <a class="pager-prev" href="bolt-08.html" rel="prev">BOLT #8: Encrypted and Authenticated Transport</a>
+        <a class="pager-next" href="bolt-09.html" rel="next">BOLT #9: Assigned Feature Flags</a>
+      </nav>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var btn = document.getElementById("toc-toggle");
+      var toc = document.getElementById("TOC");
+      var page = (location.pathname.split("/").pop() || "index.html");
+      if (toc) {
+        toc.querySelectorAll("a").forEach(function (a) {
+          var href = a.getAttribute("href") || "";
+          if (href.split("#")[0] === page) a.classList.add("current");
+        });
+        var current = toc.querySelector("a.current");
+        if (current) current.scrollIntoView({ block: "center" });
+      }
+      document.querySelectorAll(".main h1[id], .main h2[id], .main h3[id], .main h4[id], .main h5[id], .main h6[id]").forEach(function (h) {
+        if (h.querySelector(".header-anchor")) return;
+        var a = document.createElement("a");
+        a.className = "header-anchor";
+        a.href = "#" + h.id;
+        a.setAttribute("aria-label", "Link to this heading");
+        a.textContent = "\u00B6";
+        h.appendChild(a);
+      });
+      if (!btn) return;
+      btn.addEventListener("click", function () {
+        var open = document.body.classList.toggle("toc-open");
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      toc && toc.addEventListener("click", function (e) {
+        if (e.target.closest("a") && window.matchMedia("(max-width: 879px)").matches) {
+          document.body.classList.remove("toc-open");
+          btn.setAttribute("aria-expanded", "false");
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

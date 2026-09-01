@@ -1,6 +1,9 @@
 ---
 title:  'Lightning Book of BOLTs'
 lang: en
+spec-kind: bolt
+epub-url: https://github.com/adamdecaf/lightning-bolt-book/raw/master/lightning-bolt-book.epub
+pdf-url: https://github.com/adamdecaf/lightning-bolt-book/raw/master/lightning-bolt-book.pdf
 author:
   - The Lightning BOLT authors
   - Compiled by Adam Shannon

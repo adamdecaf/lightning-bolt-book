@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="The Lightning BOLT authors" />
+  <meta name="author" content="Compiled by Adam Shannon" />
+  <meta name="keywords" content="bitcoin, lightning, bolts, specification" />
+  <title>BOLT #11: Invoice Protocol for Lightning Payments · Lightning
+Book of BOLTs</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="../web.css" />
+</head>
+<body class="book">
+  <header class="site">
+    <a class="brand" href="../">Lightning Book of BOLTs</a>
+    <button type="button" id="toc-toggle" aria-controls="TOC" aria-expanded="false">Contents</button>
+    <nav class="site-links">
+      <a href="index.html">Contents</a>
+      <a href="https://github.com/adamdecaf/lightning-bolt-book/raw/master/lightning-bolt-book.epub">ePUB</a>
+      <a href="https://github.com/adamdecaf/lightning-bolt-book/raw/master/lightning-bolt-book.pdf">PDF</a>
+    </nav>
+  </header>
+  <div class="layout">
+    <nav id="TOC" role="doc-toc">
+      <h2 id="toc-title">Contents</h2>
+      <ul>
+      <li><a href="introduction.html#introduction"
+      id="toc-introduction">Introduction</a></li>
+      <li><a href="how-to-read-this-book.html#how-to-read-this-book"
+      id="toc-how-to-read-this-book">How to Read This Book</a></li>
+      <li><a href="source-snapshot.html#source-snapshot"
+      id="toc-source-snapshot">Source snapshot</a></li>
+      <li><a href="overview.html#overview" id="toc-overview">Overview</a>
+      <ul>
+      <li><a href="bolt-00.html#bolt-00" id="toc-bolt-00">BOLT #0:
+      Introduction and Index</a></li>
+      </ul></li>
+      <li><a href="connecting-nodes.html#connecting-nodes"
+      id="toc-connecting-nodes">Connecting Nodes</a>
+      <ul>
+      <li><a href="bolt-08.html#bolt-08" id="toc-bolt-08">BOLT #8: Encrypted
+      and Authenticated Transport</a></li>
+      <li><a href="bolt-01.html#bolt-01" id="toc-bolt-01">BOLT #1: Base
+      Protocol</a></li>
+      <li><a href="bolt-09.html#bolt-09" id="toc-bolt-09">BOLT #9: Assigned
+      Feature Flags</a></li>
+      </ul></li>
+      <li><a
+      href="opening-and-running-channels.html#opening-and-running-channels"
+      id="toc-opening-and-running-channels">Opening and Running Channels</a>
+      <ul>
+      <li><a href="bolt-02.html#bolt-02" id="toc-bolt-02">BOLT #2: Peer
+      Protocol for Channel Management</a></li>
+      <li><a href="bolt-03.html#bolt-03" id="toc-bolt-03">BOLT #3: Bitcoin
+      Transaction and Script Formats</a></li>
+      </ul></li>
+      <li><a href="routing-payments.html#routing-payments"
+      id="toc-routing-payments">Routing Payments</a>
+      <ul>
+      <li><a href="bolt-04.html#bolt-04" id="toc-bolt-04">BOLT #4: Onion
+      Routing Protocol</a></li>
+      <li><a href="bolt-07.html#bolt-07" id="toc-bolt-07">BOLT #7: P2P Node
+      and Channel Discovery</a></li>
+      </ul></li>
+      <li><a href="paying-people.html#paying-people"
+      id="toc-paying-people">Paying People</a>
+      <ul>
+      <li><a href="bolt-11.html#bolt-11" id="toc-bolt-11">BOLT #11: Invoice
+      Protocol for Lightning Payments</a></li>
+      <li><a href="bolt-12.html#bolt-12" id="toc-bolt-12">BOLT #12:
+      Negotiation Protocol for Lightning Payments</a></li>
+      </ul></li>
+      <li><a href="when-channels-close.html#when-channels-close"
+      id="toc-when-channels-close">When Channels Close</a>
+      <ul>
+      <li><a href="bolt-05.html#bolt-05" id="toc-bolt-05">BOLT #5:
+      Recommendations for On-chain Transaction Handling</a></li>
+      </ul></li>
+      <li><a href="finding-the-network.html#finding-the-network"
+      id="toc-finding-the-network">Finding the Network</a>
+      <ul>
+      <li><a href="bolt-10.html#bolt-10" id="toc-bolt-10">BOLT #10: DNS
+      Bootstrap and Assisted Node Location</a></li>
+      </ul></li>
+      <li><a href="newer-work.html#newer-work" id="toc-newer-work">Newer
+      Work</a>
+      <ul>
+      <li><a href="bolt-simple-taproot.html#bolt-simple-taproot"
+      id="toc-bolt-simple-taproot">Extension BOLT XX: Simple Taproot
+      Channels</a></li>
+      </ul></li>
+      <li><a href="conclusion.html#conclusion"
+      id="toc-conclusion">Conclusion</a></li>
+      </ul>
+    </nav>
+    <div class="main">
+      <nav class="pager" aria-label="Nearby sections">
+        <a class="pager-prev" href="paying-people.html" accesskey="p" rel="prev">Paying People</a>
+        <a class="pager-next" href="bolt-12.html" accesskey="n" rel="next">BOLT #12: Negotiation Protocol for Lightning Payments</a>
+      </nav>
+      <h2 data-number="8.1" id="bolt-11">BOLT #11: Invoice Protocol for
+      Lightning Payments</h2>
+      <p>A simple, extendable, QR-code-ready protocol for requesting
+      payments over Lightning.</p>
+      <h3 data-number="8.1.1" id="bolt-11-table-of-contents">Table of
+      Contents</h3>
+      <ul>
+      <li><a href="bolt-11.html#bolt-11-encoding-overview">Encoding
+      Overview</a></li>
+      <li><a
+      href="bolt-11.html#bolt-11-human-readable-part">Human-Readable
+      Part</a></li>
+      <li><a href="bolt-11.html#bolt-11-data-part">Data Part</a>
+      <ul>
+      <li><a href="bolt-11.html#bolt-11-tagged-fields">Tagged
+      Fields</a></li>
+      <li><a href="bolt-11.html#bolt-11-feature-bits">Feature
+      Bits</a></li>
+      </ul></li>
+      <li><a href="#bolt-11-payer--payee-interactions">Payer / Payee
+      Interactions</a>
+      <ul>
+      <li><a href="#bolt-11-payer--payee-requirements">Payer / Payee
+      Requirements</a></li>
+      </ul></li>
+      <li><a
+      href="bolt-11.html#bolt-11-implementation">Implementation</a></li>
+      <li><a href="bolt-11.html#bolt-11-examples">Examples</a></li>
+      <li><a href="bolt-11.html#bolt-11-authors">Authors</a></li>
+      </ul>
+      <h3 data-number="8.1.2" id="bolt-11-encoding-overview">Encoding
+      Overview</h3>
+      <p>The format for a Lightning invoice uses <a
+      href="https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki">bech32
+      encoding</a>, which is already used for Bitcoin Segregated
+      Witness. It can be simply reused for Lightning invoices even
+      though its 6-character checksum is optimized for manual entry,
+      which is unlikely to happen often given the length of Lightning
+      invoices.</p>
+      <p>If a URI scheme is desired, the current recommendation is to
+      either use ‘lightning:’ as a prefix before the BOLT-11 encoding
+      (note: not ‘lightning://’), or for fallback to Bitcoin payments,
+      to use ‘bitcoin:’, as per BIP-21, with the key ‘lightning’ and the
+      value equal to the BOLT-11 encoding.</p>
+      <h3 data-number="8.1.3"
+      id="bolt-11-requirements">Requirements</h3>
+      <p>A writer: - MUST encode the payment request in Bech32 (see
+      BIP-0173) - SHOULD use upper case for QR codes (see BIP-0173) -
+      MAY exceed the 90-character limit specified in BIP-0173.</p>
+      <p>A reader: - MUST parse the address as Bech32, as specified in
+      BIP-0173 (also without the character limit). - Note: this includes
+      handling uppercase as specified by BIP-0173 - if the checksum is
+      incorrect: - MUST fail the payment.</p>
+      <h3 data-number="8.1.4"
+      id="bolt-11-human-readable-part">Human-Readable Part</h3>
+      <p>The human-readable part of a Lightning invoice consists of two
+      sections: 1. <code>prefix</code>: <code>ln</code> + BIP-0173
+      currency prefix (e.g. <code>lnbc</code> for Bitcoin mainnet,
+      <code>lntb</code> for Bitcoin testnet, <code>lntbs</code> for
+      Bitcoin signet, and <code>lnbcrt</code> for Bitcoin regtest) 1.
+      <code>amount</code>: optional number in that currency, followed by
+      an optional <code>multiplier</code> letter. The unit encoded here
+      is the ‘social’ convention of a payment unit – in the case of
+      Bitcoin the unit is ‘bitcoin’ NOT satoshis.</p>
+      <p>The following <code>multiplier</code> letters are defined:</p>
+      <ul>
+      <li><code>m</code> (milli): multiply by 0.001</li>
+      <li><code>u</code> (micro): multiply by 0.000001</li>
+      <li><code>n</code> (nano): multiply by 0.000000001</li>
+      <li><code>p</code> (pico): multiply by 0.000000000001</li>
+      </ul>
+      <h3 data-number="8.1.5"
+      id="bolt-11-requirements-1">Requirements</h3>
+      <p>A writer: - MUST encode <code>prefix</code> using the currency
+      required for successful payment. - if a specific minimum
+      <code>amount</code> is required for successful payment: - MUST
+      include that <code>amount</code>. - MUST encode
+      <code>amount</code> as a positive decimal integer with no leading
+      0s. - If the <code>p</code> multiplier is used the last decimal of
+      <code>amount</code> MUST be <code>0</code>. - SHOULD use the
+      shortest representation possible, by using the largest multiplier
+      or omitting the multiplier.</p>
+      <p>A reader: - if it does NOT understand the <code>prefix</code>:
+      - MUST fail the payment. - if the <code>amount</code> is empty: -
+      SHOULD indicate to the payer that amount is unspecified. -
+      otherwise: - if <code>amount</code> contains a non-digit OR is
+      followed by anything except a <code>multiplier</code> (see table
+      above): - MUST fail the payment. - if the <code>multiplier</code>
+      is present: - MUST multiply <code>amount</code> by the
+      <code>multiplier</code> value to derive the amount required for
+      payment. - if multiplier is <code>p</code> and the last decimal of
+      <code>amount</code> is not 0: - MUST fail the payment.</p>
+      <h3 data-number="8.1.6" id="bolt-11-rationale">Rationale</h3>
+      <p>The <code>amount</code> is encoded into the human readable
+      part, as it’s fairly readable and a useful indicator of how much
+      is being requested.</p>
+      <p>Donation addresses often don’t have an associated amount, so
+      <code>amount</code> is optional in that case. Usually a minimum
+      payment is required for whatever is being offered in return.</p>
+      <p>The <code>p</code> multiplier would allow to specify
+      sub-millisatoshi amounts, which cannot be transferred on the
+      network, since HTLCs are denominated in millisatoshis. Requiring a
+      trailing <code>0</code> decimal ensures that the
+      <code>amount</code> represents an integer number of
+      millisatoshis.</p>
+      <p>Note that non-largest multipliers have been encountered in the
+      wild, and as such invoice parsers should handle them.</p>
+      <h3 data-number="8.1.7" id="bolt-11-data-part">Data Part</h3>
+      <p>The data part of a Lightning invoice consists of multiple
+      sections:</p>
+      <ol type="1">
+      <li><code>timestamp</code>: seconds-since-1970 (35 bits,
+      big-endian)</li>
+      <li>zero or more tagged parts</li>
+      <li><code>signature</code>: compact ECDSA/secp256k1 signature of
+      the above (520 bits: 64-byte R||S + 1-byte recovery id)</li>
+      </ol>
+      <h3 data-number="8.1.8"
+      id="bolt-11-requirements-2">Requirements</h3>
+      <p>A writer: - MUST set <code>timestamp</code> to the number of
+      seconds since Midnight 1 January 1970, UTC in big-endian. - MUST
+      set <code>signature</code> to a valid compact ECDSA signature over
+      secp256k1 of the SHA-256 hash of: the human-readable part (as
+      UTF-8 bytes) concatenated with the data part (excluding the
+      signature), with 0 bits appended to pad to a byte boundary. The
+      signature is encoded as 64 bytes (R || S), followed by a trailing
+      1-byte recovery id in {0,1,2,3}.</p>
+      <p>A reader: - MUST check that the <code>signature</code> is valid
+      (see the <code>n</code> tagged field specified below).</p>
+      <h3 data-number="8.1.9" id="bolt-11-rationale-1">Rationale</h3>
+      <p><code>signature</code> covers an exact number of bytes even
+      though the SHA2 standard actually supports hashing in bit
+      boundaries, because it’s not widely implemented. The recovery ID
+      allows public-key recovery, so the identity of the payee node can
+      be implied.</p>
+      <h3 data-number="8.1.10" id="bolt-11-tagged-fields">Tagged
+      Fields</h3>
+      <p>Each Tagged Field is of the form:</p>
+      <ol type="1">
+      <li><code>type</code> (5 bits)</li>
+      <li><code>data_length</code> (10 bits, big-endian)</li>
+      <li><code>data</code> (<code>data_length</code> x 5 bits)</li>
+      </ol>
+      <p>Note that the maximum length of a Tagged Field’s
+      <code>data</code> is constricted by the maximum value of
+      <code>data_length</code>. This is 1023 x 5 bits, or 639 bytes.</p>
+      <p>Currently defined tagged fields are:</p>
+      <ul>
+      <li><code>p</code> (1): <code>data_length</code> 52. 256-bit
+      SHA256 payment_hash. Preimage of this provides proof of
+      payment.</li>
+      <li><code>s</code> (16): <code>data_length</code> 52. This 256-bit
+      secret prevents forwarding nodes from probing the payment
+      recipient.</li>
+      <li><code>d</code> (13): <code>data_length</code> variable. Short
+      description of purpose of payment (UTF-8), e.g. ‘1 cup of coffee’
+      or ‘ナンセンス 1杯’</li>
+      <li><code>m</code> (27): <code>data_length</code> variable.
+      Additional metadata to attach to the payment. Note that the size
+      of this field is limited by the maximum hop payload size. Long
+      metadata fields reduce the maximum route length.</li>
+      <li><code>n</code> (19): <code>data_length</code> 53. 33-byte
+      public key of the payee node</li>
+      <li><code>h</code> (23): <code>data_length</code> 52. 256-bit
+      description of purpose of payment (SHA256). This is used to commit
+      to an associated description that is over 639 bytes, but the
+      transport mechanism for the description in that case is transport
+      specific and not defined here.</li>
+      <li><code>x</code> (6): <code>data_length</code> variable.
+      <code>expiry</code> time in seconds (big-endian). Default is 3600
+      (1 hour) if not specified.</li>
+      <li><code>c</code> (24): <code>data_length</code> variable.
+      <code>min_final_cltv_expiry_delta</code> to use for the last HTLC
+      in the route. Default is 18 if not specified.</li>
+      <li><code>f</code> (9): <code>data_length</code> variable,
+      depending on version. Fallback on-chain address: for Bitcoin, this
+      starts with a 5-bit <code>version</code> and contains a witness
+      program or P2PKH or P2SH address.</li>
+      <li><code>r</code> (3): <code>data_length</code> variable. One or
+      more entries containing extra routing information for a private
+      route; there may be more than one <code>r</code> field
+      <ul>
+      <li><code>pubkey</code> (264 bits)</li>
+      <li><code>short_channel_id</code> (64 bits)</li>
+      <li><code>fee_base_msat</code> (32 bits, big-endian)</li>
+      <li><code>fee_proportional_millionths</code> (32 bits,
+      big-endian)</li>
+      <li><code>cltv_expiry_delta</code> (16 bits, big-endian)</li>
+      </ul></li>
+      <li><code>9</code> (5): <code>data_length</code> variable. One or
+      more 5-bit values containing features supported or required for
+      receiving this payment. See <a
+      href="bolt-11.html#bolt-11-feature-bits">Feature Bits</a>.</li>
+      </ul>
+      <h4 data-number="8.1.10.1"
+      id="bolt-11-requirements-3">Requirements</h4>
+      <p>A writer: - MUST include exactly one <code>p</code> field. -
+      MUST include exactly one <code>s</code> field. - MUST set
+      <code>payment_hash</code> to the SHA2 256-bit hash of the
+      <code>payment_preimage</code> that will be given in return for
+      payment. - MUST include either exactly one <code>d</code> or
+      exactly one <code>h</code> field. - if <code>d</code> is included:
+      - MUST set <code>d</code> to a valid UTF-8 string. - SHOULD use a
+      complete description of the purpose of the payment. - if
+      <code>h</code> is included: - MUST make the preimage of the hashed
+      description in <code>h</code> available through some unspecified
+      means. - SHOULD use a complete description of the purpose of the
+      payment. - MAY include one <code>x</code> field. - if
+      <code>x</code> is included: - MUST use the minimum
+      <code>data_length</code> possible, i.e. no leading 0
+      field-elements. - SHOULD include one <code>c</code> field
+      (<code>min_final_cltv_expiry_delta</code>). - MUST set
+      <code>c</code> to the minimum <code>cltv_expiry</code> it will
+      accept for the last HTLC in the route. - MUST use the minimum
+      <code>data_length</code> possible, i.e. no leading 0
+      field-elements. - MAY include one <code>n</code> field. (Otherwise
+      performing public-key recovery is required) - MUST set
+      <code>n</code> to the public key used to create the
+      <code>signature</code>. - MAY include one or more <code>f</code>
+      fields. - for Bitcoin payments: - MUST set an <code>f</code> field
+      to a valid witness version and program, OR to <code>17</code>
+      followed by a public key hash, OR to <code>18</code> followed by a
+      script hash. - if there is NOT a public channel associated with
+      its public key: - MUST include at least one <code>r</code> field.
+      - <code>r</code> field MUST contain one or more ordered entries,
+      indicating the forward route from a public node to the final
+      destination. - Note: for each entry, the <code>pubkey</code> is
+      the node ID of the start of the channel;
+      <code>short_channel_id</code> is the short channel ID field to
+      identify the channel; and <code>fee_base_msat</code>,
+      <code>fee_proportional_millionths</code>, and
+      <code>cltv_expiry_delta</code> are as specified in <a
+      href="bolt-07.html#bolt-07-the-channel_update-message">BOLT
+      #7</a>. - MAY include more than one <code>r</code> field to
+      provide multiple routing options. - if <code>9</code> contains
+      non-zero bits: - MUST use the minimum <code>data_length</code>
+      possible to encode the non-zero bits with no 0 field-elements at
+      the start. - otherwise: - MUST omit the <code>9</code> field
+      altogether. - MUST pad field data to a multiple of 5 bits, using
+      0s. - if a writer offers more than one of any field type, it: -
+      MUST specify the most-preferred field first, followed by
+      less-preferred fields, in order.</p>
+      <p>A reader: - MUST skip over <code>f</code> fields that use an
+      unknown <code>version</code>. - MUST fail the payment if any field
+      with fixed <code>data_length</code> (<code>p</code>,
+      <code>h</code>, <code>s</code>, <code>n</code>) does not have the
+      correct length (52, 52, 52, 53). - MUST fail the payment if
+      neither a <code>d</code> field nor a <code>h</code> field is
+      present, or if both are present. - if the <code>9</code> field
+      contains unknown <em>odd</em> bits that are non-zero: - MUST
+      ignore the bit. - if the <code>9</code> field contains unknown
+      <em>even</em> bits that are non-zero: - MUST fail the payment. -
+      SHOULD indicate the unknown bit to the user. - MUST check that the
+      SHA2 256-bit hash in the <code>h</code> field exactly matches the
+      hashed description. - if a valid <code>n</code> field is provided:
+      - MUST use the <code>n</code> field to validate the signature
+      instead of performing public-key recovery. - If the signature is
+      not compliant with the low-S standard rule<sup><a
+      href="https://github.com/bitcoin/bitcoin/pull/6769">low-S</a></sup>:
+      - MUST fail the payment - otherwise: - MUST perform ECDSA
+      public-key recovery and accept both high-S and low-S signatures. -
+      if a valid <code>s</code> field is not provided: - MUST fail the
+      payment. - otherwise: - MUST use the <code>s</code> field as <a
+      href="bolt-04.html#bolt-04-tlv_payload-payload-format"><code>payment_secret</code></a>
+      - if the <code>c</code> field
+      (<code>min_final_cltv_expiry_delta</code>) is not provided: - MUST
+      use an expiry delta of at least 18 when making the payment - if an
+      <code>m</code> field is provided: - MUST use that as <a
+      href="bolt-04.html#bolt-04-tlv_payload-payload-format"><code>payment_metadata</code></a>
+      - if a <code>c</code>, <code>x</code>, or <code>9</code> field is
+      provided which has a non-minimal <code>data_length</code>
+      (i.e. begins with 0 field elements): - SHOULD treat the invoice as
+      invalid.</p>
+      <h4 data-number="8.1.10.2" id="bolt-11-rationale-2">Rationale</h4>
+      <p>The type-and-length format allows future extensions to be
+      backward compatible. <code>data_length</code> is always a multiple
+      of 5 bits, for easy encoding and decoding.</p>
+      <p>The <code>d</code> field allows inline descriptions, but may be
+      insufficient for complex orders. Thus, the <code>h</code> field
+      allows a summary: though the method by which the description is
+      served is as-yet unspecified and will probably be transport
+      dependent.</p>
+      <p>The <code>m</code> field allows metadata to be attached to the
+      payment. This supports applications where the recipient doesn’t
+      keep any context for the payment.</p>
+      <p>The <code>n</code> field can be used to explicitly specify the
+      destination node ID, instead of requiring public-key recovery.</p>
+      <p>The <code>x</code> field gives warning as to when a payment
+      will be refused: mainly to avoid confusion. The default was chosen
+      to be reasonable for most payments and to allow sufficient time
+      for on-chain payment, if necessary.</p>
+      <p>The <code>c</code> field allows a way for the destination node
+      to require a specific minimum CLTV expiry for its incoming HTLC.
+      Destination nodes may use this to require a higher, more
+      conservative value than the default one (depending on their fee
+      estimation policy and their sensitivity to time locks). Note that
+      remote nodes in the route specify their required
+      <code>cltv_expiry_delta</code> in the <code>channel_update</code>
+      message, which they can update at all times.</p>
+      <p>The <code>f</code> field allows on-chain fallback; however,
+      this may not make sense for tiny or time-sensitive payments. It’s
+      possible that new address forms will appear; thus, multiple
+      <code>f</code> fields (in an implied preferred order) help with
+      transition, and <code>f</code> fields with versions 19-31 will be
+      ignored by readers.</p>
+      <p>The <code>r</code> field allows limited routing assistance: as
+      specified, it only allows minimum information to use private
+      channels, however, it could also assist in future
+      partial-knowledge routing.</p>
+      <h4 data-number="8.1.10.3"
+      id="bolt-11-security-considerations-for-payment-descriptions">Security
+      Considerations for Payment Descriptions</h4>
+      <p>Payment descriptions are user-defined and provide a potential
+      avenue for injection attacks: during the processes of both
+      rendering and persistence.</p>
+      <p>Payment descriptions should always be sanitized before being
+      displayed in HTML/Javascript contexts (or any other dynamically
+      interpreted rendering frameworks). Implementers should be extra
+      perceptive to the possibility of reflected XSS attacks, when
+      decoding and displaying payment descriptions. Avoid optimistically
+      rendering the contents of the payment request until all
+      validation, verification, and sanitization processes have been
+      successfully completed.</p>
+      <p>Furthermore, consider using prepared statements, input
+      validation, and/or escaping, to protect against injection
+      vulnerabilities in persistence engines that support SQL or other
+      dynamically interpreted querying languages.</p>
+      <ul>
+      <li><a
+      href="https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet">Stored
+      and Reflected XSS Prevention</a></li>
+      <li><a
+      href="https://www.owasp.org/index.php/DOM_based_XSS_Prevention_Cheat_Sheet">DOM-based
+      XSS Prevention</a></li>
+      <li><a
+      href="https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet">SQL
+      Injection Prevention</a></li>
+      </ul>
+      <p>Don’t be like the school of <a
+      href="https://xkcd.com/327/">Little Bobby Tables</a>.</p>
+      <h3 data-number="8.1.11" id="bolt-11-feature-bits">Feature
+      Bits</h3>
+      <p>Feature bits allow forward and backward compatibility, and
+      follow the <em>it’s ok to be odd</em> rule. Features appropriate
+      for use in the <code>9</code> field are marked in <a
+      href="bolt-09.html">BOLT 9</a>.</p>
+      <p>The field is big-endian. The least-significant bit is numbered
+      0, which is <em>even</em>, and the next most significant bit is
+      numbered 1, which is <em>odd</em>.</p>
+      <h4 data-number="8.1.11.1"
+      id="bolt-11-requirements-4">Requirements</h4>
+      <p>A writer: - MUST set the <code>9</code> field to a feature
+      vector compliant with the <a
+      href="bolt-09.html#bolt-09-requirements">BOLT 9 origin node
+      requirements</a>.</p>
+      <p>A reader: - if the feature vector does not set all known,
+      transitive feature dependencies: - MUST NOT attempt the payment. -
+      if the <code>basic_mpp</code> feature is offered in the invoice: -
+      MAY pay using <a
+      href="bolt-04.html#bolt-04-basic-multi-part-payments">Basic
+      multi-part payments</a>. - otherwise: - MUST NOT use <a
+      href="bolt-04.html#bolt-04-basic-multi-part-payments">Basic
+      multi-part payments</a>.</p>
+      <h3 data-number="8.1.12"
+      id="bolt-11-payer-payee-interactions">Payer / Payee
+      Interactions</h3>
+      <p>These are generally defined by the rest of the Lightning BOLT
+      series, but it’s worth noting that <a
+      href="bolt-04.html#bolt-04-requirements-2">BOLT #4</a> specifies
+      that the payee SHOULD accept up to twice the expected
+      <code>amount</code>, so the payer can make payments harder to
+      track by adding small variations.</p>
+      <p>The intent is that the payer recovers the payee’s node ID from
+      the signature, and after checking that conditions such as fees,
+      expiry, and block timeout are acceptable, attempts a payment. It
+      can use <code>r</code> fields to augment its routing information,
+      if necessary to reach the final node.</p>
+      <p>If the payment succeeds but there is a later dispute, the payer
+      can prove both the signed offer from the payee and the successful
+      payment.</p>
+      <h3 data-number="8.1.13"
+      id="bolt-11-payer-payee-requirements">Payer / Payee
+      Requirements</h3>
+      <p>A payer: - after the <code>timestamp</code> plus
+      <code>expiry</code> has passed: - SHOULD NOT attempt a payment. -
+      otherwise: - if a Lightning payment fails: - MAY attempt to use
+      the address given in the first <code>f</code> field that it
+      understands for payment. - MAY use the sequence of channels,
+      specified by the <code>r</code> field, to route to the payee. -
+      SHOULD consider the fee amount and payment timeout before
+      initiating payment. - SHOULD use the first <code>p</code> field as
+      the payment hash.</p>
+      <p>A payee: - after the <code>timestamp</code> plus
+      <code>expiry</code> has passed: - SHOULD NOT accept a payment.</p>
+      <h3 data-number="8.1.14"
+      id="bolt-11-implementation">Implementation</h3>
+      <p>https://github.com/rustyrussell/lightning-payencode</p>
+      <h3 data-number="8.1.15" id="bolt-11-examples">Examples</h3>
+      <p>NB: all the following examples are signed with
+      <code>priv_key</code>=<code>e126f68f7eafcc8b74f54d269fe206be715000f94dac067d1c04a8ca3b2db734</code>.
+      All invoices contain a
+      <code>payment_secret</code>=<code>1111111111111111111111111111111111111111111111111111111111111111</code>
+      unless otherwise noted. Signatures are deterministic and generated
+      using RFC6979 (using HMAC-SHA256). Note that even though using a
+      <code>low R</code> would save 1 byte in the DER-encoded signature
+      (by avoiding the need for a leading zero byte when the most
+      significant bit is set), it is not enforced in this
+      specification.</p>
+      <blockquote>
+      <h4
+      id="bolt-11-please-make-a-donation-of-any-amount-using-payment_hash-0001020304050607080900010203040506070809000102030405060708090102-to-me-03e7156ae33b0a208d0744199163177e909e80176e55d97a2f221ede0f934dd9ad">Please
+      make a donation of any amount using payment_hash
+      0001020304050607080900010203040506070809000102030405060708090102
+      to me <span class="citation"
+      data-cites="03e7156ae33b0a208d0744199163177e909e80176e55d97a2f221ede0f934dd9ad">@03e7156ae33b0a208d0744199163177e909e80176e55d97a2f221ede0f934dd9ad</span></h4>
+      <p>lnbc1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdpl2pkx2ctnv5sxxmmwwd5kgetjypeh2ursdae8g6twvus8g6rfwvs8qun0dfjkxaq9qrsgq357wnc5r2ueh7ck6q93dj32dlqnls087fxdwk8qakdyafkq3yap9us6v52vjjsrvywa6rt52cm9r9zqt8r2t7mlcwspyetp5h2tztugp9lfyql</p>
+      </blockquote>
+      <p>Breakdown:</p>
+      <ul>
+      <li><code>lnbc</code>: prefix, Lightning on Bitcoin mainnet</li>
+      <li><code>1</code>: Bech32 separator</li>
+      <li><code>pvjluez</code>: timestamp (1496314658)</li>
+      <li><code>s</code>: payment secret
+      <ul>
+      <li><code>p5</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>5</code> = 20; 1 * 32 + 20 == 52)</li>
+      <li><code>zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs</code>:
+      payment secret
+      1111111111111111111111111111111111111111111111111111111111111111</li>
+      </ul></li>
+      <li><code>p</code>: payment hash
+      <ul>
+      <li><code>p5</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>5</code> = 20; 1 * 32 + 20 == 52)</li>
+      <li><code>qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypq</code>:
+      payment hash
+      0001020304050607080900010203040506070809000102030405060708090102</li>
+      </ul></li>
+      <li><code>d</code>: short description
+      <ul>
+      <li><code>pl</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>l</code> = 31; 1 * 32 + 31 == 63)</li>
+      <li><code>2pkx2ctnv5sxxmmwwd5kgetjypeh2ursdae8g6twvus8g6rfwvs8qun0dfjkxaq</code>:
+      ‘Please consider supporting this project’</li>
+      </ul></li>
+      <li><code>9</code>: features
+      <ul>
+      <li><code>qr</code>: <code>data_length</code> (<code>q</code> = 0,
+      <code>r</code> = 3; 0 * 32 + 3 == 3)</li>
+      <li><code>sgq</code>: b100000100000000</li>
+      </ul></li>
+      <li><code>357wnc5r2ueh7ck6q93dj32dlqnls087fxdwk8qakdyafkq3yap9us6v52vjjsrvywa6rt52cm9r9zqt8r2t7mlcwspyetp5h2tztugp</code>:
+      signature</li>
+      <li><code>9lfyql</code>: Bech32 checksum</li>
+      <li>Signature breakdown:
+      <ul>
+      <li><code>8d3ce9e28357337f62da0162d9454df827f83cfe499aeb1c1db349d4d81127425e434ca29929406c23bba1ae8ac6ca32880b38d4bf6ff874024cac34ba9625f1</code>
+      hex of signature data (32-byte r, 32-byte s)</li>
+      <li><code>1</code> (int) recovery flag contained in
+      <code>signature</code></li>
+      <li><code>6c6e62630b25fe64500d04444444444444444444444444444444444444444444444444444444444444444021a00008101820283038404800081018202830384048000810182028303840480810343f506c6561736520636f6e736964657220737570706f7274696e6720746869732070726f6a6563740500e08000</code>
+      hex of data for signing (prefix + data after separator up to the
+      start of the signature)</li>
+      <li><code>6daf4d488be41ce7cbb487cab1ef2975e5efcea879b20d421f0ef86b07cbb987</code>
+      hex of SHA256 of the preimage</li>
+      </ul></li>
+      </ul>
+      <blockquote>
+      <h4
+      id="bolt-11-please-send-3-for-a-cup-of-coffee-to-the-same-peer-within-one-minute">Please
+      send $3 for a cup of coffee to the same peer, within one
+      minute</h4>
+      <p>lnbc2500u1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdq5xysxxatsyp3k7enxv4jsxqzpu9qrsgquk0rl77nj30yxdy8j9vdx85fkpmdla2087ne0xh8nhedh8w27kyke0lp53ut353s06fv3qfegext0eh0ymjpf39tuven09sam30g4vgpfna3rh</p>
+      </blockquote>
+      <p>Breakdown:</p>
+      <ul>
+      <li><code>lnbc</code>: prefix, Lightning on Bitcoin mainnet</li>
+      <li><code>2500u</code>: amount (2500 micro-bitcoin)</li>
+      <li><code>1</code>: Bech32 separator</li>
+      <li><code>pvjluez</code>: timestamp (1496314658)</li>
+      <li><code>s</code>: payment secret…</li>
+      <li><code>p</code>: payment hash…</li>
+      <li><code>d</code>: short description
+      <ul>
+      <li><code>q5</code>: <code>data_length</code> (<code>q</code> = 0,
+      <code>5</code> = 20; 0 * 32 + 20 == 20)</li>
+      <li><code>xysxxatsyp3k7enxv4js</code>: ‘1 cup coffee’</li>
+      </ul></li>
+      <li><code>x</code>: expiry time
+      <ul>
+      <li><code>qz</code>: <code>data_length</code> (<code>q</code> = 0,
+      <code>z</code> = 2; 0 * 32 + 2 == 2)</li>
+      <li><code>pu</code>: 60 seconds (<code>p</code> = 1,
+      <code>u</code> = 28; 1 * 32 + 28 == 60)</li>
+      </ul></li>
+      <li><code>9</code>: features
+      <ul>
+      <li><code>qr</code>: <code>data_length</code> (<code>q</code> = 0,
+      <code>r</code> = 3; 0 * 32 + 3 == 3)</li>
+      <li><code>sgq</code>: b100000100000000</li>
+      </ul></li>
+      <li><code>uk0rl77nj30yxdy8j9vdx85fkpmdla2087ne0xh8nhedh8w27kyke0lp53ut353s06fv3qfegext0eh0ymjpf39tuven09sam30g4vgp</code>:
+      signature</li>
+      <li><code>fna3rh</code>: Bech32 checksum</li>
+      <li>Signature breakdown:
+      <ul>
+      <li><code>e59e3ffbd3945e4334879158d31e89b076dff54f3fa7979ae79df2db9dcaf5896cbfe1a478b8d2307e92c88139464cb7e6ef26e414c4abe33337961ddc5e8ab1</code>
+      hex of signature data (32-byte r, 32-byte s)</li>
+      <li><code>1</code> (int) recovery flag contained in
+      <code>signature</code></li>
+      <li><code>6c6e626332353030750b25fe64500d04444444444444444444444444444444444444444444444444444444444444444021a000081018202830384048000810182028303840480008101820283038404808103414312063757020636f66666565030041e140382000</code>
+      hex of data for signing (prefix + data after separator up to the
+      start of the signature)</li>
+      <li><code>047e24bf270b25d42a56d57b2578faa3a10684641bab817c2851a871cb41dbc0</code>
+      hex of SHA256 of the preimage</li>
+      </ul></li>
+      </ul>
+      <blockquote>
+      <h4
+      id="bolt-11-please-send-0.0025-btc-for-a-cup-of-nonsense-ナンセンス-1杯-to-the-same-peer-within-one-minute">Please
+      send 0.0025 BTC for a cup of nonsense (ナンセンス 1杯) to the same
+      peer, within one minute</h4>
+      <p>lnbc2500u1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdpquwpc4curk03c9wlrswe78q4eyqc7d8d0xqzpu9qrsgqhtjpauu9ur7fw2thcl4y9vfvh4m9wlfyz2gem29g5ghe2aak2pm3ps8fdhtceqsaagty2vph7utlgj48u0ged6a337aewvraedendscp573dxr</p>
+      </blockquote>
+      <p>Breakdown:</p>
+      <ul>
+      <li><code>lnbc</code>: prefix, Lightning on Bitcoin mainnet</li>
+      <li><code>2500u</code>: amount (2500 micro-bitcoin)</li>
+      <li><code>1</code>: Bech32 separator</li>
+      <li><code>pvjluez</code>: timestamp (1496314658)</li>
+      <li><code>s</code>: payment secret…</li>
+      <li><code>p</code>: payment hash…</li>
+      <li><code>d</code>: short description
+      <ul>
+      <li><code>pq</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>q</code> = 0; 1 * 32 + 0 == 32)</li>
+      <li><code>uwpc4curk03c9wlrswe78q4eyqc7d8d0</code>: ‘ナンセンス
+      1杯’</li>
+      </ul></li>
+      <li><code>x</code>: expiry time
+      <ul>
+      <li><code>qz</code>: <code>data_length</code> (<code>q</code> = 0,
+      <code>z</code> = 2; 0 * 32 + 2 == 2)</li>
+      <li><code>pu</code>: 60 seconds (<code>p</code> = 1,
+      <code>u</code> = 28; 1 * 32 + 28 == 60)</li>
+      </ul></li>
+      <li><code>9</code>: features
+      <ul>
+      <li><code>qr</code>: <code>data_length</code> (<code>q</code> = 0,
+      <code>r</code> = 3; 0 * 32 + 3 == 3)</li>
+      <li><code>sgq</code>: b100000100000000</li>
+      </ul></li>
+      <li><code>htjpauu9ur7fw2thcl4y9vfvh4m9wlfyz2gem29g5ghe2aak2pm3ps8fdhtceqsaagty2vph7utlgj48u0ged6a337aewvraedendscp</code>:
+      signature</li>
+      <li><code>573dxr</code>: Bech32 checksum</li>
+      <li>Signature breakdown:
+      <ul>
+      <li><code>bae41ef385e0fc972977c7ea42b12cbd76577d2412919da8a8a22f9577b6507710c0e96dd78c821dea16453037f717f44aa7e3d196ebb18fbb97307dcb7336c3</code>
+      hex of signature data (32-byte r, 32-byte s)</li>
+      <li><code>1</code> (int) recovery flag contained in
+      <code>signature</code></li>
+      <li><code>6c6e626332353030750b25fe64500d04444444444444444444444444444444444444444444444444444444444444444021a000081018202830384048000810182028303840480008101820283038404808103420e3838ae383b3e382bbe383b3e382b92031e69daf30041e14038200</code>
+      hex of data for signing (prefix + data after separator up to the
+      start of the signature)</li>
+      <li><code>f140d992ba419578ba9cfe1af85f92df90a76f442fb5e6e09b1f0582534ba87d</code>
+      hex of SHA256 of the preimage</li>
+      </ul></li>
+      </ul>
+      <blockquote>
+      <h4
+      id="bolt-11-now-send-24-for-an-entire-list-of-things-hashed">Now
+      send $24 for an entire list of things (hashed)</h4>
+      <p>lnbc20m1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqhp58yjmdan79s6qqdhdzgynm4zwqd5d7xmw5fk98klysy043l2ahrqs9qrsgq7ea976txfraylvgzuxs8kgcw23ezlrszfnh8r6qtfpr6cxga50aj6txm9rxrydzd06dfeawfk6swupvz4erwnyutnjq7x39ymw6j38gp7ynn44</p>
+      </blockquote>
+      <p>Breakdown:</p>
+      <ul>
+      <li><code>lnbc</code>: prefix, Lightning on Bitcoin mainnet</li>
+      <li><code>20m</code>: amount (20 milli-bitcoin)</li>
+      <li><code>1</code>: Bech32 separator</li>
+      <li><code>pvjluez</code>: timestamp (1496314658)</li>
+      <li><code>s</code>: payment secret…</li>
+      <li><code>p</code>: payment hash…</li>
+      <li><code>h</code>: tagged field: hash of description
+      <ul>
+      <li><code>p5</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>5</code> = 20; 1 * 32 + 20 == 52)</li>
+      <li><code>8yjmdan79s6qqdhdzgynm4zwqd5d7xmw5fk98klysy043l2ahrqs</code>:
+      SHA256 of ‘One piece of chocolate cake, one icecream cone, one
+      pickle, one slice of swiss cheese, one slice of salami, one
+      lollypop, one piece of cherry pie, one sausage, one cupcake, and
+      one slice of watermelon’ (SHA256 hex:
+      <code>3925b6f67e2c340036ed12093dd44e0368df1b6ea26c53dbe4811f58fd5db8c1</code>)</li>
+      </ul></li>
+      <li><code>9</code>: features
+      <ul>
+      <li><code>qr</code>: <code>data_length</code> (<code>q</code> = 0,
+      <code>r</code> = 3; 0 * 32 + 3 == 3)</li>
+      <li><code>sgq</code>: b100000100000000</li>
+      </ul></li>
+      <li><code>7ea976txfraylvgzuxs8kgcw23ezlrszfnh8r6qtfpr6cxga50aj6txm9rxrydzd06dfeawfk6swupvz4erwnyutnjq7x39ymw6j38gp</code>:
+      signature</li>
+      <li><code>7ynn44</code>: Bech32 checksum</li>
+      <li>Signature breakdown:
+      <ul>
+      <li><code>f67a5f696648fa4fb102e1a07b230e54722f8e024cee71e80b4847ac191da3fb2d2cdb28cc32344d7e9a9cf5c9b6a0ee0582ae46e9938b9c81e344a4dbb5289d</code>
+      hex of signature data (32-byte r, 32-byte s)</li>
+      <li><code>1</code> (int) recovery flag contained in
+      <code>signature</code></li>
+      <li><code>6c6e626332306d0b25fe64500d04444444444444444444444444444444444444444444444444444444444444444021a000081018202830384048000810182028303840480008101820283038404808105c343925b6f67e2c340036ed12093dd44e0368df1b6ea26c53dbe4811f58fd5db8c10280704000</code>
+      hex of data for signing (prefix + data after separator up to the
+      start of the signature)</li>
+      <li><code>e2ffa444e2979edb639fbdaa384638683ba1a5240b14dd7a150e45a04eea261d</code>
+      hex of SHA256 of the preimage</li>
+      </ul></li>
+      </ul>
+      <blockquote>
+      <h4
+      id="bolt-11-the-same-on-testnet-with-a-fallback-address-mk2qpyatskicvfvutaqlbryyccrxmuaghp">The
+      same, on testnet, with a fallback address
+      mk2QpYatsKicvFVuTAQLBryyccRXMUaGHP</h4>
+      <p>lntb20m1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygshp58yjmdan79s6qqdhdzgynm4zwqd5d7xmw5fk98klysy043l2ahrqspp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqfpp3x9et2e20v6pu37c5d9vax37wxq72un989qrsgqdj545axuxtnfemtpwkc45hx9d2ft7x04mt8q7y6t0k2dge9e7h8kpy9p34ytyslj3yu569aalz2xdk8xkd7ltxqld94u8h2esmsmacgpghe9k8</p>
+      </blockquote>
+      <p>Breakdown:</p>
+      <ul>
+      <li><code>lntb</code>: prefix, Lightning on Bitcoin testnet</li>
+      <li><code>20m</code>: amount (20 milli-bitcoin)</li>
+      <li><code>1</code>: Bech32 separator</li>
+      <li><code>pvjluez</code>: timestamp (1496314658)</li>
+      <li><code>h</code>: tagged field: hash of description…</li>
+      <li><code>s</code>: payment secret…</li>
+      <li><code>p</code>: payment hash…</li>
+      <li><code>f</code>: tagged field: fallback address
+      <ul>
+      <li><code>pp</code>: <code>data_length</code> (<code>p</code> = 1;
+      1 * 32 + 1 == 33)</li>
+      <li><code>3</code> = 17, so P2PKH address</li>
+      <li><code>x9et2e20v6pu37c5d9vax37wxq72un98</code>: 160-bit P2PKH
+      address</li>
+      </ul></li>
+      <li><code>9</code>: features…</li>
+      <li><code>dj545axuxtnfemtpwkc45hx9d2ft7x04mt8q7y6t0k2dge9e7h8kpy9p34ytyslj3yu569aalz2xdk8xkd7ltxqld94u8h2esmsmacgp</code>:
+      signature</li>
+      <li><code>ghe9k8</code>: Bech32 checksum</li>
+      <li>Signature breakdown:
+      <ul>
+      <li><code>6ca95a74dc32e69ced6175b15a5cc56a92bf19f5dace0f134b7d94d464b9f5cf6090a18d48b243f289394d17bdf89466d8e6b37df5981f696bc3dd5986e1bee1</code>
+      hex of signature data (32-byte r, 32-byte s)</li>
+      <li><code>1</code> (int) recovery flag contained in
+      <code>signature</code></li>
+      <li><code>6c6e746232306d0b25fe64500d044444444444444444444444444444444444444444444444444444444444444442e1a1c92db7b3f161a001b7689049eea2701b46f8db7513629edf2408fac7eaedc608043400010203040506070809000102030405060708090001020304050607080901020484313172b5654f6683c8fb146959d347ce303cae4ca728070400</code>
+      hex of data for signing (prefix + data after separator up to the
+      start of the signature)</li>
+      <li><code>33bc6642a336097c74299cadfdfdd2e4884a555cf1b4fda72b095382d473d795</code>
+      hex of SHA256 of the preimage</li>
+      </ul></li>
+      </ul>
+      <blockquote>
+      <h4
+      id="bolt-11-on-mainnet-with-fallback-address-1rustyrx2oai4eyydpqgwvel62bbgqn9t-with-extra-routing-info-to-go-via-nodes-029e03a901b85534ff1e92c43c74431f7ce72046060fcf7a95c37e148f78c77255-then-039e03a901b85534ff1e92c43c74431f7ce72046060fcf7a95c37e148f78c77255">On
+      mainnet, with fallback address 1RustyRX2oai4EYYDpQGWvEL62BBGqN9T
+      with extra routing info to go via nodes
+      029e03a901b85534ff1e92c43c74431f7ce72046060fcf7a95c37e148f78c77255
+      then
+      039e03a901b85534ff1e92c43c74431f7ce72046060fcf7a95c37e148f78c77255</h4>
+      <p>lnbc20m1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqhp58yjmdan79s6qqdhdzgynm4zwqd5d7xmw5fk98klysy043l2ahrqsfpp3qjmp7lwpagxun9pygexvgpjdc4jdj85fr9yq20q82gphp2nflc7jtzrcazrra7wwgzxqc8u7754cdlpfrmccae92qgzqvzq2ps8pqqqqqqpqqqqq9qqqvpeuqafqxu92d8lr6fvg0r5gv0heeeqgcrqlnm6jhphu9y00rrhy4grqszsvpcgpy9qqqqqqgqqqqq7qqzq9qrsgqdfjcdk6w3ak5pca9hwfwfh63zrrz06wwfya0ydlzpgzxkn5xagsqz7x9j4jwe7yj7vaf2k9lqsdk45kts2fd0fkr28am0u4w95tt2nsq76cqw0</p>
+      </blockquote>
+      <p>Breakdown:</p>
+      <ul>
+      <li><code>lnbc</code>: prefix, Lightning on Bitcoin mainnet</li>
+      <li><code>20m</code>: amount (20 milli-bitcoin)</li>
+      <li><code>1</code>: Bech32 separator</li>
+      <li><code>pvjluez</code>: timestamp (1496314658)</li>
+      <li><code>s</code>: payment secret…</li>
+      <li><code>p</code>: payment hash…</li>
+      <li><code>h</code>: tagged field: hash of description…</li>
+      <li><code>f</code>: tagged field: fallback address
+      <ul>
+      <li><code>pp</code>: <code>data_length</code> (<code>p</code> = 1;
+      1 * 32 + 1 == 33)</li>
+      <li><code>3</code> = 17, so P2PKH address</li>
+      <li><code>qjmp7lwpagxun9pygexvgpjdc4jdj85f</code>: 160-bit P2PKH
+      address</li>
+      </ul></li>
+      <li><code>r</code>: tagged field: route information
+      <ul>
+      <li><code>9y</code>: <code>data_length</code> (<code>9</code> = 5,
+      <code>y</code> = 4; 5 * 32 + 4 == 164)
+      <ul>
+      <li><code>q20q82gphp2nflc7jtzrcazrra7wwgzxqc8u7754cdlpfrmccae92qgzqvzq2ps8pqqqqqqpqqqqq9qqqvpeuqafqxu92d8lr6fvg0r5gv0heeeqgcrqlnm6jhphu9y00rrhy4grqszsvpcgpy9qqqqqqgqqqqq7qqzq</code>:
+      <ul>
+      <li>pubkey:
+      <code>029e03a901b85534ff1e92c43c74431f7ce72046060fcf7a95c37e148f78c77255</code></li>
+      <li><code>short_channel_id</code>: 66051x263430x1800</li>
+      <li><code>fee_base_msat</code>: 1 millisatoshi</li>
+      <li><code>fee_proportional_millionths</code>: 20</li>
+      <li><code>cltv_expiry_delta</code>: 3</li>
+      <li>pubkey:
+      <code>039e03a901b85534ff1e92c43c74431f7ce72046060fcf7a95c37e148f78c77255</code></li>
+      <li><code>short_channel_id</code>: 197637x395016x2314</li>
+      <li><code>fee_base_msat</code>: 2 millisatoshi</li>
+      <li><code>fee_proportional_millionths</code>: 30</li>
+      <li><code>cltv_expiry_delta</code>: 4</li>
+      </ul></li>
+      </ul></li>
+      </ul></li>
+      <li><code>9</code>: features…</li>
+      <li><code>dfjcdk6w3ak5pca9hwfwfh63zrrz06wwfya0ydlzpgzxkn5xagsqz7x9j4jwe7yj7vaf2k9lqsdk45kts2fd0fkr28am0u4w95tt2nsq</code>:
+      signature</li>
+      <li><code>76cqw0</code>: Bech32 checksum</li>
+      <li>Signature breakdown:
+      <ul>
+      <li><code>6a6586db4e8f6d40e3a5bb92e4df5110c627e9ce493af237e20a046b4e86ea200178c59564ecf892f33a9558bf041b6ad2cb8292d7a6c351fbb7f2ae2d16b54e</code>
+      hex of signature data (32-byte r, 32-byte s)</li>
+      <li><code>0</code> (int) recovery flag contained in
+      <code>signature</code></li>
+      <li><code>6c6e626332306d0b25fe64500d04444444444444444444444444444444444444444444444444444444444444444021a000081018202830384048000810182028303840480008101820283038404808105c343925b6f67e2c340036ed12093dd44e0368df1b6ea26c53dbe4811f58fd5db8c104843104b61f7dc1ea0dc99424464cc4064dc564d91e891948053c07520370aa69fe3d258878e8863ef9ce408c0c1f9ef52b86fc291ef18ee4aa020406080a0c0e1000000002000000280006073c07520370aa69fe3d258878e8863ef9ce408c0c1f9ef52b86fc291ef18ee4aa06080a0c0e101214000000040000003c00080500e08000</code>
+      hex of data for signing (prefix + data after separator up to the
+      start of the signature)</li>
+      <li><code>b342d4655b984e53f405fe4d872fb9b7cf54ba538fcd170ed4a5906a9f535064</code>
+      hex of SHA256 of the preimage</li>
+      </ul></li>
+      </ul>
+      <blockquote>
+      <h4
+      id="bolt-11-on-mainnet-with-fallback-p2sh-address-3ektnhqd7riae6uzmj2zift9ygrrksgzqx">On
+      mainnet, with fallback (P2SH) address
+      3EktnHQD7RiAE6uzMj2ZifT9YgRrkSgzQX</h4>
+      <p>lnbc20m1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygshp58yjmdan79s6qqdhdzgynm4zwqd5d7xmw5fk98klysy043l2ahrqspp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqfppj3a24vwu6r8ejrss3axul8rxldph2q7z99qrsgqz6qsgww34xlatfj6e3sngrwfy3ytkt29d2qttr8qz2mnedfqysuqypgqex4haa2h8fx3wnypranf3pdwyluftwe680jjcfp438u82xqphf75ym</p>
+      </blockquote>
+      <p>Breakdown:</p>
+      <ul>
+      <li><code>lnbc</code>: prefix, Lightning on Bitcoin mainnet</li>
+      <li><code>20m</code>: amount (20 milli-bitcoin)</li>
+      <li><code>1</code>: Bech32 separator</li>
+      <li><code>pvjluez</code>: timestamp (1496314658)</li>
+      <li><code>s</code>: payment secret…</li>
+      <li><code>h</code>: tagged field: hash of description…</li>
+      <li><code>p</code>: payment hash…</li>
+      <li><code>f</code>: tagged field: fallback address
+      <ul>
+      <li><code>pp</code>: <code>data_length</code> (<code>p</code> = 1;
+      1 * 32 + 1 == 33)</li>
+      <li><code>j</code> = 18, so P2SH address</li>
+      <li><code>3a24vwu6r8ejrss3axul8rxldph2q7z9</code>: 160-bit P2SH
+      address</li>
+      </ul></li>
+      <li><code>9</code>: features…</li>
+      <li><code>z6qsgww34xlatfj6e3sngrwfy3ytkt29d2qttr8qz2mnedfqysuqypgqex4haa2h8fx3wnypranf3pdwyluftwe680jjcfp438u82xqp</code>:
+      signature</li>
+      <li><code>hf75ym</code>: Bech32 checksum</li>
+      <li>Signature breakdown:
+      <ul>
+      <li><code>16810439d1a9bfd5a65acc61340dc92448bb2d456a80b58ce012b73cb5202438020500c9ab7ef5573a4d174c811f669885ae27f895bb3a3be52c243589f87518</code>
+      hex of signature data (32-byte r, 32-byte s)</li>
+      <li><code>1</code> (int) recovery flag contained in
+      <code>signature</code></li>
+      <li><code>6c6e626332306d0b25fe64500d044444444444444444444444444444444444444444444444444444444444444442e1a1c92db7b3f161a001b7689049eea2701b46f8db7513629edf2408fac7eaedc608043400010203040506070809000102030405060708090001020304050607080901020484328f55563b9a19f321c211e9b9f38cdf686ea0784528070400</code>
+      hex of data for signing (prefix + data after separator up to the
+      start of the signature)</li>
+      <li><code>9e93321a775f7dffdca03e61d1ac6e0e356cc63cecd3835271200c1e5b499d29</code>
+      hex of SHA256 of the preimage</li>
+      </ul></li>
+      </ul>
+      <blockquote>
+      <h4
+      id="bolt-11-on-mainnet-with-fallback-p2wpkh-address-bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4">On
+      mainnet, with fallback (P2WPKH) address
+      bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4</h4>
+      <p>lnbc20m1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygshp58yjmdan79s6qqdhdzgynm4zwqd5d7xmw5fk98klysy043l2ahrqspp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqfppqw508d6qejxtdg4y5r3zarvary0c5xw7k9qrsgqt29a0wturnys2hhxpner2e3plp6jyj8qx7548zr2z7ptgjjc7hljm98xhjym0dg52sdrvqamxdezkmqg4gdrvwwnf0kv2jdfnl4xatsqmrnsse</p>
+      </blockquote>
+      <ul>
+      <li><code>lnbc</code>: prefix, Lightning on Bitcoin mainnet</li>
+      <li><code>20m</code>: amount (20 milli-bitcoin)</li>
+      <li><code>1</code>: Bech32 separator</li>
+      <li><code>pvjluez</code>: timestamp (1496314658)</li>
+      <li><code>s</code>: payment secret…</li>
+      <li><code>h</code>: tagged field: hash of description…</li>
+      <li><code>p</code>: payment hash…</li>
+      <li><code>f</code>: tagged field: fallback address
+      <ul>
+      <li><code>pp</code>: <code>data_length</code> (<code>p</code> = 1;
+      1 * 32 + 1 == 33)</li>
+      <li><code>q</code>: 0, so witness version 0</li>
+      <li><code>w508d6qejxtdg4y5r3zarvary0c5xw7k</code>: 160 bits =
+      P2WPKH.</li>
+      </ul></li>
+      <li><code>9</code>: features…</li>
+      <li><code>t29a0wturnys2hhxpner2e3plp6jyj8qx7548zr2z7ptgjjc7hljm98xhjym0dg52sdrvqamxdezkmqg4gdrvwwnf0kv2jdfnl4xatsq</code>:
+      signature</li>
+      <li><code>mrnsse</code>: Bech32 checksum</li>
+      <li>Signature breakdown:
+      <ul>
+      <li><code>5a8bd7b97c1cc9055ee60cf2356621f8752248e037a953886a1782b44a58f5ff2d94e6bc89b7b514541a3603bb33722b6c08aa1a3639d34becc549a99fea6eae</code>
+      hex of signature data (32-byte r, 32-byte s)</li>
+      <li><code>0</code> (int) recovery flag contained in
+      <code>signature</code></li>
+      <li><code>6c6e626332306d0b25fe64500d044444444444444444444444444444444444444444444444444444444444444442e1a1c92db7b3f161a001b7689049eea2701b46f8db7513629edf2408fac7eaedc60804340001020304050607080900010203040506070809000102030405060708090102048420751e76e8199196d454941c45d1b3a323f1433bd628070400</code>
+      hex of data for signing (prefix + data after separator up to the
+      start of the signature)</li>
+      <li><code>44fbec32cdac99a1a3cd638ec507dad633a1e5bba514832fd3471e663a157f7b</code>
+      hex of SHA256 of the preimage</li>
+      </ul></li>
+      </ul>
+      <blockquote>
+      <h4
+      id="bolt-11-on-mainnet-with-fallback-p2wsh-address-bc1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3qccfmv3">On
+      mainnet, with fallback (P2WSH) address
+      bc1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3qccfmv3</h4>
+      <p>lnbc20m1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygshp58yjmdan79s6qqdhdzgynm4zwqd5d7xmw5fk98klysy043l2ahrqspp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqfp4qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q9qrsgq9vlvyj8cqvq6ggvpwd53jncp9nwc47xlrsnenq2zp70fq83qlgesn4u3uyf4tesfkkwwfg3qs54qe426hp3tz7z6sweqdjg05axsrjqp9yrrwc</p>
+      </blockquote>
+      <ul>
+      <li><code>lnbc</code>: prefix, Lightning on Bitcoin mainnet</li>
+      <li><code>20m</code>: amount (20 milli-bitcoin)</li>
+      <li><code>1</code>: Bech32 separator</li>
+      <li><code>pvjluez</code>: timestamp (1496314658)</li>
+      <li><code>s</code>: payment secret…</li>
+      <li><code>h</code>: tagged field: hash of description…</li>
+      <li><code>p</code>: payment hash…</li>
+      <li><code>f</code>: tagged field: fallback address
+      <ul>
+      <li><code>p4</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>4</code> = 21; 1 * 32 + 21 == 53)</li>
+      <li><code>q</code>: 0, so witness version 0</li>
+      <li><code>rp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q</code>:
+      260 bits = P2WSH.</li>
+      </ul></li>
+      <li><code>9</code>: features…</li>
+      <li><code>9vlvyj8cqvq6ggvpwd53jncp9nwc47xlrsnenq2zp70fq83qlgesn4u3uyf4tesfkkwwfg3qs54qe426hp3tz7z6sweqdjg05axsrjqp</code>:
+      signature</li>
+      <li><code>9yrrwc</code>: Bech32 checksum</li>
+      <li>Signature breakdown:
+      <ul>
+      <li><code>2b3ec248f80301a421817369194f012cdd8af8df1c279981420f9e901e20fa3309d791e11355e609b59ce4a220852a0cd55ab862b1785a83b206c90fa74d01c8</code>
+      hex of signature data (32-byte r, 32-byte s)</li>
+      <li><code>1</code> (int) recovery flag contained in
+      <code>signature</code></li>
+      <li><code>6c6e626332306d0b25fe64500d044444444444444444444444444444444444444444444444444444444444444442e1a1c92db7b3f161a001b7689049eea2701b46f8db7513629edf2408fac7eaedc608043400010203040506070809000102030405060708090001020304050607080901020486a01863143c14c5166804bd19203356da136c985678cd4d27a1b8c63296049032620280704000</code>
+      hex of data for signing (prefix + data after separator up to the
+      start of the signature)</li>
+      <li><code>865a2cc6730e1eeeacd30e6da8e9ab0e9115828d27953ec0c0f985db05da5027</code>
+      hex of SHA256 of the preimage</li>
+      </ul></li>
+      </ul>
+      <blockquote>
+      <h4
+      id="bolt-11-on-mainnet-with-fallback-p2tr-address-bc1pptdvg0d2nj99568qn6ssdy4cygnwuxgw2ukmnwgwz7jpqjz2kszse2s3lm">On
+      mainnet, with fallback (P2TR) address
+      bc1pptdvg0d2nj99568qn6ssdy4cygnwuxgw2ukmnwgwz7jpqjz2kszse2s3lm</h4>
+      <p>lnbc20m1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqhp58yjmdan79s6qqdhdzgynm4zwqd5d7xmw5fk98klysy043l2ahrqsfp4pptdvg0d2nj99568qn6ssdy4cygnwuxgw2ukmnwgwz7jpqjz2kszs9qrsgqy606dznq28exnydt2r4c29y56xjtn3sk4mhgjtl4pg2y4ar3249rq4ajlmj9jy8zvlzw7cr8mggqzm842xfr0v72rswzq9xvr4hknfsqwmn6xd</p>
+      </blockquote>
+      <ul>
+      <li><code>lnbc</code>: prefix, Lightning on Bitcoin mainnet</li>
+      <li><code>20m</code>: amount (20 milli-bitcoin)</li>
+      <li><code>1</code>: Bech32 separator</li>
+      <li><code>pvjluez</code>: timestamp (1496314658)</li>
+      <li><code>s</code>: payment secret…</li>
+      <li><code>p</code>: payment hash…</li>
+      <li><code>h</code>: tagged field: hash of description…</li>
+      <li><code>f</code>: tagged field: fallback address
+      <ul>
+      <li><code>p4</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>4</code> = 21; 1 * 32 + 21 == 53)</li>
+      <li><code>p</code>: 1, so witness version 1</li>
+      <li><code>ptdvg0d2nj99568qn6ssdy4cygnwuxgw2ukmnwgwz7jpqjz2kszs</code>:
+      260 bits = P2TR.</li>
+      </ul></li>
+      <li><code>9</code>: features…</li>
+      <li><code>y606dznq28exnydt2r4c29y56xjtn3sk4mhgjtl4pg2y4ar3249rq4ajlmj9jy8zvlzw7cr8mggqzm842xfr0v72rswzq9xvr4hknfsq</code>:
+      signature</li>
+      <li><code>wmn6xd</code>: Bech32 checksum</li>
+      <li>Signature breakdown:
+      <ul>
+      <li><code>269fa68a6051f26991ab50eb851494d1a4b9c616aeee892ff50a144af471554a3057b2fee45910e267c4ef6067da10016cf5519237b3ca1c1c2014cc1d6f69a6</code>
+      hex of signature data (32-byte r, 32-byte s)</li>
+      <li><code>0</code> (int) recovery flag contained in
+      <code>signature</code></li>
+      <li><code>6c6e626332306d0b25fe64500d04444444444444444444444444444444444444444444444444444444444444444021a000081018202830384048000810182028303840480008101820283038404808105c343925b6f67e2c340036ed12093dd44e0368df1b6ea26c53dbe4811f58fd5db8c10486a10adac43daa9c8a5a68e09ea10692b82226ee190e572db9b90e17a410484ab4050280704000</code>
+      hex of data for signing (prefix + data after separator up to the
+      start of the signature)</li>
+      <li><code>116fdb0f18352c886deb263f6466eb40e5e6518b80231a1f9df86088bfa48043</code>
+      hex of SHA256 of the preimage</li>
+      </ul></li>
+      </ul>
+      <blockquote>
+      <h4
+      id="bolt-11-please-send-0.00967878534-btc-for-a-list-of-items-within-one-week-amount-in-pico-btc">Please
+      send 0.00967878534 BTC for a list of items within one week, amount
+      in pico-BTC</h4>
+      <p>lnbc9678785340p1pwmna7lpp5gc3xfm08u9qy06djf8dfflhugl6p7lgza6dsjxq454gxhj9t7a0sd8dgfkx7cmtwd68yetpd5s9xar0wfjn5gpc8qhrsdfq24f5ggrxdaezqsnvda3kkum5wfjkzmfqf3jkgem9wgsyuctwdus9xgrcyqcjcgpzgfskx6eqf9hzqnteypzxz7fzypfhg6trddjhygrcyqezcgpzfysywmm5ypxxjemgw3hxjmn8yptk7untd9hxwg3q2d6xjcmtv4ezq7pqxgsxzmnyyqcjqmt0wfjjq6t5v4khxsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygsxqyjw5qcqp2rzjq0gxwkzc8w6323m55m4jyxcjwmy7stt9hwkwe2qxmy8zpsgg7jcuwz87fcqqeuqqqyqqqqlgqqqqn3qq9q9qrsgqrvgkpnmps664wgkp43l22qsgdw4ve24aca4nymnxddlnp8vh9v2sdxlu5ywdxefsfvm0fq3sesf08uf6q9a2ke0hc9j6z6wlxg5z5kqpu2v9wz</p>
+      </blockquote>
+      <p>Breakdown:</p>
+      <ul>
+      <li><code>lnbc</code>: prefix, Lightning on bitcoin mainnet</li>
+      <li><code>9678785340p</code>: amount (9678785340 pico-bitcoin =
+      967878534 milli satoshi)</li>
+      <li><code>1</code>: Bech32 separator</li>
+      <li><code>pwmna7l</code>: timestamp (1572468703)</li>
+      <li><code>s</code>: payment secret…</li>
+      <li><code>p</code>: payment hash
+      <ul>
+      <li><code>p5</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>5</code> = 20; 1 * 32 + 20 == 52)</li>
+      <li><code>gc3xfm08u9qy06djf8dfflhugl6p7lgza6dsjxq454gxhj9t7a0s</code>:
+      payment hash
+      462264ede7e14047e9b249da94fefc47f41f7d02ee9b091815a5506bc8abf75f</li>
+      </ul></li>
+      <li><code>d</code>: short description
+      <ul>
+      <li><code>8d</code>: <code>data_length</code> (<code>8</code> = 7,
+      <code>d</code> = 13; 7 * 32 + 13 == 237)</li>
+      <li><code>gfkx7cmtwd68yetpd5s9xar0wfjn5gpc8qhrsdfq24f5ggrxdaezqsnvda3kkum5wfjkzmfqf3jkgem9wgsyuctwdus9xgrcyqcjcgpzgfskx6eqf9hzqnteypzxz7fzypfhg6trddjhygrcyqezcgpzfysywmm5ypxxjemgw3hxjmn8yptk7untd9hxwg3q2d6xjcmtv4ezq7pqxgsxzmnyyqcjqmt0wfjjq6t5v4khx</code>:
+      ‘Blockstream Store: 88.85 USD for Blockstream Ledger Nano S x 1,
+      "Back In My Day" Sticker x 2, "I Got Lightning Working" Sticker x
+      2 and 1 more items’</li>
+      </ul></li>
+      <li><code>x</code>: expiry time
+      <ul>
+      <li><code>qy</code>: <code>data_length</code> (<code>q</code> = 0,
+      <code>y</code> = 2; 0 * 32 + 4 == 4)</li>
+      <li><code>jw5q</code>: 604800 seconds (<code>j</code> = 18,
+      <code>w</code> = 14, <code>5</code> = 20, <code>q</code> = 0; 18 *
+      32^3 + 14 * 32^2 + 20 * 32 + 0 == 604800)</li>
+      </ul></li>
+      <li><code>c</code>: <code>min_final_cltv_expiry_delta</code>
+      <ul>
+      <li><code>qp</code>: <code>data_length</code> (<code>q</code> = 0,
+      <code>p</code> = 1; 0 * 32 + 1 == 1)</li>
+      <li><code>2</code>: min_final_cltv_expiry_delta = 10</li>
+      </ul></li>
+      <li><code>r</code>: tagged field: route information
+      <ul>
+      <li><code>zj</code>: <code>data_length</code> (<code>z</code> = 2,
+      <code>j</code> = 18; 2 * 32 + 18 == 82)</li>
+      <li><code>q0gxwkzc8w6323m55m4jyxcjwmy7stt9hwkwe2qxmy8zpsgg7jcuwz87fcqqeuqqqyqqqqlgqqqqn3qq9q</code>:
+      <ul>
+      <li>pubkey:
+      03d06758583bb5154774a6eb221b1276c9e82d65bbaceca806d90e20c108f4b1c7</li>
+      <li>short_channel_id: 589390x3312x1</li>
+      <li>fee_base_msat = 1000</li>
+      <li>fee_proportional_millionths = 2500</li>
+      <li>cltv_expiry_delta = 40</li>
+      </ul></li>
+      </ul></li>
+      <li><code>9</code>: features…</li>
+      <li><code>rvgkpnmps664wgkp43l22qsgdw4ve24aca4nymnxddlnp8vh9v2sdxlu5ywdxefsfvm0fq3sesf08uf6q9a2ke0hc9j6z6wlxg5z5kqp</code>:
+      signature</li>
+      <li><code>u2v9wz</code>: Bech32 checksum</li>
+      </ul>
+      <blockquote>
+      <h4
+      id="bolt-11-please-send-30-for-coffee-beans-to-the-same-peer-which-supports-features-8-14-and-99-using-secret-0x1111111111111111111111111111111111111111111111111111111111111111">Please
+      send $30 for coffee beans to the same peer, which supports
+      features 8, 14 and 99, using secret
+      0x1111111111111111111111111111111111111111111111111111111111111111</h4>
+      <p>lnbc25m1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdq5vdhkven9v5sxyetpdeessp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs9q5sqqqqqqqqqqqqqqqqsgq2a25dxl5hrntdtn6zvydt7d66hyzsyhqs4wdynavys42xgl6sgx9c4g7me86a27t07mdtfry458rtjr0v92cnmswpsjscgt2vcse3sgpz3uapa</p>
+      </blockquote>
+      <p>Breakdown:</p>
+      <ul>
+      <li><code>lnbc</code>: prefix, Lightning on Bitcoin mainnet</li>
+      <li><code>25m</code>: amount (25 milli-bitcoin)</li>
+      <li><code>1</code>: Bech32 separator</li>
+      <li><code>pvjluez</code>: timestamp (1496314658)</li>
+      <li><code>p</code>: payment hash…</li>
+      <li><code>d</code>: short description
+      <ul>
+      <li><code>q5</code>: <code>data_length</code> (<code>q</code> = 0,
+      <code>5</code> = 20; 0 * 32 + 20 == 20)</li>
+      <li><code>vdhkven9v5sxyetpdees</code>: ‘coffee beans’</li>
+      </ul></li>
+      <li><code>s</code>: payment secret
+      <ul>
+      <li><code>p5</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>5</code> = 20; 1 * 32 + 20 == 52)</li>
+      <li><code>zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs</code>:
+      0x1111111111111111111111111111111111111111111111111111111111111111</li>
+      </ul></li>
+      <li><code>9</code>: features
+      <ul>
+      <li><code>q5</code>: <code>data_length</code> (<code>q</code> = 0,
+      <code>5</code> = 20; 0 * 32 + 20 == 20)</li>
+      <li><code>sqqqqqqqqqqqqqqqqsgq</code>:
+      b1000….00000100000100000000</li>
+      </ul></li>
+      <li><code>2a25dxl5hrntdtn6zvydt7d66hyzsyhqs4wdynavys42xgl6sgx9c4g7me86a27t07mdtfry458rtjr0v92cnmswpsjscgt2vcse3sgp</code>:
+      signature</li>
+      <li><code>z3uapa</code>: Bech32 checksum</li>
+      </ul>
+      <blockquote>
+      <h4 id="bolt-11-same-but-all-upper-case.">Same, but all upper
+      case.</h4>
+      <p>LNBC25M1PVJLUEZPP5QQQSYQCYQ5RQWZQFQQQSYQCYQ5RQWZQFQQQSYQCYQ5RQWZQFQYPQDQ5VDHKVEN9V5SXYETPDEESSP5ZYG3ZYG3ZYG3ZYG3ZYG3ZYG3ZYG3ZYG3ZYG3ZYG3ZYG3ZYG3ZYGS9Q5SQQQQQQQQQQQQQQQQSGQ2A25DXL5HRNTDTN6ZVYDT7D66HYZSYHQS4WDYNAVYS42XGL6SGX9C4G7ME86A27T07MDTFRY458RTJR0V92CNMSWPSJSCGT2VCSE3SGPZ3UAPA</p>
+      </blockquote>
+      <blockquote>
+      <h4
+      id="bolt-11-same-but-including-fields-which-must-be-ignored.">Same,
+      but including fields which must be ignored.</h4>
+      <p>lnbc25m1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdq5vdhkven9v5sxyetpdeessp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs9q5sqqqqqqqqqqqqqqqqsgq2qrqqqfppnqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqppnqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpp4qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhpnqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhp4qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqspnqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsp4qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqnp5qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqnpkqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz599y53s3ujmcfjp5xrdap68qxymkqphwsexhmhr8wdz5usdzkzrse33chw6dlp3jhuhge9ley7j2ayx36kawe7kmgg8sv5ugdyusdcqzn8z9x</p>
+      </blockquote>
+      <p>Breakdown:</p>
+      <ul>
+      <li><code>lnbc</code>: prefix, Lightning on Bitcoin mainnet</li>
+      <li><code>25m</code>: amount (25 milli-bitcoin)</li>
+      <li><code>1</code>: Bech32 separator</li>
+      <li><code>pvjluez</code>: timestamp (1496314658)</li>
+      <li><code>p</code>: payment hash…</li>
+      <li><code>d</code>: short description
+      <ul>
+      <li><code>q5</code>: <code>data_length</code> (<code>q</code> = 0,
+      <code>5</code> = 20; 0 * 32 + 20 == 20)</li>
+      <li><code>vdhkven9v5sxyetpdees</code>: ‘coffee beans’</li>
+      </ul></li>
+      <li><code>s</code>: payment secret
+      <ul>
+      <li><code>p5</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>5</code> = 20; 1 * 32 + 20 == 52)</li>
+      <li><code>zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs</code>:
+      0x1111111111111111111111111111111111111111111111111111111111111111</li>
+      </ul></li>
+      <li><code>9</code>: features
+      <ul>
+      <li><code>q5</code>: <code>data_length</code> (<code>q</code> = 0,
+      <code>5</code> = 20; 0 * 32 + 20 == 20)</li>
+      <li><code>sqqqqqqqqqqqqqqqqsgq</code>:
+      b1000….00000100000100000000</li>
+      </ul></li>
+      <li><code>2</code>: unknown field
+      <ul>
+      <li><code>qr</code>: <code>data_length</code> (<code>q</code> = 0,
+      <code>r</code> = 3; 0 * 32 + 3 == 3)</li>
+      <li><code>qqq</code>: zeroes</li>
+      </ul></li>
+      <li><code>f</code>: tagged field: fallback address
+      <ul>
+      <li><code>pp</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>p</code> = 1; 1 * 32 + 1 == 33)</li>
+      <li><code>nqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq</code>: fallback
+      address type 19 (ignored)</li>
+      </ul></li>
+      <li><code>p</code>: payment hash
+      <ul>
+      <li><code>pn</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>n</code> = 19; 1 * 32 + 19 == 51) (ignored)</li>
+      <li><code>qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq</code></li>
+      </ul></li>
+      <li><code>p</code>: payment hash
+      <ul>
+      <li><code>p4</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>4</code> = 21; 1 * 32 + 21 == 53) (ignored)</li>
+      <li><code>qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq</code></li>
+      </ul></li>
+      <li><code>h</code>: hash of description
+      <ul>
+      <li><code>pn</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>n</code> = 19; 1 * 32 + 19 == 51) (ignored)</li>
+      <li><code>qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq</code></li>
+      </ul></li>
+      <li><code>h</code>: hash of description
+      <ul>
+      <li><code>p4</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>4</code> = 21; 1 * 32 + 21 == 53) (ignored)</li>
+      <li><code>qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq</code></li>
+      </ul></li>
+      <li><code>s</code>: payment secret
+      <ul>
+      <li><code>pn</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>n</code> = 19; 1 * 32 + 19 == 51) (ignored)</li>
+      <li><code>qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq</code></li>
+      </ul></li>
+      <li><code>s</code>: payment secret
+      <ul>
+      <li><code>p4</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>4</code> = 21; 1 * 32 + 21 == 53) (ignored)</li>
+      <li><code>qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq</code></li>
+      </ul></li>
+      <li><code>n</code>: node id
+      <ul>
+      <li><code>p5</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>5</code> = 20; 1 * 32 + 20 == 52) (ignored)</li>
+      <li><code>qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq</code></li>
+      </ul></li>
+      <li><code>n</code>: node id
+      <ul>
+      <li><code>pk</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>k</code> = 22; 1 * 32 + 22 == 54) (ignored)</li>
+      <li><code>qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq</code></li>
+      </ul></li>
+      <li><code>z599y53s3ujmcfjp5xrdap68qxymkqphwsexhmhr8wdz5usdzkzrse33chw6dlp3jhuhge9ley7j2ayx36kawe7kmgg8sv5ugdyusdcq</code>:
+      signature</li>
+      <li><code>zn8z9x</code>: Bech32 checksum</li>
+      </ul>
+      <blockquote>
+      <h4
+      id="bolt-11-please-send-0.01-btc-with-payment-metadata-0x01fafaf0">Please
+      send 0.01 BTC with payment metadata 0x01fafaf0</h4>
+      <p>lnbc10m1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdp9wpshjmt9de6zqmt9w3skgct5vysxjmnnd9jx2mq8q8a04uqsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs9q2gqqqqqqsgq7hf8he7ecf7n4ffphs6awl9t6676rrclv9ckg3d3ncn7fct63p6s365duk5wrk202cfy3aj5xnnp5gs3vrdvruverwwq7yzhkf5a3xqpd05wjc</p>
+      </blockquote>
+      <p>Breakdown:</p>
+      <ul>
+      <li><code>lnbc</code>: prefix, Lightning on Bitcoin mainnet</li>
+      <li><code>10m</code>: amount (10 milli-bitcoin)</li>
+      <li><code>1</code>: Bech32 separator</li>
+      <li><code>pvjluez</code>: timestamp (1496314658)</li>
+      <li><code>p</code>: payment hash
+      <ul>
+      <li><code>p5</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>5</code> = 20; 1 * 32 + 20 == 52)</li>
+      <li><code>qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypq</code>:
+      payment hash
+      0001020304050607080900010203040506070809000102030405060708090102</li>
+      </ul></li>
+      <li><code>d</code>: short description
+      <ul>
+      <li><code>p9</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>9</code> = 5; 1 * 32 + 5 == 37)</li>
+      <li><code>wpshjmt9de6zqmt9w3skgct5vysxjmnnd9jx2</code>: ‘payment
+      metadata inside’</li>
+      </ul></li>
+      <li><code>m</code>: metadata
+      <ul>
+      <li><code>q8</code>: <code>data_length</code> (<code>q</code> = 0,
+      <code>8</code> = 7; 0 * 32 + 7 == 7)</li>
+      <li><code>q8a04uq</code>: 0x01fafaf0</li>
+      </ul></li>
+      <li><code>s</code>: payment secret
+      <ul>
+      <li><code>p5</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>5</code> = 20; 1 * 32 + 20 == 52)</li>
+      <li><code>zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs</code>:
+      0x1111111111111111111111111111111111111111111111111111111111111111</li>
+      </ul></li>
+      <li><code>9</code>: features
+      <ul>
+      <li><code>q2</code>: <code>data_length</code> (<code>q</code> = 0,
+      <code>2</code> = 10; 0 * 32 + 10 == 10)</li>
+      <li><code>gqqqqqqsgq</code>:
+      [b01000000000000000000000000000000000100000100000000] = 8 + 14 +
+      48</li>
+      </ul></li>
+      <li><code>7hf8he7ecf7n4ffphs6awl9t6676rrclv9ckg3d3ncn7fct63p6s365duk5wrk202cfy3aj5xnnp5gs3vrdvruverwwq7yzhkf5a3xqp</code>:
+      signature</li>
+      <li><code>d05wjc</code>: Bech32 checksum</li>
+      </ul>
+      <blockquote>
+      <h4
+      id="bolt-11-public-key-recovery-with-high-s-signature">Public-key
+      recovery with high-S signature</h4>
+      <p>lnbc1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdpl2pkx2ctnv5sxxmmwwd5kgetjypeh2ursdae8g6twvus8g6rfwvs8qun0dfjkxaq9qrsgq357wnc5r2ueh7ck6q93dj32dlqnls087fxdwk8qakdyafkq3yap2r09nt4ndd0unm3z9u5t48y6ucv4r5sg7lk98c77ctvjczkspk5qprc90gx</p>
+      </blockquote>
+      <p>Breakdown:</p>
+      <ul>
+      <li><code>lnbc</code>: prefix, Lightning on Bitcoin mainnet</li>
+      <li><code>1</code>: Bech32 separator</li>
+      <li><code>pvjluez</code>: timestamp (1496314658)</li>
+      <li><code>s</code>: payment secret
+      <ul>
+      <li><code>p5</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>5</code> = 20; 1 * 32 + 20 == 52)</li>
+      <li><code>zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs</code>:
+      payment secret
+      1111111111111111111111111111111111111111111111111111111111111111</li>
+      </ul></li>
+      <li><code>p</code>: payment hash
+      <ul>
+      <li><code>p5</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>5</code> = 20; 1 * 32 + 20 == 52)</li>
+      <li><code>qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypq</code>:
+      payment hash
+      0001020304050607080900010203040506070809000102030405060708090102</li>
+      </ul></li>
+      <li><code>d</code>: short description
+      <ul>
+      <li><code>pl</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>l</code> = 31; 1 * 32 + 31 == 63)</li>
+      <li><code>2pkx2ctnv5sxxmmwwd5kgetjypeh2ursdae8g6twvus8g6rfwvs8qun0dfjkxaq</code>:
+      ‘Please consider supporting this project’</li>
+      </ul></li>
+      <li><code>9</code>: features
+      <ul>
+      <li><code>qr</code>: <code>data_length</code> (<code>q</code> = 0,
+      <code>r</code> = 3; 0 * 32 + 3 == 3)</li>
+      <li><code>sgq</code>: b100000100000000</li>
+      </ul></li>
+      <li><code>357wnc5r2ueh7ck6q93dj32dlqnls087fxdwk8qakdyafkq3yap2r09nt4ndd0unm3z9u5t48y6ucv4r5sg7lk98c77ctvjczkspk5qp</code>:
+      signature</li>
+      <li><code>rc90gx</code>: Bech32 checksum</li>
+      <li>Signature breakdown:
+      <ul>
+      <li><code>8d3ce9e28357337f62da0162d9454df827f83cfe499aeb1c1db349d4d8112742a1bcb35d66d6bf93dc445e51753935cc32a3a411efd8a7c7bd85b25815a01b50</code>
+      hex of signature data (32-byte r, 32-byte s)</li>
+      <li><code>1</code> (int) recovery flag contained in
+      <code>signature</code></li>
+      <li><code>6c6e62630b25fe64500d04444444444444444444444444444444444444444444444444444444444444444021a00008101820283038404800081018202830384048000810182028303840480810343f506c6561736520636f6e736964657220737570706f7274696e6720746869732070726f6a6563740500e08000</code>
+      hex of data for signing (prefix + data after separator up to the
+      start of the signature)</li>
+      <li><code>6daf4d488be41ce7cbb487cab1ef2975e5efcea879b20d421f0ef86b07cbb987</code>
+      hex of SHA256 of the preimage</li>
+      </ul></li>
+      </ul>
+      <h3 data-number="8.1.16"
+      id="bolt-11-examples-of-invalid-invoices">Examples of Invalid
+      Invoices</h3>
+      <blockquote>
+      <h3 id="bolt-11-same-but-adding-invalid-unknown-feature-100">Same,
+      but adding invalid unknown feature 100</h3>
+      <p>lnbc25m1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdq5vdhkven9v5sxyetpdeessp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs9q4psqqqqqqqqqqqqqqqqsgqtqyx5vggfcsll4wu246hz02kp85x4katwsk9639we5n5yngc3yhqkm35jnjw4len8vrnqnf5ejh0mzj9n3vz2px97evektfm2l6wqccp3y7372</p>
+      </blockquote>
+      <p>Breakdown:</p>
+      <ul>
+      <li><code>lnbc</code>: prefix, Lightning on Bitcoin mainnet</li>
+      <li><code>25m</code>: amount (25 milli-bitcoin)</li>
+      <li><code>1</code>: Bech32 separator</li>
+      <li><code>pvjluez</code>: timestamp (1496314658)</li>
+      <li><code>p</code>: payment hash…</li>
+      <li><code>d</code>: short description
+      <ul>
+      <li><code>q5</code>: <code>data_length</code> (<code>q</code> = 0,
+      <code>5</code> = 20; 0 * 32 + 20 == 20)</li>
+      <li><code>vdhkven9v5sxyetpdees</code>: ‘coffee beans’</li>
+      </ul></li>
+      <li><code>s</code>: payment secret
+      <ul>
+      <li><code>p5</code>: <code>data_length</code> (<code>p</code> = 1,
+      <code>5</code> = 20; 1 * 32 + 20 == 52)</li>
+      <li><code>zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs</code>:
+      0x1111111111111111111111111111111111111111111111111111111111111111</li>
+      </ul></li>
+      <li><code>9</code>: features
+      <ul>
+      <li><code>q4</code>: <code>data_length</code> (<code>q</code> = 0,
+      <code>4</code> = 21; 0 * 32 + 21 == 21)</li>
+      <li><code>psqqqqqqqqqqqqqqqqsgq</code>:
+      b000011000….00000100000100000000</li>
+      </ul></li>
+      <li><code>tqyx5vggfcsll4wu246hz02kp85x4katwsk9639we5n5yngc3yhqkm35jnjw4len8vrnqnf5ejh0mzj9n3vz2px97evektfm2l6wqccp</code>:
+      signature</li>
+      <li><code>3y7372</code>: Bech32 checksum</li>
+      </ul>
+      <blockquote>
+      <h4 id="bolt-11-bech32-checksum-is-invalid.">Bech32 checksum is
+      invalid.</h4>
+      <p>lnbc2500u1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdpquwpc4curk03c9wlrswe78q4eyqc7d8d0xqzpuyk0sg5g70me25alkluzd2x62aysf2pyy8edtjeevuv4p2d5p76r4zkmneet7uvyakky2zr4cusd45tftc9c5fh0nnqpnl2jfll544esqchsrnt</p>
+      </blockquote>
+      <blockquote>
+      <h4 id="bolt-11-malformed-bech32-string-no-1">Malformed bech32
+      string (no 1)</h4>
+      <p>pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdpquwpc4curk03c9wlrswe78q4eyqc7d8d0xqzpuyk0sg5g70me25alkluzd2x62aysf2pyy8edtjeevuv4p2d5p76r4zkmneet7uvyakky2zr4cusd45tftc9c5fh0nnqpnl2jfll544esqchsrny</p>
+      </blockquote>
+      <blockquote>
+      <h4 id="bolt-11-malformed-bech32-string-mixed-case">Malformed
+      bech32 string (mixed case)</h4>
+      <p>LNBC2500u1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdpquwpc4curk03c9wlrswe78q4eyqc7d8d0xqzpuyk0sg5g70me25alkluzd2x62aysf2pyy8edtjeevuv4p2d5p76r4zkmneet7uvyakky2zr4cusd45tftc9c5fh0nnqpnl2jfll544esqchsrny</p>
+      </blockquote>
+      <blockquote>
+      <h4 id="bolt-11-signature-is-not-recoverable.">Signature is not
+      recoverable.</h4>
+      <p>lnbc2500u1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdq5xysxxatsyp3k7enxv4jsxqzpusp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs9qrsgqwgt7mcn5yqw3yx0w94pswkpq6j9uh6xfqqqtsk4tnarugeektd4hg5975x9am52rz4qskukxdmjemg92vvqz8nvmsye63r5ykel43pgz7zq0g2</p>
+      </blockquote>
+      <blockquote>
+      <h4 id="bolt-11-string-is-too-short.">String is too short.</h4>
+      <p>lnbc1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdpl2pkx2ctnv5sxxmmwwd5kgetjypeh2ursdae8g6na6hlh</p>
+      </blockquote>
+      <blockquote>
+      <h4 id="bolt-11-invalid-multiplier">Invalid multiplier</h4>
+      <p>lnbc2500x1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdq5xysxxatsyp3k7enxv4jsxqzpusp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs9qrsgqrrzc4cvfue4zp3hggxp47ag7xnrlr8vgcmkjxk3j5jqethnumgkpqp23z9jclu3v0a7e0aruz366e9wqdykw6dxhdzcjjhldxq0w6wgqcnu43j</p>
+      </blockquote>
+      <blockquote>
+      <h4 id="bolt-11-invalid-sub-millisatoshi-precision.">Invalid
+      sub-millisatoshi precision.</h4>
+      <p>lnbc2500000001p1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdq5xysxxatsyp3k7enxv4jsxqzpusp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs9qrsgq0lzc236j96a95uv0m3umg28gclm5lqxtqqwk32uuk4k6673k6n5kfvx3d2h8s295fad45fdhmusm8sjudfhlf6dcsxmfvkeywmjdkxcp99202x</p>
+      </blockquote>
+      <blockquote>
+      <h4 id="bolt-11-missing-required-s-field.">Missing required
+      <code>s</code> field.</h4>
+      <p>lnbc20m1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqhp58yjmdan79s6qqdhdzgynm4zwqd5d7xmw5fk98klysy043l2ahrqs9qrsgq7ea976txfraylvgzuxs8kgcw23ezlrszfnh8r6qtfpr6cxga50aj6txm9rxrydzd06dfeawfk6swupvz4erwnyutnjq7x39ymw6j38gp49qdkj</p>
+      </blockquote>
+      <blockquote>
+      <h4
+      id="bolt-11-non-canonical-signature-high-s-with-n-field-defined">Non
+      canonical signature (high-S) with ‘n’ field defined</h4>
+      <p>lnbc25m1p70xwfzpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdpl2pkx2ctnv5sxxmmwwd5kgetjypeh2ursdae8g6twvus8g6rfwvs8qun0dfjkxaqnp4q0n326hr8v9zprg8gsvezcch06gfaqqhde2aj730yg0durunfhv66sp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs9qrsgqsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygsp5cfzp9ugllvk03rltd6hvndxj26ux6gcxc5azyxk060rj9tzghct5zvjlps76gx8wpq5yuu79688k8gnm2c0al6v608s96l0xzrrlqqwnzxmu</p>
+      </blockquote>
+      <h3 data-number="8.1.17" id="bolt-11-authors">Authors</h3>
+      <p>[ FIXME: ]</p>
+      <p><img src="media/34101c8bb1c1253f61bed847b98016c2c0f519af.png"
+      title="License CC-BY" alt="Creative Commons License" /> <br> This
+      work is licensed under a <a
+      href="http://creativecommons.org/licenses/by/4.0/">Creative
+      Commons Attribution 4.0 International License</a>.</p>
+      <nav class="pager pager-bottom" aria-label="Nearby sections">
+        <a class="pager-prev" href="paying-people.html" rel="prev">Paying People</a>
+        <a class="pager-next" href="bolt-12.html" rel="next">BOLT #12: Negotiation Protocol for Lightning Payments</a>
+      </nav>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var btn = document.getElementById("toc-toggle");
+      var toc = document.getElementById("TOC");
+      var page = (location.pathname.split("/").pop() || "index.html");
+      if (toc) {
+        toc.querySelectorAll("a").forEach(function (a) {
+          var href = a.getAttribute("href") || "";
+          if (href.split("#")[0] === page) a.classList.add("current");
+        });
+        var current = toc.querySelector("a.current");
+        if (current) current.scrollIntoView({ block: "center" });
+      }
+      document.querySelectorAll(".main h1[id], .main h2[id], .main h3[id], .main h4[id], .main h5[id], .main h6[id]").forEach(function (h) {
+        if (h.querySelector(".header-anchor")) return;
+        var a = document.createElement("a");
+        a.className = "header-anchor";
+        a.href = "#" + h.id;
+        a.setAttribute("aria-label", "Link to this heading");
+        a.textContent = "\u00B6";
+        h.appendChild(a);
+      });
+      if (!btn) return;
+      btn.addEventListener("click", function () {
+        var open = document.body.classList.toggle("toc-open");
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      toc && toc.addEventListener("click", function (e) {
+        if (e.target.closest("a") && window.matchMedia("(max-width: 879px)").matches) {
+          document.body.classList.remove("toc-open");
+          btn.setAttribute("aria-expanded", "false");
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

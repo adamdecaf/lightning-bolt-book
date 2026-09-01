@@ -53,3 +53,31 @@ jobs:
         with:
           name: lightning-bolt-book.pdf
           path: lightning-bolt-book.pdf
+
+  html:
+    name: HTML
+    runs-on: macos-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v7
+
+      - name: Install pandoc
+        run: brew install pandoc
+
+      - name: Download BOLTs
+        run: make setup
+
+      - name: Build HTML
+        run: make html
+
+      - name: Require outputs
+        run: |
+          test -s docs/book/index.html
+          test -s docs/book/bolt-00.html
+          test -s docs/book/introduction.html
+
+      - name: Upload HTML
+        uses: actions/upload-artifact@v4
+        with:
+          name: lightning-bolt-book-html
+          path: docs/book
