@@ -1,10 +1,16 @@
 ---
 title:  'Lightning Book of BOLTs'
 author:
-  - TODO
-keywords: [bitcoin, lightning, bolts, decentralized]
+  - The Lightning BOLT authors
+  - Compiled by Adam Shannon
+keywords: [bitcoin, lightning, bolts, specification]
 abstract: |
-  This is the abstract.
+  The Lightning Book of BOLTs is a readable compilation of the Lightning
+  Network Specifications. The BOLTs themselves are unchanged. They are
+  grouped here in the order a node actually uses them — connect, open a
+  channel, route a payment, settle on-chain — with short chapter
+  introductions so you know why you're looking at a given document.
 
-  It consists of two paragraphs.
+  Credit for the protocol belongs to the original BOLT authors. This book
+  is a reading order, not a rewrite.
 ---

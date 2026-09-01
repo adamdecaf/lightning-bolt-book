@@ -1,20 +1,82 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
-    <title>Lightning By the BOLTs</title>
+    <title>Lightning Book of BOLTs</title>
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="The Lightning Network Specifications (BOLTs), compiled into a readable book. Spec text unchanged; reading order is pedagogical, not numerical." />
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      body {
+        margin: 0 auto;
+        max-width: 40rem;
+        padding: 2.5rem 1.25rem 4rem;
+        font-family: Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif;
+        line-height: 1.55;
+      }
+      h1 {
+        font-size: 1.75rem;
+        font-weight: normal;
+        margin: 0 0 0.25rem;
+      }
+      .sub {
+        color: #555;
+        margin: 0 0 1.75rem;
+      }
+      p { margin: 0 0 1rem; }
+      ol { padding-left: 1.25rem; }
+      li { margin: 0.35rem 0; }
+      a { color: inherit; }
+      .downloads {
+        margin: 1.5rem 0;
+        padding: 0.9rem 1rem;
+        border: 1px solid currentColor;
+      }
+      footer {
+        margin-top: 2.5rem;
+        font-size: 0.95rem;
+        color: #555;
+      }
+    </style>
   </head>
   <body>
-    <h3>Lightning BOLT book</h3>
+    <h1>Lightning Book of BOLTs</h1>
+    <p class="sub">The Lightning Network Specifications, arranged to be read.</p>
 
     <p>
-      lightning-bolt-book is available in <a href="https://github.com/adamdecaf/lightning-bolt-book/raw/master/lightning-bolt-book.epub">ePUB</a> or <a href="https://github.com/adamdecaf/lightning-bolt-book/raw/master/lightning-bolt-book.pdf">PDF</a> formats.
+      The <a href="https://github.com/lightning/bolts">BOLTs</a> are the contract between Lightning implementations. They are numbered as a catalog. This book leaves that text alone and puts it in the order a node actually uses it: connect, open a channel, route a payment, settle on-chain.
     </p>
 
-    <!--
     <p>
-      <a href="mailto:contact@lightning-bolt-book.org">contact@lightning-bolt-book.org</a>
+      I didn't write the specs. Credit belongs to the original BOLT authors. I'm Adam Shannon; I compiled the reading order and the short chapter intros.
     </p>
-    -->
+
+    <div class="downloads">
+      Get the book:
+      <a href="https://github.com/adamdecaf/lightning-bolt-book/raw/master/lightning-bolt-book.epub">ePUB</a>
+      or
+      <a href="https://github.com/adamdecaf/lightning-bolt-book/raw/master/lightning-bolt-book.pdf">PDF</a>.
+    </div>
+
+    <p>Reading order:</p>
+    <ol>
+      <li>Overview — what Lightning is, then BOLT 00</li>
+      <li>Connecting nodes — Transport (08), Messaging (01), Features (09)</li>
+      <li>Opening and running channels — Peer protocol (02), Transactions (03)</li>
+      <li>Routing payments — Onion routing (04), Gossip (07)</li>
+      <li>Paying people — Invoices (11), Offers (12)</li>
+      <li>When channels close — On-chain (05)</li>
+      <li>Finding the network — DNS bootstrap (10)</li>
+      <li>Newer work — Simple Taproot Channels</li>
+    </ol>
+
+    <footer>
+      Source and build notes:
+      <a href="https://github.com/adamdecaf/lightning-bolt-book">adamdecaf/lightning-bolt-book</a>.
+      Spec changes go to
+      <a href="https://github.com/lightning/bolts">lightning/bolts</a>, not here.
+    </footer>
   </body>
 </html>

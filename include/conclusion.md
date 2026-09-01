@@ -1,7 +1,9 @@
 ## Conclusion
 
-Thank you for exploring the lightning-bolt-book. As we wrap up this book, remember that the journey with Lightning doesn’t end here. The protocol is continuously evolving, and your engagement and contributions are crucial for its growth and refinement. I encourage you to participate in the discussions, contribute your ideas, and help in developing this open and decentralized platform.
+Thank you for reading the Lightning Book of BOLTs. The specs will keep moving — new feature bits, new scripts, new ways to pay — and the canonical text lives in [lightning/bolts](https://github.com/lightning/bolts), not in this compilation.
 
-Once again, all the credit for the content in this book goes to the original authors of the BOLTs. This compilation is merely a tool to assist in navigating their innovative work. Whether you’re a developer, researcher, or enthusiast, your insights and enthusiasm are what will propel Nostr forward.
+I didn't write the protocol. The credit for every message type, every script, and every hard-won MUST belongs to the original BOLT authors and the people who still review pull requests there. This book is a reading order and a set of signposts.
 
-Let’s keep the spirit of innovation and collaboration alive. Here's to building a more connected and decentralized future together!
+If you implement something, or you find a contradiction, take it upstream. That's how Lightning stays one network instead of a pile of dialects.
+
+See you on the next commit.

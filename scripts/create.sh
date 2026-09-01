@@ -1,33 +1,64 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
 
 inputs=(
     include/intro.md
+    include/how-to-read.md
     include/git.md
 
+    include/01-overview.md
     bolts/00-introduction.md
+
+    include/02-connecting.md
+    bolts/08-transport.md
     bolts/01-messaging.md
+    bolts/09-features.md
+
+    include/03-channels.md
     bolts/02-peer-protocol.md
     bolts/03-transactions.md
+
+    include/04-routing.md
     bolts/04-onion-routing.md
-    bolts/05-onchain.md
     bolts/07-routing-gossip.md
-    bolts/08-transport.md
-    bolts/09-features.md
-    bolts/10-dns-bootstrap.md
+
+    include/05-payments.md
     bolts/11-payment-encoding.md
     bolts/12-offer-encoding.md
+
+    include/06-onchain.md
+    bolts/05-onchain.md
+
+    include/07-bootstrap.md
+    bolts/10-dns-bootstrap.md
+
+    include/08-taproot.md
+    bolts/bolt-simple-taproot.md
 
     include/conclusion.md
 )
 
-format=$1
+format=${1:-}
+
+missing=0
+for input in "${inputs[@]}"
+do
+    if [[ ! -f "$input" ]]; then
+        echo "error: missing $input" >&2
+        missing=1
+    fi
+done
+if [[ "$missing" -ne 0 ]]; then
+    echo "Run 'make setup' first, or update the chapter list." >&2
+    exit 1
+fi
 
 chapters=()
 for input in "${inputs[@]}"
 do
-    if [[ "$format" == "pdf" ]];
-    then
-        # The PDF engine needs page breaks inserted so each section is separated a bit more.
+    if [[ "$format" == "pdf" ]]; then
         chapters+=("include/pagebreak.md" "$input")
     else
         chapters+=("$input")
@@ -35,33 +66,27 @@ do
 done
 
 function create_epub() {
-    # TODO(adam): Add epub flags
-    # https://pandoc.org/MANUAL.html#option--epub-chapter-level
     pandoc --metadata-file=metadata.yml \
            --epub-metadata=./metadata-epub.yml \
-           --highlight-style=monochrome \
+           --syntax-highlighting=monochrome \
+           --resource-path=.:bolts \
            -s -o lightning-bolt-book.epub \
            "${chapters[@]}"
 }
 
 function create_pdf() {
-    # TODO: needs "brew install basictex"
-    # and   eval "$(/usr/libexec/path_helper)"
-
     pandoc --metadata-file=metadata.yml \
            --toc --toc-depth 2 \
            --pdf-engine=xelatex \
            --columns=72 --wrap=auto \
            --listings -H listings-settings.tex \
+           --resource-path=.:bolts \
            -V fontsize="10pt" \
            -V mainfont="Palatino" \
            -V monofont="Monaco" \
            -V geometry:margin="0.75in" \
            -s -o lightning-bolt-book.pdf \
            "${chapters[@]}"
-
-    # -V mainfontfallback="Apple Color Emoji"
-    # -V monofontfallback="Apple Color Emoji"
 }
 
 case "$format" in
@@ -69,14 +94,13 @@ case "$format" in
         echo "Building ePUB"
         create_epub
         ;;
-
     pdf)
         echo "Building PDF"
         create_pdf
         ;;
-
     *)
-        echo "Unknown format $format"
+        echo "Unknown format ${format:-<none>}" >&2
+        echo "usage: $0 epub|pdf" >&2
         exit 1
         ;;
 esac
