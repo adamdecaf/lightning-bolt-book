@@ -7,3 +7,7 @@ BOLT 05 is the playbook for that. It tells an implementation how to watch for co
 Read this after you understand commitment transactions in BOLT 03. The on-chain rules only make sense once you know what those transactions look like.
 
 Most of the time a cooperative close from BOLT 02 is enough. BOLT 05 is for the rest of the time — which is exactly when you need a spec.
+
+**In this chapter**
+
+- BOLT 05 — On-chain closing and recovery

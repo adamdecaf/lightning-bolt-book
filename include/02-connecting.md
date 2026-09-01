@@ -9,3 +9,9 @@ BOLT 01 is the messaging layer that rides on that session. It defines the binary
 BOLT 09 is the feature bits. Lightning is still changing, so peers advertise what they support during `init` and inside invoices, node announcements, and other gossip. If a message in a later BOLT is optional, BOLT 09 is where that option got a number.
 
 Read these three in order. Transport, then messages, then the flags that say which messages you're allowed to send.
+
+**In this chapter**
+
+- BOLT 08 — Encrypted and authenticated transport
+- BOLT 01 — Base messaging
+- BOLT 09 — Feature flags

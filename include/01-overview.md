@@ -7,3 +7,7 @@ The BOLTs — Basis of Lightning Technology — are the documents that make this
 BOLT 00 is the front door. It explains the goals of the protocol, the keywords (`MUST`, `SHOULD`, `MAY`), and a glossary of terms you'll see everywhere else. Read it once for orientation, then keep it as a dictionary.
 
 After that we'll stop going in numerical order. A node doesn't "do BOLT 01" in isolation. It first sets up an encrypted connection, then it talks, then it negotiates features. That's the next chapter.
+
+**In this chapter**
+
+- BOLT 00 — Introduction, glossary, and design goals

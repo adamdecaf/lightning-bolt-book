@@ -7,3 +7,7 @@ Simple Taproot Channels move funding into a Taproot output. Cooperative closes l
 This document is newer than the numbered BOLTs, and implementations are still catching up. Read it after you're comfortable with BOLT 02 and BOLT 03, because it's a variation on those two, not a replacement for the rest of the book.
 
 Treat it as a look at where channel construction is heading, not as required reading for a first implementation.
+
+**In this chapter**
+
+- Simple Taproot Channels

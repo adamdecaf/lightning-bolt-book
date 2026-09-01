@@ -7,3 +7,8 @@ BOLT 04 is onion routing. The sender builds a Sphinx onion: each hop can only de
 BOLT 07 is gossip — how you learn the graph that onions are built on. Nodes announce themselves and their channels, sign those announcements, and flood them through the network. Channel updates carry fees and expiry deltas. Without gossip, onion routing has nowhere to go; without onions, gossip is just a map.
 
 Together these two BOLTs are how a payment finds its way. Invoices, in the next chapter, are how you know who to pay and what hash to use.
+
+**In this chapter**
+
+- BOLT 04 — Onion routing
+- BOLT 07 — P2P node and channel discovery (gossip)

@@ -7,3 +7,8 @@ BOLT 02 is the peer protocol for that. It covers the whole channel lifecycle: op
 BOLT 03 is the Bitcoin underneath. It specifies the funding transaction, the commitment transactions, HTLC-timeout and HTLC-success transactions, and the scripts and signature formats that make the penalty model work. BOLT 02 is the conversation; BOLT 03 is the money.
 
 You can read BOLT 02 first for the flow, then BOLT 03 when you need to know exactly what gets signed. Or keep them side by side. They were meant to be a pair.
+
+**In this chapter**
+
+- BOLT 02 — Peer protocol for channel management
+- BOLT 03 — Bitcoin transactions and scripts
