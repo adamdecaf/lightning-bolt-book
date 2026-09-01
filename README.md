@@ -4,7 +4,9 @@ The [Lightning Network Specifications (BOLTs)](https://github.com/lightning/bolt
 
 BOLTs are written for implementers and numbered as a catalog. This project leaves that text alone, wraps it with a pedagogical reading order, and builds an ebook from the result: connect, open a channel, route a payment, settle on-chain.
 
-The book is compiled by Adam Shannon. The BOLTs are written by their original authors.
+The book is compiled by Adam Shannon. The BOLTs are written by their original authors. Cover image by [@stl1988](https://github.com/stl1988), generated with Seedream v4.
+
+![The web reader, with a chapter list on the left and BOLT 0 on the right](images/web-reader.png)
 
 ## Get the book
 
@@ -24,6 +26,14 @@ Chapters, not BOLT numbers:
 6. When channels close — on-chain (05)
 7. Finding the network — DNS bootstrap (10)
 8. Newer work — Simple Taproot Channels
+
+## Other books
+
+Same idea, different specs. The spec text in each book is unchanged from upstream.
+
+- [Nostr Book of NIPs](https://github.com/adamdecaf/nostr-book) ([read](https://nostr-book.org/))
+- [Cashu Book of NUTs](https://github.com/adamdecaf/cashu-nuts-book) ([read](https://adamdecaf.github.io/cashu-nuts-book/))
+- [Bitcoin Book of BIPs](https://github.com/adamdecaf/bitcoin-bips-book) ([read](https://adamdecaf.github.io/bitcoin-bips-book/))
 
 ## Contributing
 
