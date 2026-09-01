@@ -8,6 +8,7 @@ The book is compiled by Adam Shannon. The BOLTs are written by their original au
 
 ## Get the book
 
+- Website: [adamdecaf.github.io/lightning-bolt-book](https://adamdecaf.github.io/lightning-bolt-book/)
 - [ePUB](https://github.com/adamdecaf/lightning-bolt-book/raw/master/lightning-bolt-book.epub)
 - [PDF](https://github.com/adamdecaf/lightning-bolt-book/raw/master/lightning-bolt-book.pdf)
 
