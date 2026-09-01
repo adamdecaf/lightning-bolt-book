@@ -14,7 +14,7 @@ jobs:
     runs-on: macos-latest
     steps:
     - name: Check out code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v7
 
     - name: Install Dependencies
       run: |
@@ -41,5 +41,9 @@ jobs:
         git config user.email "support@github.com"
 
         git add -A lightning-bolt-book.* ./include/git.md
-        git commit -m "chore: automated publishing"
-        git push origin master
+        if git diff --cached --quiet; then
+          echo "No published book changes"
+        else
+          git commit -m "chore: automated publishing"
+          git push origin master
+        fi
