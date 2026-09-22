@@ -666,10 +666,9 @@ BOLTs</title>
       </ul></li>
       <li>If it is the final node:
       <ul>
-      <li>MUST treat <code>total_msat</code> as if it were equal to
-      <code>amt_to_forward</code> if it is not present.</li>
       <li>MUST return an error if:
       <ul>
+      <li><code>total_msat</code> is not present</li>
       <li>incoming <code>amount_msat</code> &lt;
       <code>amt_to_forward</code>.</li>
       <li>incoming <code>cltv_expiry</code> &lt;

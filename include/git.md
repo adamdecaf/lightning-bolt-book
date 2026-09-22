@@ -3,15 +3,12 @@
 This book was built from the following commit of [lightning/bolts](https://github.com/lightning/bolts). If something here disagrees with upstream, upstream wins.
 
 ```
-commit 152897261850d93c4f4597f39cf22d7d22d6ede6
-Author: Joost Jager <joost.jager@gmail.com>
-Date:   Wed Aug 26 08:50:01 2026 +0200
+commit 1aadb719b4007c4cea0ba6e36b08c4fb53788dee
+Merge: 1528972 807aaf8
+Author: Olaoluwa Osuntokun <laolu32@gmail.com>
+Date:   Mon Sep 21 10:24:56 2026 -0700
 
-    Limit attributable return fields to 32 KiB (#1349)
+    Merge pull request #1355 from SomberNight/202608_bolt04_total_msat_assumed
     
-    Cap failure return packets and fulfillment payloads at 32 KiB to
-    reserve room for attribution data and future extensions.
-    
-    Truncate oversized legacy failure packets when forwarding, while
-    treating oversized fulfillment payloads as protocol violations.
+    BOLT 4: clarify final onion payload must always contain total_msat
 ```
