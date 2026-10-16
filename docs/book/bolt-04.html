@@ -836,63 +836,69 @@ BOLTs</title>
       two reader sections here.</p>
       <p>The writer of a <code>blinded_path</code>:</p>
       <ul>
-      <li>MUST create a viable path to itself (<span
-      class="math inline">$`N_r`$</span>) i.e. <span
-      class="math inline">$`N_0 \rightarrow N_1 \rightarrow ...
-      \rightarrow N_r`$</span>.</li>
-      <li>MUST set <code>first_node_id</code> to <span
-      class="math inline">$`N_0`$</span></li>
+      <li>MUST create a viable path to itself
+      (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>N</mi><mi>r</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`N_r`</annotation></semantics></math>)
+      i.e. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>N</mi><mn>0</mn></msub><mo>→</mo><msub><mi>N</mi><mn>1</mn></msub><mo>→</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>→</mo><msub><mi>N</mi><mi>r</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`N_0 \rightarrow N_1 \rightarrow ... \rightarrow N_r`</annotation></semantics></math>.</li>
+      <li>MUST set <code>first_node_id</code> to
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>N</mi><mn>0</mn></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`N_0`</annotation></semantics></math></li>
       <li>MUST create a series of ECDH shared secrets for each node in
       the route using the following algorithm:
       <ul>
-      <li><span class="math inline">$`e_0 \leftarrow
-      \{0;1\}^{256}`$</span> (<span class="math inline">$`e_0`$</span>
+      <li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>e</mi><mn>0</mn></msub><mo>←</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>;</mo><mn>1</mn><msup><mo stretchy="false" form="postfix">}</mo><mn>256</mn></msup><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`e_0 \leftarrow \{0;1\}^{256}`</annotation></semantics></math>
+      (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>e</mi><mn>0</mn></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`e_0`</annotation></semantics></math>
       SHOULD be obtained via CSPRNG)</li>
-      <li><span class="math inline">$`E_0 = e_0 \cdot G`$</span></li>
+      <li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>E</mi><mn>0</mn></msub><mo>=</mo><msub><mi>e</mi><mn>0</mn></msub><mo>⋅</mo><mi>G</mi><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`E_0 = e_0 \cdot G`</annotation></semantics></math></li>
       <li>For every node in the route:
       <ul>
-      <li>let <span class="math inline">$`N_i = k_i * G`$</span> be the
-      <code>node_id</code> (<span class="math inline">$`k_i`$</span> is
-      <span class="math inline">$`N_i`$</span>’s private key)</li>
-      <li><span class="math inline">$`ss_i = SHA256(e_i * N_i) =
-      SHA256(k_i * E_i)`$</span> (ECDH shared secret known only by <span
-      class="math inline">$`N_r`$</span> and <span
-      class="math inline">$`N_i`$</span>)</li>
-      <li><span class="math inline">$`rho_i = HMAC256(\text{"rho"},
-      ss_i)`$</span> (key used to encrypt
-      <code>encrypted_recipient_data</code> for <span
-      class="math inline">$`N_i`$</span> by <span
-      class="math inline">$`N_r`$</span>)</li>
-      <li><span class="math inline">$`e_{i+1} = SHA256(E_i || ss_i) *
-      e_i`$</span> (ephemeral private path key, only known by <span
-      class="math inline">$`N_r`$</span>)</li>
-      <li><span class="math inline">$`E_{i+1} = SHA256(E_i || ss_i) *
-      E_i`$</span> (<code>path_key</code>. NB: <span
-      class="math inline">$`N_i`$</span> MUST NOT learn <span
-      class="math inline">$`e_i`$</span>)</li>
+      <li>let
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>N</mi><mi>i</mi></msub><mo>=</mo><msub><mi>k</mi><mi>i</mi></msub><mo>*</mo><mi>G</mi><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`N_i = k_i * G`</annotation></semantics></math>
+      be the <code>node_id</code>
+      (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>k</mi><mi>i</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`k_i`</annotation></semantics></math>
+      is
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>N</mi><mi>i</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`N_i`</annotation></semantics></math>’s
+      private key)</li>
+      <li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><mi>s</mi><msub><mi>s</mi><mi>i</mi></msub><mo>=</mo><mi>S</mi><mi>H</mi><mi>A</mi><mn>256</mn><mo stretchy="false" form="prefix">(</mo><msub><mi>e</mi><mi>i</mi></msub><mo>*</mo><msub><mi>N</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>S</mi><mi>H</mi><mi>A</mi><mn>256</mn><mo stretchy="false" form="prefix">(</mo><msub><mi>k</mi><mi>i</mi></msub><mo>*</mo><msub><mi>E</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`ss_i = SHA256(e_i * N_i) = SHA256(k_i * E_i)`</annotation></semantics></math>
+      (ECDH shared secret known only by
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>N</mi><mi>r</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`N_r`</annotation></semantics></math>
+      and
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>N</mi><mi>i</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`N_i`</annotation></semantics></math>)</li>
+      <li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><mi>r</mi><mi>h</mi><msub><mi>o</mi><mi>i</mi></msub><mo>=</mo><mi>H</mi><mi>M</mi><mi>A</mi><mi>C</mi><mn>256</mn><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">&quot;rho&quot;</mtext><mo>,</mo><mi>s</mi><msub><mi>s</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`rho_i = HMAC256(\text{&quot;rho&quot;}, ss_i)`</annotation></semantics></math>
+      (key used to encrypt <code>encrypted_recipient_data</code> for
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>N</mi><mi>i</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`N_i`</annotation></semantics></math>
+      by
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>N</mi><mi>r</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`N_r`</annotation></semantics></math>)</li>
+      <li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>e</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mi>S</mi><mi>H</mi><mi>A</mi><mn>256</mn><mo stretchy="false" form="prefix">(</mo><msub><mi>E</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>s</mi><msub><mi>s</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>*</mo><msub><mi>e</mi><mi>i</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`e_{i+1} = SHA256(E_i || ss_i) * e_i`</annotation></semantics></math>
+      (ephemeral private path key, only known by
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>N</mi><mi>r</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`N_r`</annotation></semantics></math>)</li>
+      <li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>E</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mi>S</mi><mi>H</mi><mi>A</mi><mn>256</mn><mo stretchy="false" form="prefix">(</mo><msub><mi>E</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>s</mi><msub><mi>s</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>*</mo><msub><mi>E</mi><mi>i</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`E_{i+1} = SHA256(E_i || ss_i) * E_i`</annotation></semantics></math>
+      (<code>path_key</code>. NB:
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>N</mi><mi>i</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`N_i`</annotation></semantics></math>
+      MUST NOT learn
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>e</mi><mi>i</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`e_i`</annotation></semantics></math>)</li>
       </ul></li>
       </ul></li>
-      <li>MUST set <code>first_path_key</code> to <span
-      class="math inline">$`E_0`$</span></li>
-      <li>MUST create a series of blinded node IDs <span
-      class="math inline">$`B_i`$</span> for each node using the
-      following algorithm:
+      <li>MUST set <code>first_path_key</code> to
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>E</mi><mn>0</mn></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`E_0`</annotation></semantics></math></li>
+      <li>MUST create a series of blinded node IDs
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>B</mi><mi>i</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`B_i`</annotation></semantics></math>
+      for each node using the following algorithm:
       <ul>
-      <li><span class="math inline">$`B_i =
-      HMAC256(\text{"blinded\_node\_id"}, ss_i) * N_i`$</span> (blinded
-      <code>node_id</code> for <span class="math inline">$`N_i`$</span>,
-      private key known only by <span
-      class="math inline">$`N_i`$</span>)</li>
+      <li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>B</mi><mi>i</mi></msub><mo>=</mo><mi>H</mi><mi>M</mi><mi>A</mi><mi>C</mi><mn>256</mn><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">&quot;blinded_node_id&quot;</mtext><mo>,</mo><mi>s</mi><msub><mi>s</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>*</mo><msub><mi>N</mi><mi>i</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`B_i = HMAC256(\text{&quot;blinded\_node\_id&quot;}, ss_i) * N_i`</annotation></semantics></math>
+      (blinded <code>node_id</code> for
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>N</mi><mi>i</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`N_i`</annotation></semantics></math>,
+      private key known only by
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>N</mi><mi>i</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`N_i`</annotation></semantics></math>)</li>
       <li>MUST set <code>blinded_node_id</code> for each
-      <code>blinded_path_hop</code> in <code>path</code> to <span
-      class="math inline">$`B_i`$</span></li>
+      <code>blinded_path_hop</code> in <code>path</code> to
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>B</mi><mi>i</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`B_i`</annotation></semantics></math></li>
       </ul></li>
-      <li>MAY replace <span class="math inline">$`E_{i+1}`$</span> with
-      a different value, but if it does:
+      <li>MAY replace
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>E</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`E_{i+1}`</annotation></semantics></math>
+      with a different value, but if it does:
       <ul>
       <li>MUST set
-      <code>encrypted_data_tlv[i].next_path_key_override</code> to <span
-      class="math inline">$`E_{i+1}`$</span></li>
+      <code>encrypted_data_tlv[i].next_path_key_override</code> to
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>E</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`E_{i+1}`</annotation></semantics></math></li>
       </ul></li>
       <li>MAY store private data in
       <code>encrypted_data_tlv[r].path_id</code> to verify that the
@@ -900,9 +906,10 @@ BOLTs</title>
       <li>SHOULD add padding data to ensure all
       <code>encrypted_data_tlv[i]</code> have the same length</li>
       <li>MUST encrypt each <code>encrypted_data_tlv[i]</code> with
-      ChaCha20-Poly1305 using the corresponding <span
-      class="math inline">$`rho_i`$</span> key and an all-zero nonce to
-      produce <code>encrypted_recipient_data[i]</code></li>
+      ChaCha20-Poly1305 using the corresponding
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><mi>r</mi><mi>h</mi><msub><mi>o</mi><mi>i</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`rho_i`</annotation></semantics></math>
+      key and an all-zero nonce to produce
+      <code>encrypted_recipient_data[i]</code></li>
       <li>MAY add additional “dummy” hops at the end of the path (which
       it will ignore on receipt) to obscure the path length.</li>
       </ul>
@@ -924,16 +931,15 @@ BOLTs</title>
       <ul>
       <li>MUST compute:
       <ul>
-      <li><span class="math inline">$`ss_i = SHA256(k_i * E_i)`$</span>
+      <li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><mi>s</mi><msub><mi>s</mi><mi>i</mi></msub><mo>=</mo><mi>S</mi><mi>H</mi><mi>A</mi><mn>256</mn><mo stretchy="false" form="prefix">(</mo><msub><mi>k</mi><mi>i</mi></msub><mo>*</mo><msub><mi>E</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`ss_i = SHA256(k_i * E_i)`</annotation></semantics></math>
       (standard ECDH)</li>
-      <li><span class="math inline">$`b_i =
-      HMAC256(\text{"blinded\_node\_id"}, ss_i) * k_i`$</span></li>
-      <li><span class="math inline">$`rho_i = HMAC256(\text{"rho"},
-      ss_i)`$</span></li>
+      <li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>b</mi><mi>i</mi></msub><mo>=</mo><mi>H</mi><mi>M</mi><mi>A</mi><mi>C</mi><mn>256</mn><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">&quot;blinded_node_id&quot;</mtext><mo>,</mo><mi>s</mi><msub><mi>s</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>*</mo><msub><mi>k</mi><mi>i</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`b_i = HMAC256(\text{&quot;blinded\_node\_id&quot;}, ss_i) * k_i`</annotation></semantics></math></li>
+      <li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><mi>r</mi><mi>h</mi><msub><mi>o</mi><mi>i</mi></msub><mo>=</mo><mi>H</mi><mi>M</mi><mi>A</mi><mi>C</mi><mn>256</mn><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">&quot;rho&quot;</mtext><mo>,</mo><mi>s</mi><msub><mi>s</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`rho_i = HMAC256(\text{&quot;rho&quot;}, ss_i)`</annotation></semantics></math></li>
       </ul></li>
       <li>MUST decrypt the <code>encrypted_recipient_data</code> field
-      using <span class="math inline">$`rho_i`$</span> as a key using
-      ChaCha20-Poly1305 and an all-zero nonce key.</li>
+      using
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><mi>r</mi><mi>h</mi><msub><mi>o</mi><mi>i</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`rho_i`</annotation></semantics></math>
+      as a key using ChaCha20-Poly1305 and an all-zero nonce key.</li>
       <li>If the <code>encrypted_recipient_data</code> field is missing,
       cannot be decrypted into an <code>encrypted_data_tlv</code> or
       contains unknown even fields:
@@ -947,8 +953,9 @@ BOLTs</title>
       </ul></li>
       <li>Otherwise:
       <ul>
-      <li>MUST use <span class="math inline">$`E_{i+1} = SHA256(E_i ||
-      ss_i) * E_i`$</span> as the next <code>path_key</code></li>
+      <li>MUST use
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>E</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mi>S</mi><mi>H</mi><mi>A</mi><mn>256</mn><mo stretchy="false" form="prefix">(</mo><msub><mi>E</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>s</mi><msub><mi>s</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>*</mo><msub><mi>E</mi><mi>i</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`E_{i+1} = SHA256(E_i || ss_i) * E_i`</annotation></semantics></math>
+      as the next <code>path_key</code></li>
       </ul></li>
       <li>MUST forward the onion and include the next
       <code>path_key</code> in the lightning message for the next
@@ -966,9 +973,10 @@ BOLTs</title>
       random public keys while letting senders choose what data they put
       in the onion for each hop. Blinded routes are also reusable in
       some cases (e.g. onion messages).</p>
-      <p>Each node in the blinded route needs to receive <span
-      class="math inline">$`E_i`$</span> to be able to decrypt the onion
-      and the <code>encrypted_recipient_data</code> payload.</p>
+      <p>Each node in the blinded route needs to receive
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>E</mi><mi>i</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`E_i`</annotation></semantics></math>
+      to be able to decrypt the onion and the
+      <code>encrypted_recipient_data</code> payload.</p>
       <p>When concatenating two blinded routes generated by different
       nodes, the last node of the first route needs to know the first
       <code>path_key</code> of the second route: the
@@ -985,12 +993,12 @@ BOLTs</title>
       by them. Otherwise a malicious sender could create different
       blinded routes to all the nodes that they suspect could be the
       real recipient and try them until one accepts the message. The
-      recipient can protect against that by storing <span
-      class="math inline">$`E_r`$</span> and the context (e.g. a
-      <code>payment_hash</code>), and verifying that they match when
-      receiving the onion. Otherwise, to avoid additional storage cost,
-      it can put some private context information in the
-      <code>path_id</code> field (e.g. the
+      recipient can protect against that by storing
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><msub><mi>E</mi><mi>r</mi></msub><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`E_r`</annotation></semantics></math>
+      and the context (e.g. a <code>payment_hash</code>), and verifying
+      that they match when receiving the onion. Otherwise, to avoid
+      additional storage cost, it can put some private context
+      information in the <code>path_id</code> field (e.g. the
       <code>payment_preimage</code>) and verify that when receiving the
       onion. Note that it’s important to use private information in that
       case, that senders cannot have access to.</p>
@@ -1406,26 +1414,27 @@ func NewOnionPacket(paymentPath []*btcec.PublicKey, sessionKey *btcec.PrivateKey
       <code>path_key</code> is specified: - Calculate the
       <code>blinding_ss</code> as ECDH(<code>path_key</code>,
       <code>node_privkey</code>). - Either: - Tweak
-      <code>public_key</code> by multiplying by <span
-      class="math inline">$`HMAC256(\text{"blinded\_node\_id"},
-      blinding\_ss)`$</span>. - or (equivalently): - Tweak its own
-      <code>node_privkey</code> below by multiplying by <span
-      class="math inline">$`HMAC256(\text{"blinded\_node\_id"},
-      blinding\_ss)`$</span>. - Derive the shared secret <code>ss</code>
-      as ECDH(<code>public_key</code>, <code>node_privkey</code>) (see
-      <a href="bolt-04.html#bolt-04-shared-secret">Shared Secret</a>). -
-      Derive <code>mu</code> as <span
-      class="math inline">$`HMAC256(\text{"mu"}, ss)`$</span> (see <a
-      href="bolt-04.html#bolt-04-key-generation">Key Generation</a>). -
-      Derive the HMAC as <span class="math inline">$`HMAC256(mu,
-      hop\_payloads || associated\_data)`$</span>. - MUST use a constant
-      time comparison of the computed HMAC and <code>hmac</code>. - If
-      the computed HMAC and <code>hmac</code> differ: - MUST abort
-      processing the packet and fail. - Derive <code>rho</code> as <span
-      class="math inline">$`HMAC256(\text{"rho"}, ss)`$</span> (see <a
-      href="bolt-04.html#bolt-04-key-generation">Key Generation</a>). -
-      Derive <code>bytestream</code> of twice the length of
-      <code>hop_payloads</code> using <code>rho</code> (see <a
+      <code>public_key</code> by multiplying by
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><mi>H</mi><mi>M</mi><mi>A</mi><mi>C</mi><mn>256</mn><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">&quot;blinded_node_id&quot;</mtext><mo>,</mo><mi>b</mi><mi>l</mi><mi>i</mi><mi>n</mi><mi>d</mi><mi>i</mi><mi>n</mi><mi>g</mi><mi>_</mi><mi>s</mi><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`HMAC256(\text{&quot;blinded\_node\_id&quot;}, blinding\_ss)`</annotation></semantics></math>.
+      - or (equivalently): - Tweak its own <code>node_privkey</code>
+      below by multiplying by
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><mi>H</mi><mi>M</mi><mi>A</mi><mi>C</mi><mn>256</mn><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">&quot;blinded_node_id&quot;</mtext><mo>,</mo><mi>b</mi><mi>l</mi><mi>i</mi><mi>n</mi><mi>d</mi><mi>i</mi><mi>n</mi><mi>g</mi><mi>_</mi><mi>s</mi><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`HMAC256(\text{&quot;blinded\_node\_id&quot;}, blinding\_ss)`</annotation></semantics></math>.
+      - Derive the shared secret <code>ss</code> as
+      ECDH(<code>public_key</code>, <code>node_privkey</code>) (see <a
+      href="bolt-04.html#bolt-04-shared-secret">Shared Secret</a>). -
+      Derive <code>mu</code> as
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><mi>H</mi><mi>M</mi><mi>A</mi><mi>C</mi><mn>256</mn><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">&quot;mu&quot;</mtext><mo>,</mo><mi>s</mi><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`HMAC256(\text{&quot;mu&quot;}, ss)`</annotation></semantics></math>
+      (see <a href="bolt-04.html#bolt-04-key-generation">Key
+      Generation</a>). - Derive the HMAC as
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><mi>H</mi><mi>M</mi><mi>A</mi><mi>C</mi><mn>256</mn><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mi>u</mi><mo>,</mo><mi>h</mi><mi>o</mi><mi>p</mi><mi>_</mi><mi>p</mi><mi>a</mi><mi>y</mi><mi>l</mi><mi>o</mi><mi>a</mi><mi>d</mi><mi>s</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>a</mi><mi>s</mi><mi>s</mi><mi>o</mi><mi>c</mi><mi>i</mi><mi>a</mi><mi>t</mi><mi>e</mi><mi>d</mi><mi>_</mi><mi>d</mi><mi>a</mi><mi>t</mi><mi>a</mi><mo stretchy="false" form="postfix">)</mo><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`HMAC256(mu, hop\_payloads || associated\_data)`</annotation></semantics></math>.
+      - MUST use a constant time comparison of the computed HMAC and
+      <code>hmac</code>. - If the computed HMAC and <code>hmac</code>
+      differ: - MUST abort processing the packet and fail. - Derive
+      <code>rho</code> as
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><mi>H</mi><mi>M</mi><mi>A</mi><mi>C</mi><mn>256</mn><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">&quot;rho&quot;</mtext><mo>,</mo><mi>s</mi><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`HMAC256(\text{&quot;rho&quot;}, ss)`</annotation></semantics></math>
+      (see <a href="bolt-04.html#bolt-04-key-generation">Key
+      Generation</a>). - Derive <code>bytestream</code> of twice the
+      length of <code>hop_payloads</code> using <code>rho</code> (see <a
       href="pseudo-random-byte-stream">Pseudo Random Byte Stream</a>). -
       Set <code>unwrapped_payloads</code> to the XOR of
       <code>hop_payloads</code> and <code>bytestream</code>. - Remove a
@@ -1445,8 +1454,9 @@ func NewOnionPacket(paymentPath []*btcec.PublicKey, sessionKey *btcec.PrivateKey
       <code>unwrapped_payloads</code> is smaller than
       <code>hop_payloads</code>: - MUST abort processing the packet and
       fail. - If <code>next_hmac</code> is not all-zero (not the final
-      node): - Derive <code>blinding_tweak</code> as <span
-      class="math inline">$`SHA256(public\_key || ss)`$</span> (see <a
+      node): - Derive <code>blinding_tweak</code> as
+      <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">‘</mtext><mi>S</mi><mi>H</mi><mi>A</mi><mn>256</mn><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mi>u</mi><mi>b</mi><mi>l</mi><mi>i</mi><mi>c</mi><mi>_</mi><mi>k</mi><mi>e</mi><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>s</mi><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mtext mathvariant="normal">‘</mtext></mrow><annotation encoding="application/x-tex">`SHA256(public\_key || ss)`</annotation></semantics></math>
+      (see <a
       href="bolt-04.html#bolt-04-blinding-ephemeral-onion-keys">Blinding
       Ephemeral Onion Keys</a>). - SHOULD forward an onion to the next
       peer with: - <code>version</code> set to 0. -
@@ -2756,9 +2766,10 @@ value = 070809</code></pre>
       <h3 data-number="7.1.32" id="bolt-04-references">References</h3>
       <h3 data-number="7.1.33" id="bolt-04-authors">Authors</h3>
       <p>[ FIXME: ]</p>
-      <p><img src="media/34101c8bb1c1253f61bed847b98016c2c0f519af.png"
-      title="License CC-BY" alt="Creative Commons License" /> <br> This
-      work is licensed under a <a
+      <p><span class="image placeholder"
+      data-original-image-src="https://i.creativecommons.org/l/by/4.0/88x31.png"
+      data-original-image-title="License CC-BY">Creative Commons
+      License</span> <br> This work is licensed under a <a
       href="http://creativecommons.org/licenses/by/4.0/">Creative
       Commons Attribution 4.0 International License</a>.</p>
       <nav class="pager pager-bottom" aria-label="Nearby sections">
