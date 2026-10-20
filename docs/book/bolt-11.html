@@ -322,13 +322,14 @@ Book of BOLTs</title>
       <code>payment_preimage</code> that will be given in return for
       payment. - MUST include either exactly one <code>d</code> or
       exactly one <code>h</code> field. - if <code>d</code> is included:
-      - MUST set <code>d</code> to a valid UTF-8 string. - SHOULD use a
-      complete description of the purpose of the payment. - if
-      <code>h</code> is included: - MUST make the preimage of the hashed
-      description in <code>h</code> available through some unspecified
-      means. - SHOULD use a complete description of the purpose of the
-      payment. - MAY include one <code>x</code> field. - if
-      <code>x</code> is included: - MUST use the minimum
+      - MUST set <code>d</code> to a valid UTF-8 string as defined in <a
+      href="bolt-01.html#bolt-01-unicode-characters-validation">Bolt
+      #1</a>. - SHOULD use a complete description of the purpose of the
+      payment. - if <code>h</code> is included: - MUST make the preimage
+      of the hashed description in <code>h</code> available through some
+      unspecified means. - SHOULD use a complete description of the
+      purpose of the payment. - MAY include one <code>x</code> field. -
+      if <code>x</code> is included: - MUST use the minimum
       <code>data_length</code> possible, i.e. no leading 0
       field-elements. - SHOULD include one <code>c</code> field
       (<code>min_final_cltv_expiry_delta</code>). - MUST set
@@ -366,29 +367,34 @@ Book of BOLTs</title>
       unknown <code>version</code>. - MUST fail the payment if any field
       with fixed <code>data_length</code> (<code>p</code>,
       <code>h</code>, <code>s</code>, <code>n</code>) does not have the
-      correct length (52, 52, 52, 53). - MUST fail the payment if
-      neither a <code>d</code> field nor a <code>h</code> field is
-      present, or if both are present. - if the <code>9</code> field
-      contains unknown <em>odd</em> bits that are non-zero: - MUST
-      ignore the bit. - if the <code>9</code> field contains unknown
-      <em>even</em> bits that are non-zero: - MUST fail the payment. -
-      SHOULD indicate the unknown bit to the user. - MUST check that the
-      SHA2 256-bit hash in the <code>h</code> field exactly matches the
-      hashed description. - if a valid <code>n</code> field is provided:
-      - MUST use the <code>n</code> field to validate the signature
-      instead of performing public-key recovery. - If the signature is
-      not compliant with the low-S standard rule<sup><a
+      correct length (52, 52, 52, 53). - MUST fail the payment unless
+      exactly one <code>p</code> field and exactly one <code>s</code>
+      field are present. - MUST fail the payment if neither a
+      <code>d</code> field nor a <code>h</code> field is present, or if
+      both are present. - MUST fail the payment if the <code>d</code>
+      field is not a valid UTF-8 string as defined in <a
+      href="bolt-01.html#bolt-01-unicode-characters-validation">Bolt
+      #1</a>. - if the <code>9</code> field contains unknown
+      <em>odd</em> bits that are non-zero: - MUST ignore the bit. - if
+      the <code>9</code> field contains unknown <em>even</em> bits that
+      are non-zero: - MUST fail the payment. - SHOULD indicate the
+      unknown bit to the user. - MUST check that the SHA2 256-bit hash
+      in the <code>h</code> field exactly matches the hashed
+      description. - if a valid <code>n</code> field is provided: - MUST
+      use the <code>n</code> field to validate the signature instead of
+      performing public-key recovery. - If the signature is not
+      compliant with the low-S standard rule<sup><a
       href="https://github.com/bitcoin/bitcoin/pull/6769">low-S</a></sup>:
       - MUST fail the payment - otherwise: - MUST perform ECDSA
       public-key recovery and accept both high-S and low-S signatures. -
       if a valid <code>s</code> field is not provided: - MUST fail the
       payment. - otherwise: - MUST use the <code>s</code> field as <a
-      href="bolt-04.html#bolt-04-tlv_payload-payload-format"><code>payment_secret</code></a>
+      href="bolt-04.html#bolt-04-payload-format"><code>payment_secret</code></a>
       - if the <code>c</code> field
       (<code>min_final_cltv_expiry_delta</code>) is not provided: - MUST
       use an expiry delta of at least 18 when making the payment - if an
       <code>m</code> field is provided: - MUST use that as <a
-      href="bolt-04.html#bolt-04-tlv_payload-payload-format"><code>payment_metadata</code></a>
+      href="bolt-04.html#bolt-04-payload-format"><code>payment_metadata</code></a>
       - if a <code>c</code>, <code>x</code>, or <code>9</code> field is
       provided which has a non-minimal <code>data_length</code>
       (i.e. begins with 0 field elements): - SHOULD treat the invoice as
@@ -405,6 +411,12 @@ Book of BOLTs</title>
       <p>The <code>m</code> field allows metadata to be attached to the
       payment. This supports applications where the recipient doesn’t
       keep any context for the payment.</p>
+      <p>Requiring exactly one <code>p</code> and exactly one
+      <code>s</code> field prevents different components from selecting
+      different payment hashes or payment secrets from the same signed
+      invoice. A missing <code>p</code> field leaves nothing to pay to,
+      so it is rejected outright rather than left to each
+      implementation.</p>
       <p>The <code>n</code> field can be used to explicitly specify the
       destination node ID, instead of requiring public-key recovery.</p>
       <p>The <code>x</code> field gives warning as to when a payment
@@ -510,14 +522,17 @@ Book of BOLTs</title>
       understands for payment. - MAY use the sequence of channels,
       specified by the <code>r</code> field, to route to the payee. -
       SHOULD consider the fee amount and payment timeout before
-      initiating payment. - SHOULD use the first <code>p</code> field as
-      the payment hash.</p>
+      initiating payment. - MUST use the <code>p</code> field as the
+      payment hash.</p>
       <p>A payee: - after the <code>timestamp</code> plus
       <code>expiry</code> has passed: - SHOULD NOT accept a payment.</p>
       <h3 data-number="8.1.14"
       id="bolt-11-implementation">Implementation</h3>
       <p>https://github.com/rustyrussell/lightning-payencode</p>
       <h3 data-number="8.1.15" id="bolt-11-examples">Examples</h3>
+      <p>Machine-readable invoice test vectors for all examples below
+      are provided in <a
+      href="bolt11/invoice-test.json">invoice-test.json</a>.</p>
       <p>NB: all the following examples are signed with
       <code>priv_key</code>=<code>e126f68f7eafcc8b74f54d269fe206be715000f94dac067d1c04a8ca3b2db734</code>.
       All invoices contain a
@@ -1116,7 +1131,7 @@ Book of BOLTs</title>
       <h4
       id="bolt-11-same-but-including-fields-which-must-be-ignored.">Same,
       but including fields which must be ignored.</h4>
-      <p>lnbc25m1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdq5vdhkven9v5sxyetpdeessp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs9q5sqqqqqqqqqqqqqqqqsgq2qrqqqfppnqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqppnqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpp4qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhpnqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhp4qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqspnqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsp4qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqnp5qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqnpkqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz599y53s3ujmcfjp5xrdap68qxymkqphwsexhmhr8wdz5usdzkzrse33chw6dlp3jhuhge9ley7j2ayx36kawe7kmgg8sv5ugdyusdcqzn8z9x</p>
+      <p>lnbc25m1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdq5vdhkven9v5sxyetpdeessp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs9q5sqqqqqqqqqqqqqqqqsgq2qrqqqfppnqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcsenjd934c02h7v9deyju0t43ye2y38nd2h2wr0ykzlqs7v873jkvvg36kfwwmp9lftrn8a3gp4ax52zpvyc7quffgjjj7avx7we9zcp3dce9d</p>
       </blockquote>
       <p>Breakdown:</p>
       <ul>
@@ -1158,57 +1173,9 @@ Book of BOLTs</title>
       <li><code>nqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq</code>: fallback
       address type 19 (ignored)</li>
       </ul></li>
-      <li><code>p</code>: payment hash
-      <ul>
-      <li><code>pn</code>: <code>data_length</code> (<code>p</code> = 1,
-      <code>n</code> = 19; 1 * 32 + 19 == 51) (ignored)</li>
-      <li><code>qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq</code></li>
-      </ul></li>
-      <li><code>p</code>: payment hash
-      <ul>
-      <li><code>p4</code>: <code>data_length</code> (<code>p</code> = 1,
-      <code>4</code> = 21; 1 * 32 + 21 == 53) (ignored)</li>
-      <li><code>qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq</code></li>
-      </ul></li>
-      <li><code>h</code>: hash of description
-      <ul>
-      <li><code>pn</code>: <code>data_length</code> (<code>p</code> = 1,
-      <code>n</code> = 19; 1 * 32 + 19 == 51) (ignored)</li>
-      <li><code>qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq</code></li>
-      </ul></li>
-      <li><code>h</code>: hash of description
-      <ul>
-      <li><code>p4</code>: <code>data_length</code> (<code>p</code> = 1,
-      <code>4</code> = 21; 1 * 32 + 21 == 53) (ignored)</li>
-      <li><code>qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq</code></li>
-      </ul></li>
-      <li><code>s</code>: payment secret
-      <ul>
-      <li><code>pn</code>: <code>data_length</code> (<code>p</code> = 1,
-      <code>n</code> = 19; 1 * 32 + 19 == 51) (ignored)</li>
-      <li><code>qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq</code></li>
-      </ul></li>
-      <li><code>s</code>: payment secret
-      <ul>
-      <li><code>p4</code>: <code>data_length</code> (<code>p</code> = 1,
-      <code>4</code> = 21; 1 * 32 + 21 == 53) (ignored)</li>
-      <li><code>qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq</code></li>
-      </ul></li>
-      <li><code>n</code>: node id
-      <ul>
-      <li><code>p5</code>: <code>data_length</code> (<code>p</code> = 1,
-      <code>5</code> = 20; 1 * 32 + 20 == 52) (ignored)</li>
-      <li><code>qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq</code></li>
-      </ul></li>
-      <li><code>n</code>: node id
-      <ul>
-      <li><code>pk</code>: <code>data_length</code> (<code>p</code> = 1,
-      <code>k</code> = 22; 1 * 32 + 22 == 54) (ignored)</li>
-      <li><code>qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq</code></li>
-      </ul></li>
-      <li><code>z599y53s3ujmcfjp5xrdap68qxymkqphwsexhmhr8wdz5usdzkzrse33chw6dlp3jhuhge9ley7j2ayx36kawe7kmgg8sv5ugdyusdcq</code>:
+      <li><code>csenjd934c02h7v9deyju0t43ye2y38nd2h2wr0ykzlqs7v873jkvvg36kfwwmp9lftrn8a3gp4ax52zpvyc7quffgjjj7avx7we9zcp</code>:
       signature</li>
-      <li><code>zn8z9x</code>: Bech32 checksum</li>
+      <li><code>3dce9d</code>: Bech32 checksum</li>
       </ul>
       <blockquote>
       <h4
@@ -1357,6 +1324,38 @@ Book of BOLTs</title>
       signature</li>
       <li><code>3y7372</code>: Bech32 checksum</li>
       </ul>
+      <blockquote>
+      <h4 id="bolt-11-same-but-with-an-n-field-of-invalid-length.">Same,
+      but with an <code>n</code> field of invalid length.</h4>
+      <p>lnbc25m1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdq5vdhkven9v5sxyetpdeessp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs9q5sqqqqqqqqqqqqqqqqsgqnp5qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqf9dt6rzhc3ynq3u7axf4xc3zaw3fy2kyqal6n86nh5j3lhgcutdjzhvswudd5l8ay9acgrrpd2e6vw9sdqxq6dzq983sgt7dpxk5wacqacdc2y</p>
+      </blockquote>
+      <p>This invoice is invalid because its <code>n</code> field has a
+      <code>data_length</code> of 52 rather than 53. It is otherwise
+      valid, so a reader that skips the field instead of failing would
+      accept it.</p>
+      <blockquote>
+      <h4 id="bolt-11-missing-required-p-field.">Missing required
+      <code>p</code> field.</h4>
+      <p>lnbc25m1pvjluezdq5vdhkven9v5sxyetpdeessp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs9q5sqqqqqqqqqqqqqqqqsgqjy08jd52dtj25pefkh0enc54lxtjtr8wnum2msrq2d8uztp9vhhpccq93ljpff0kkjgzkzcp2czlyenjphf6upazjlc8uxw7za0ynusqrfhg8u</p>
+      </blockquote>
+      <blockquote>
+      <h4
+      id="bolt-11-two-distinct-p-fields-in-an-otherwise-valid-invoice.">Two
+      distinct p fields in an otherwise valid invoice.</h4>
+      <p>lnbc1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqpp5lllllllllllllllllllllllllllllllllllllllllllllllllllsdpyv36hqmrfvdshgefqwpshjmt9de6zq6rpwd5qsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs9g3f93cqturay6zk2fyfcmeflphlzew9wfq0n5nf9hqnlwxthtzqcljcuurljyd2vngkya5hndakf33ghly97qm5nc3umj7jep22nfsq3nr0w8</p>
+      </blockquote>
+      <blockquote>
+      <h4
+      id="bolt-11-the-same-p-field-twice-in-an-otherwise-valid-invoice.">The
+      same p field twice in an otherwise valid invoice.</h4>
+      <p>lnbc1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdpyv36hqmrfvdshgefqwpshjmt9de6zq6rpwd5qsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygs29wywgsx0wpv9t045f683nj97nnjk55wt0exe3eassl6smx60nk9hlaae8vhe0hwv25s6fthcwqkxsw2hpjeptxz7xujtexa3l8jrkcqyn037r</p>
+      </blockquote>
+      <blockquote>
+      <h4
+      id="bolt-11-two-distinct-s-fields-in-an-otherwise-valid-invoice.">Two
+      distinct s fields in an otherwise valid invoice.</h4>
+      <p>lnbc25m1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdq5vdhkven9v5sxyetpdeessp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygssp5yg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3q9q5sqqqqqqqqqqqqqqqqsgqy23f0q2mhf0mnhfesz2lt3j9n8negrgr2a7wd554fppeqnvwz9749j2zmp2jd2sfvn3lzlajhalyxlv2h6ccs6p3yg7wg43y22cazccp5vkkte</p>
+      </blockquote>
       <blockquote>
       <h4 id="bolt-11-bech32-checksum-is-invalid.">Bech32 checksum is
       invalid.</h4>

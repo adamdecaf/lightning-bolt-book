@@ -610,7 +610,7 @@ of BOLTs</title>
       next portion of the protocol. For channel establishment v2,
       exchanging commitment transactions.</p>
       <p>For the <code>minimum fee</code> calculation see <a
-      href="bolt-03.html#bolt-03-calculating-fees-for-collaborative-transaction-construction">BOLT
+      href="bolt-03.html#bolt-03-calculating-fees-for-collaborative-transactions">BOLT
       #3</a>.</p>
       <p>The maximum inputs and outputs are capped at 252. This
       effectively fixes the byte size of the input and output counts on
@@ -1590,8 +1590,8 @@ of BOLTs</title>
       <p><code>funding_feerate_perkw</code> indicates the fee rate that
       the opening node will pay for the funding transaction in satoshi
       per 1000-weight, as described in <a
-      href="bolt-03.html#bolt-03-appendix-f-dual-funded-transaction-test-vectors">BOLT-3,
-      Appendix F</a>.</p>
+      href="bolt-03.html#bolt-03-appendix-g-dual-funded-transaction-test-vectors">BOLT-3,
+      Appendix G</a>.</p>
       <p><code>locktime</code> is the locktime for the funding
       transaction.</p>
       <p>The receiving node, if the <code>locktime</code> or
@@ -3371,7 +3371,7 @@ of BOLTs</title>
       maximum message size. It also ensures that a single penalty
       transaction can spend the entire commitment transaction, as
       calculated in <a
-      href="bolt-05.html#bolt-05-penalty-transaction-weight-calculation">BOLT
+      href="bolt-05.html#bolt-05-penalty-transactions-weight-calculation">BOLT
       #5</a>. When using <code>zero_fee_commitments</code>, we further
       limit <code>max_accepted_htlcs</code> to 114 because v3
       transactions are limited to 10kvB, which decreases the number of
@@ -3650,8 +3650,7 @@ of BOLTs</title>
       replacement, or insignificant or multiple fee changes). - MUST
       include one <code>htlc_signature</code> for every HTLC transaction
       corresponding to the ordering of the commitment transaction (see
-      <a
-      href="bolt-03.html#bolt-03-transaction-input-and-output-ordering">BOLT
+      <a href="bolt-03.html#bolt-03-transaction-output-ordering">BOLT
       #3</a>). - MUST set <code>funding_txid</code> to the funding
       transaction spent by this commitment transaction. - if it has not
       recently received a message from the remote node: - SHOULD use

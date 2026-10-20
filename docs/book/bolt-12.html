@@ -399,29 +399,33 @@ Signature = SIG(&quot;lightninginvoicesignature&quot;, Root, nodekey)</code></pr
       three-letter code. - MUST specify <code>offer_amount</code> in the
       currency unit adjusted by the ISO 4217 exponent (e.g. USD cents).
       - MUST set <code>offer_description</code> to a complete
-      description of the purpose of the payment. - otherwise: - MUST NOT
-      set <code>offer_amount</code> - MUST NOT set
-      <code>offer_currency</code> - MAY set
+      description of the purpose of the payment as defined in <a
+      href="bolt-01.html#bolt-01-unicode-characters-validation">Bolt
+      #1</a>. - otherwise: - MUST NOT set <code>offer_amount</code> -
+      MUST NOT set <code>offer_currency</code> - MAY set
       <code>offer_description</code> - MAY set
       <code>offer_metadata</code> for its own use. - if it supports
       bolt12 offer features: - MUST set
       <code>offer_features</code>.<code>features</code> to the bitmap of
-      bolt12 features. - if the offer expires: - MUST set
-      <code>offer_absolute_expiry</code> <code>seconds_from_epoch</code>
-      to the number of seconds after midnight 1 January 1970, UTC that
-      invoice_request should not be attempted. - if it is connected only
-      by private channels: - MUST include <code>offer_paths</code>
-      containing one or more paths to the node from publicly reachable
-      nodes. - otherwise: - MAY include <code>offer_paths</code>. - if
-      it includes <code>offer_paths</code>: - MAY set
-      <code>offer_issuer_id</code>. - otherwise: - MUST set
-      <code>offer_issuer_id</code> to the node’s public key to request
-      the invoice from. - if it sets <code>offer_issuer</code>: - SHOULD
-      set it to identify the issuer of the invoice clearly. - if it
-      includes a domain name: - SHOULD begin it with either user@domain
-      or domain - MAY follow with a space and more text - if it can
-      supply more than one item for a single invoice: - if the maximum
-      quantity is known: - MUST set that maximum in
+      bolt12 features. - MUST minimally-encode
+      <code>offer_features</code>.<code>features</code>. - if the offer
+      expires: - MUST set <code>offer_absolute_expiry</code>
+      <code>seconds_from_epoch</code> to the number of seconds after
+      midnight 1 January 1970, UTC that invoice_request should not be
+      attempted. - if it is connected only by private channels: - MUST
+      include <code>offer_paths</code> containing one or more paths to
+      the node from publicly reachable nodes. - otherwise: - MAY include
+      <code>offer_paths</code>. - if it includes
+      <code>offer_paths</code>: - MAY set <code>offer_issuer_id</code>.
+      - otherwise: - MUST set <code>offer_issuer_id</code> to the node’s
+      public key to request the invoice from. - if it sets
+      <code>offer_issuer</code>: - SHOULD set it to identify the issuer
+      of the invoice clearly, using characters as defined in <a
+      href="bolt-01.html#bolt-01-unicode-characters-validation">Bolt
+      #1</a>. - if it includes a domain name: - SHOULD begin it with
+      either user@domain or domain - MAY follow with a space and more
+      text - if it can supply more than one item for a single invoice: -
+      if the maximum quantity is known: - MUST set that maximum in
       <code>offer_quantity_max</code>. - MUST NOT set
       <code>offer_quantity_max</code> to 0. - otherwise: - MUST set
       <code>offer_quantity_max</code> to 0. - otherwise: - MUST NOT set
@@ -434,14 +438,20 @@ Signature = SIG(&quot;lightninginvoicesignature&quot;, Root, nodekey)</code></pr
       <code>offer_features</code> contains unknown <em>even</em> bits
       that are non-zero: - MUST NOT respond to the offer. - SHOULD
       indicate the unknown bit to the user. - if
-      <code>offer_chains</code> is not set: - if the node does not
-      accept bitcoin invoices: - MUST NOT respond to the offer -
-      otherwise: (<code>offer_chains</code> is set): - if the node does
-      not accept invoices for at least one of the <code>chains</code>: -
-      MUST NOT respond to the offer - if <code>offer_amount</code> is
-      set and <code>offer_description</code> is not set: - MUST NOT
-      respond to the offer. - if <code>offer_amount</code> is set and is
-      not greater than zero: - MUST NOT respond to the offer. - if
+      <code>offer_features</code> is not minimally-encoded: - MUST NOT
+      respond to the offer. - if <code>offer_chains</code> is not set: -
+      if the node does not accept bitcoin invoices: - MUST NOT respond
+      to the offer - otherwise: (<code>offer_chains</code> is set): - if
+      the node does not accept invoices for at least one of the
+      <code>chains</code>: - MUST NOT respond to the offer - if
+      <code>offer_description</code> or <code>offer_issuer</code> are
+      NOT valid UTF-8 strings as defined in <a
+      href="bolt-01.html#bolt-01-unicode-characters-validation">Bolt
+      #1</a>: - MUST NOT respond to the offer. - if
+      <code>offer_amount</code> is set and
+      <code>offer_description</code> is not set: - MUST NOT respond to
+      the offer. - if <code>offer_amount</code> is set and is not
+      greater than zero: - MUST NOT respond to the offer. - if
       <code>offer_currency</code> is set and <code>offer_amount</code>
       is not set: - MUST NOT respond to the offer. - if neither
       <code>offer_issuer_id</code> nor <code>offer_paths</code> are set:
@@ -703,8 +713,13 @@ Signature = SIG(&quot;lightninginvoicesignature&quot;, Root, nodekey)</code></pr
       <code>invreq_chain</code>). - if it supports bolt12 invoice
       request features: - MUST set
       <code>invreq_features</code>.<code>features</code> to the bitmap
-      of features. - if it received the offer from which it constructed
-      this <code>invoice_request</code> using BIP 353 resolution: - MUST
+      of features. - MUST minimally-encode
+      <code>invreq_features</code>.<code>features</code>. - if it
+      includes <code>invreq_payer_note</code>: - MUST set it to a valid
+      UTF-8 string as defined in <a
+      href="bolt-01.html#bolt-01-unicode-characters-validation">Bolt
+      #1</a>. - if it received the offer from which it constructed this
+      <code>invoice_request</code> using BIP 353 resolution: - MUST
       include <code>invreq_bip_353_name</code> with, - <code>name</code>
       set to the post-₿, pre-@ part of the BIP 353 HRN, -
       <code>domain</code> set to the post-@ part of the BIP 353 HRN.</p>
@@ -716,8 +731,10 @@ Signature = SIG(&quot;lightninginvoicesignature&quot;, Root, nodekey)</code></pr
       contains unknown <em>odd</em> bits that are non-zero: - MUST
       ignore the bit. - if <code>invreq_features</code> contains unknown
       <em>even</em> bits that are non-zero: - MUST reject the invoice
-      request. - MUST reject the invoice request if
-      <code>signature</code> is not correct as detailed in <a
+      request. - if <code>invreq_features</code> is not
+      minimally-encoded: - MUST reject the invoice request. - MUST
+      reject the invoice request if <code>signature</code> is not
+      correct as detailed in <a
       href="bolt-12.html#bolt-12-signature-calculation">Signature
       Calculation</a> using the <code>invreq_payer_id</code>. - if
       <code>num_hops</code> is 0 in any <code>blinded_path</code> in
@@ -769,12 +786,15 @@ Signature = SIG(&quot;lightninginvoicesignature&quot;, Root, nodekey)</code></pr
       invoice request if bitcoin is not a supported chain. - otherwise:
       - MUST reject the invoice request if
       <code>invreq_chain</code>.<code>chain</code> is not a supported
-      chain. - if <code>invreq_bip_353_name</code> is present: - MUST
-      reject the invoice request if <code>name</code> or
-      <code>domain</code> contain any bytes which are not
-      <code>0</code>-<code>9</code>, <code>a</code>-<code>z</code>,
-      <code>A</code>-<code>Z</code>, <code>-</code>, <code>_</code> or
-      <code>.</code>.</p>
+      chain. - if <code>invreq_payer_note</code> is present: - if it is
+      NOT a valid UTF-8 string as defined in <a
+      href="bolt-01.html#bolt-01-unicode-characters-validation">Bolt
+      #1</a>: - MUST reject the invoice request. - if
+      <code>invreq_bip_353_name</code> is present: - MUST reject the
+      invoice request if <code>name</code> or <code>domain</code>
+      contain any bytes which are not <code>0</code>-<code>9</code>,
+      <code>a</code>-<code>z</code>, <code>A</code>-<code>Z</code>,
+      <code>-</code>, <code>_</code> or <code>.</code>.</p>
       <h3 data-number="8.2.16" id="bolt-12-rationale-2">Rationale</h3>
       <p><code>invreq_metadata</code> might typically contain
       information about the derivation of the
@@ -1043,8 +1063,10 @@ Signature = SIG(&quot;lightninginvoicesignature&quot;, Root, nodekey)</code></pr
       <code>signature</code>. - MUST set <code>sig</code> to the
       signature using <code>invoice_node_id</code> as described in <a
       href="bolt-12.html#bolt-12-signature-calculation">Signature
-      Calculation</a>. - if it requires multiple parts to pay the
-      invoice: - MUST set
+      Calculation</a>. - if it includes <code>invoice_features</code>: -
+      MUST minimally-encode
+      <code>invoice_features</code>.<code>features</code>. - if it
+      requires multiple parts to pay the invoice: - MUST set
       <code>invoice_features</code>.<code>features</code> bit
       <code>MPP/compulsory</code> - or if it allows multiple parts to
       pay the invoice: - MUST set
@@ -1086,16 +1108,17 @@ Signature = SIG(&quot;lightninginvoicesignature&quot;, Root, nodekey)</code></pr
       <em>odd</em> bits that are non-zero: - MUST ignore the bit. - if
       <code>invoice_features</code> contains unknown <em>even</em> bits
       that are non-zero: - MUST reject the invoice. - if
-      <code>invoice_relative_expiry</code> is present: - MUST reject the
-      invoice if the current time since 1970-01-01 UTC is greater than
-      <code>invoice_created_at</code> plus
-      <code>seconds_from_creation</code>. - otherwise: - MUST reject the
-      invoice if the current time since 1970-01-01 UTC is greater than
-      <code>invoice_created_at</code> plus 7200. - MUST reject the
-      invoice if <code>invoice_paths</code> is not present or is empty.
-      - MUST reject the invoice if <code>num_hops</code> is 0 in any
-      <code>blinded_path</code> in <code>invoice_paths</code>. - MUST
-      reject the invoice if <code>invoice_blindedpay</code> is not
+      <code>invoice_features</code> is not minimally-encoded: - MUST
+      reject the invoice. - if <code>invoice_relative_expiry</code> is
+      present: - MUST reject the invoice if the current time since
+      1970-01-01 UTC is greater than <code>invoice_created_at</code>
+      plus <code>seconds_from_creation</code>. - otherwise: - MUST
+      reject the invoice if the current time since 1970-01-01 UTC is
+      greater than <code>invoice_created_at</code> plus 7200. - MUST
+      reject the invoice if <code>invoice_paths</code> is not present or
+      is empty. - MUST reject the invoice if <code>num_hops</code> is 0
+      in any <code>blinded_path</code> in <code>invoice_paths</code>. -
+      MUST reject the invoice if <code>invoice_blindedpay</code> is not
       present. - MUST reject the invoice if
       <code>invoice_blindedpay</code> does not contain exactly one
       <code>blinded_payinfo</code> per

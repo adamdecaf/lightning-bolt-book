@@ -1435,10 +1435,10 @@ func NewOnionPacket(paymentPath []*btcec.PublicKey, sessionKey *btcec.PrivateKey
       (see <a href="bolt-04.html#bolt-04-key-generation">Key
       Generation</a>). - Derive <code>bytestream</code> of twice the
       length of <code>hop_payloads</code> using <code>rho</code> (see <a
-      href="pseudo-random-byte-stream">Pseudo Random Byte Stream</a>). -
-      Set <code>unwrapped_payloads</code> to the XOR of
-      <code>hop_payloads</code> and <code>bytestream</code>. - Remove a
-      <code>bigsize</code> from the front of
+      href="bolt-04.html#bolt-04-pseudo-random-byte-stream">Pseudo
+      Random Byte Stream</a>). - Set <code>unwrapped_payloads</code> to
+      the XOR of <code>hop_payloads</code> and <code>bytestream</code>.
+      - Remove a <code>bigsize</code> from the front of
       <code>unwrapped_payloads</code> as <code>payload_length</code>. If
       that is malformed: - MUST abort processing the packet and fail. -
       If the <code>payload_length</code> is less than two: - MUST abort

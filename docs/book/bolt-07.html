@@ -178,7 +178,6 @@ BOLTs</title>
       <li><a
       href="bolt-07.html#bolt-07-recommendations-for-routing">Recommendations
       for Routing</a></li>
-      <li><a href="#bolt-07-references">References</a></li>
       </ul>
       <h3 data-number="7.2.2"
       id="bolt-07-definition-of-short_channel_id">Definition of
@@ -383,8 +382,7 @@ BOLTs</title>
       <code>h</code> (using <code>bitcoin_key_1</code> and
       <code>bitcoin_key_2</code>’s respective secrets). - MUST set
       <code>features</code> based on what features were negotiated for
-      this channel, according to <a
-      href="bolt-09.html#bolt-09-assigned-features-flags">BOLT #9</a> -
+      this channel, according to <a href="bolt-09.html">BOLT #9</a> -
       MUST set <code>len</code> to the minimum length required to hold
       the <code>features</code> bits it sets. - If the funding
       transaction has less than 6 confirmations: - MUST NOT send
@@ -396,9 +394,11 @@ BOLTs</title>
       MAY close the connection. - MUST ignore the message. - if there is
       an unknown even bit in the <code>features</code> field: - MUST NOT
       attempt to route messages through the channel. - if the
-      <code>short_channel_id</code>’s output does NOT correspond to a
-      P2WSH (using <code>bitcoin_key_1</code> and
-      <code>bitcoin_key_2</code>, as specified in <a
+      <code>features</code> field is NOT minimally-encoded: - MUST
+      ignore the message. - if the <code>short_channel_id</code>’s
+      output does NOT correspond to a P2WSH (using
+      <code>bitcoin_key_1</code> and <code>bitcoin_key_2</code>, as
+      specified in <a
       href="bolt-03.html#bolt-03-funding-transaction-output">BOLT
       #3</a>) OR the output is spent: - MUST ignore the message. - if
       the specified <code>chain_hash</code> is unknown to the receiver:
@@ -527,7 +527,9 @@ BOLTs</title>
       graphs. - Note: the first byte of <code>rgb_color</code> is the
       red value, the second byte is the green value, and the last byte
       is the blue value. - MUST set <code>alias</code> to a valid UTF-8
-      string, with any <code>alias</code> trailing-bytes equal to 0. -
+      string as defined in <a
+      href="bolt-01.html#bolt-01-unicode-characters-validation">Bolt
+      #1</a>, with any <code>alias</code> trailing-bytes equal to 0. -
       SHOULD fill <code>addresses</code> with an address descriptor for
       each public network address that expects incoming connections. -
       MUST set <code>addrlen</code> to the number of bytes in
@@ -538,11 +540,10 @@ BOLTs</title>
       address descriptor with <code>port</code> equal to 0. - SHOULD
       ensure <code>ipv4_addr</code> AND <code>ipv6_addr</code> are
       routable addresses. - MUST set <code>features</code> according to
-      <a href="bolt-09.html#bolt-09-assigned-features-flags">BOLT #9</a>
-      - SHOULD set <code>flen</code> to the minimum length required to
-      hold the <code>features</code> bits it sets. - SHOULD not announce
-      a Tor v2 onion service. - MUST NOT announce more than one
-      <code>type 5</code> DNS hostname.</p>
+      <a href="bolt-09.html">BOLT #9</a> - MUST set <code>flen</code> to
+      the minimum length required to hold the <code>features</code> bits
+      it sets. - SHOULD not announce a Tor v2 onion service. - MUST NOT
+      announce more than one <code>type 5</code> DNS hostname.</p>
       <p>The receiving node: - if <code>node_id</code> is NOT a valid
       compressed public key: - SHOULD send a <code>warning</code>. - MAY
       close the connection. - MUST NOT process the message further. - if
@@ -556,11 +557,16 @@ BOLTs</title>
       a <a href="bolt-11.html">BOLT #11</a> invoice which does not have
       the same bit(s) set, MUST NOT attempt to send payments <em>to</em>
       the node. - MUST NOT route a payment <em>through</em> the node. -
-      SHOULD ignore the first <code>address descriptor</code> that does
-      NOT match the types defined above. - if <code>addrlen</code> is
-      insufficient to hold the address descriptors of the known types: -
-      SHOULD send a <code>warning</code>. - MAY close the connection. -
-      if <code>port</code> is equal to 0: - SHOULD ignore that address
+      if <code>features</code> is NOT minimally-encoded: - MUST ignore
+      the message. - if <code>alias</code> is NOT a valid UTF-8 string
+      as defined in <a
+      href="bolt-01.html#bolt-01-unicode-characters-validation">Bolt
+      #1</a>: - MUST ignore the message. - SHOULD ignore the first
+      <code>address descriptor</code> that does NOT match the types
+      defined above. - if <code>addrlen</code> is insufficient to hold
+      the address descriptors of the known types: - SHOULD send a
+      <code>warning</code>. - MAY close the connection. - if
+      <code>port</code> is equal to 0: - SHOULD ignore that address
       descriptor. - if <code>node_id</code> is NOT previously known from
       a <code>channel_announcement</code> message, OR if
       <code>timestamp</code> is NOT greater than the last-received
@@ -614,6 +620,45 @@ BOLTs</title>
       </ul>
       <p>Don’t be like the school of <a
       href="https://xkcd.com/327/">Little Bobby Tables</a>.</p>
+      <h4 data-number="7.2.5.4" id="bolt-07-test-vectors">Test
+      vectors</h4>
+      <p>The following test vectors are <code>node_announcement</code>s
+      with aliases that contain illegal unicode characters.
+      Implementations MUST ignore these announcements.</p>
+      <p>The signature was created with the following private key:</p>
+      <pre class="code"><code>priv=0x1111111111111111111111111111111111111111111111111111111111111111</code></pre>
+      <pre class="json"><code>[
+  {
+    &quot;name&quot;: &quot;Alias containing a NULL (Cc) character&quot;,
+    &quot;alias&quot;: &quot;lightning\u0000rocks&quot;,
+    &quot;announcement&quot;: &quot;01013a3f3d28c538ae96c5c032e534fedea3e452261ebaea82952456c2a9f7477e7151575ce7e36f2f5b38bb27210c8fbdc72dcd92a99b3df47536ad61d8699cbb1c000067b64b00034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa0102036c696768746e696e6700726f636b7300000000000000000000000000000000000000&quot;
+  },
+  {
+    &quot;name&quot;: &quot;Alias containing a DEL (Cc) character&quot;,
+    &quot;alias&quot;: &quot;lightning\u007frocks&quot;,
+    &quot;announcement&quot;: &quot;01011ac8fe92da793fe0b1472616b6cb4346e746fe72d68c1865f79a5bc6ad371e824ce9c91b83b23a5a65eb6c6e07cd4bd84bec6892958d969559b6059424ac2894000067b64b00034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa0102036c696768746e696e677f726f636b7300000000000000000000000000000000000000&quot;
+  },
+  {
+    &quot;name&quot;: &quot;Alias containing a zero-width space (Cf)&quot;,
+    &quot;alias&quot;: &quot;lightning\u200brocks&quot;,
+    &quot;announcement&quot;: &quot;0101eb387795f9b453da150cd16b683595ecacc94f6b41d74e1908eef1b8782a6e606e8b9e073ba4fc7eccef5d450faa52e99582db9c620df3fa6f33598220a3b886000067b64b00034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa0102036c696768746e696e67e2808b726f636b730000000000000000000000000000000000&quot;
+  },
+  {
+    &quot;name&quot;: &quot;Alias containing a private use character (Co)&quot;,
+    &quot;alias&quot;: &quot;lightning\ue000rocks&quot;,
+    &quot;announcement&quot;: &quot;0101f3575e38f455655b2e54ea4df8b1745c13938db744d6607fc142cf5be2ce619326ffa6a3f48ac764c7d3d20055fc855f515b77b74c26451862732a8a1f39da1f000067b64b00034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa0102036c696768746e696e67ee8080726f636b730000000000000000000000000000000000&quot;
+  },
+  {
+    &quot;name&quot;: &quot;Alias containing a line separator (Zl)&quot;,
+    &quot;alias&quot;: &quot;lightning\u2028rocks&quot;,
+    &quot;announcement&quot;: &quot;0101e7965f97f2e32a81eff5f58936b1d201b3c62f33c67d383ecf5b7cdba062fd0f6357d2914084953042ec18f30ae37cf3a65ac2a5839337b53004043398c7d88a000067b64b00034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa0102036c696768746e696e67e280a8726f636b730000000000000000000000000000000000&quot;
+  },
+  {
+    &quot;name&quot;: &quot;Alias containing a paragraph separator (Zp)&quot;,
+    &quot;alias&quot;: &quot;lightning\u2029rocks&quot;,
+    &quot;announcement&quot;: &quot;0101911380dd0f32972e3d4cf79973b8d857966069538517e93bf9a543ed540763037195800c1f33b45ed908dbe45b66e08941ea61c6e9247a2d03e459ea5127f761000067b64b00034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa0102036c696768746e696e67e280a9726f636b730000000000000000000000000000000000&quot;
+  }
+]</code></pre>
       <h3 data-number="7.2.6"
       id="bolt-07-the-channel_update-message">The
       <code>channel_update</code> Message</h3>

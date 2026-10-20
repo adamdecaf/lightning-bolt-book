@@ -440,7 +440,7 @@
       href="bolt-00.html#bolt-00-glossary-and-terminology-guide">BOLT
       #0</a>)</li>
       <li><code>channel_id</code>: a 32-byte channel_id (see <a
-      href="bolt-02.html#bolt-02-definition-of-channel-id">BOLT
+      href="bolt-02.html#bolt-02-definition-of-channel_id">BOLT
       #2</a>)</li>
       <li><code>sha256</code>: a 32-byte SHA2-256 hash</li>
       <li><code>signature</code>: a 64-byte bitcoin Elliptic Curve
@@ -454,7 +454,7 @@
       standard</a>)</li>
       <li><code>short_channel_id</code>: an 8 byte value identifying a
       channel (see <a
-      href="bolt-07.html#bolt-07-definition-of-short-channel-id">BOLT
+      href="bolt-07.html#bolt-07-definition-of-short_channel_id">BOLT
       #7</a>)</li>
       <li><code>sciddir_or_pubkey</code>: either 9 or 33 bytes
       referencing or identifying a node, respectively
@@ -469,7 +469,7 @@
       <code>node_id_2</code> in the <code>channel_announcement</code>
       for <code>short_channel_id</code> (see <a
       href="bolt-07.html#bolt-07-the-channel_announcement-message">BOLT
-      #7</a></li>
+      #7</a>)</li>
       </ul></li>
       <li>if the first byte is 2 or 3, then the value is a 33-byte
       <code>point</code></li>
@@ -478,11 +478,23 @@
       similar to Bitcoin’s CompactSize encoding, but big-endian.
       Described in <a
       href="bolt-01.html#bolt-01-appendix-a-bigsize-test-vectors">BigSize</a>.</li>
-      <li><code>utf8</code>: a byte as part of a UTF-8 string. A writer
-      MUST ensure an array of these is a valid UTF-8 string, a reader
-      MAY reject any messages containing an array of these which is not
-      a valid UTF-8 string.</li>
+      <li><code>utf8</code>: a byte as part of a UTF-8 string.</li>
       </ul>
+      <h4 data-number="5.2.6.1"
+      id="bolt-01-unicode-characters-validation">Unicode characters
+      validation</h4>
+      <p>In many messages, we accept a subset of UTF-8, defined as
+      arrays of the <code>utf8</code> fundamental type (see the section
+      above).</p>
+      <p>A writer: - MUST NOT include characters from the unicode
+      “Other” (C*) General Category. - MUST NOT include the “Zl” (line
+      separator) or “Zp” (paragraph separator) character.</p>
+      <p>A reader: - MUST reject a UTF-8 string if: - it is not a valid
+      UTF-8 string. - it contains characters in the unicode “Cc”, “Cf”,
+      “Cs”, or “Co” General Category. - it contains the “Zl” (line
+      separator) or “Zp” (paragraph separator) character. - MAY reject a
+      UTF-8 string if: - it contains characters in the Unicode “Cn”
+      (unassigned) General Category.</p>
       <h3 data-number="5.2.7" id="bolt-01-setup-messages">Setup
       Messages</h3>
       <h4 data-number="5.2.7.1" id="bolt-01-the-init-message">The
